@@ -14,14 +14,14 @@
 <meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，系统不可用 故障现场当时观察到的主要异常现象包括MySQL出现大量的慢查询，MySQL服务器的system cpu time非常高，MySQL的性能急剧下降，业务接口响应时间飙高，业务系统大量出现获取不到DB connection的异常日志。  慢查询  慢">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/slow-query.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/sql-qps.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/cpu.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/sql-qps.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/db-cs-republish.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/spin-lock-info.jpg">
-<meta property="og:updated_time" content="2017-07-26T04:56:29.000Z">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/db-cs-republish.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/spin-lock-info.jpg">
+<meta property="og:updated_time" content="2017-07-26T05:02:09.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL CPU sys飙高">
 <meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，系统不可用 故障现场当时观察到的主要异常现象包括MySQL出现大量的慢查询，MySQL服务器的system cpu time非常高，MySQL的性能急剧下降，业务接口响应时间飙高，业务系统大量出现获取不到DB connection的异常日志。  慢查询  慢">
@@ -117,16 +117,16 @@
 <li>system cpu time 飙高</li>
 </ul>
 <p>MySQL服务器的sy平时不到5%，故障期间飙高到77%；us和load均未波动，非常低</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
 <ul>
 <li>MySQL的性能急剧下降</li>
 </ul>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
 <ul>
 <li>业务接口</li>
 </ul>
 <p>业务服务接口的QPS未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
 <h2 id="临时解决方案"><a href="#临时解决方案" class="headerlink" title="临时解决方案"></a>临时解决方案</h2><p>先快速恢复故障，将影响降到最低，于是采取了以下两个措施</p>
 <ol>
 <li><p>直接kill慢查询</p>
@@ -162,15 +162,15 @@
 <ul>
 <li><p>sysbench</p>
 <p>压测时，sys cpu time飙高，sys飙高到78%</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
 </li>
 <li><p>vmstat</p>
 <p>上下文切换的次数变化并不大，但运行队列r变化比较大，因为是并发压测引起的</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
 </li>
 <li><p>perf top</p>
 <p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，说明</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
 </li>
 <li><p>pstack</p>
 <p>通过分析pstack获取到的MySQL进程的线程堆栈信息，可以发现和SQL执行相关的<code>__lll_lock_wait_private()</code>调用量比较大</p>
@@ -207,7 +207,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/" data-id="cj5kjhrxy0006y2sh3yoqjd7g" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/" data-id="cj5kjn1490005yish6s8gtao0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/问题剖析/">问题剖析</a></li></ul>

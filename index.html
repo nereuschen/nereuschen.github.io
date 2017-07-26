@@ -108,16 +108,16 @@
 <li>system cpu time 飙高</li>
 </ul>
 <p>MySQL服务器的sy平时不到5%，故障期间飙高到77%；us和load均未波动，非常低</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
 <ul>
 <li>MySQL的性能急剧下降</li>
 </ul>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
 <ul>
 <li>业务接口</li>
 </ul>
 <p>业务服务接口的QPS未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
 <h2 id="临时解决方案"><a href="#临时解决方案" class="headerlink" title="临时解决方案"></a>临时解决方案</h2><p>先快速恢复故障，将影响降到最低，于是采取了以下两个措施</p>
 <ol>
 <li><p>直接kill慢查询</p>
@@ -153,15 +153,15 @@
 <ul>
 <li><p>sysbench</p>
 <p>压测时，sys cpu time飙高，sys飙高到78%</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
 </li>
 <li><p>vmstat</p>
 <p>上下文切换的次数变化并不大，但运行队列r变化比较大，因为是并发压测引起的</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
 </li>
 <li><p>perf top</p>
 <p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，说明</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
 </li>
 <li><p>pstack</p>
 <p>通过分析pstack获取到的MySQL进程的线程堆栈信息，可以发现和SQL执行相关的<code>__lll_lock_wait_private()</code>调用量比较大</p>
@@ -198,7 +198,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/" data-id="cj5kjhrxy0006y2sh3yoqjd7g" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/" data-id="cj5kjn1490005yish6s8gtao0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/问题剖析/">问题剖析</a></li></ul>
@@ -236,7 +236,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/24/fdsfds/" data-id="cj5kjhrxs0005y2sh8yde576m" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/24/fdsfds/" data-id="cj5kjn14c0006yishb9zb4pcz" class="article-share-link">Share</a>
       
       
     </footer>
@@ -277,7 +277,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/21/GO调度机制/" data-id="cj5kjhrxf0000y2shbcscc2bc" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/21/GO调度机制/" data-id="cj5kjn13z0000yish0bpxx0k3" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AWK/">AWK</a></li></ul>
@@ -320,7 +320,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/21/Hello-Hexo/" data-id="cj5kjhry2000ay2shyrwubjc5" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/21/Hello-Hexo/" data-id="cj5kjn14f000ayishrh0cjngz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Spark/">Spark</a></li></ul>
@@ -461,7 +461,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kjhrxj0001y2sh25nwx41k" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kjn1480004yisho0fo80j6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/问题剖析/">问题剖析</a></li></ul>
@@ -505,7 +505,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/06/21/mysql-problems/" data-id="cj5kjhrxo0004y2sh2hc7qa9l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/06/21/mysql-problems/" data-id="cj5kjn1440001yish41k3qwpu" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式/">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/索引/">索引</a></li></ul>
@@ -544,7 +544,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/06/21/AB/" data-id="cj5kjhry4000cy2shd8x94qww" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/06/21/AB/" data-id="cj5kjn14i000cyishmtojdbvq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/AI-Spark/">AI,Spark</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/分布式/">分布式</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/大数据/">大数据</a></li></ul>
