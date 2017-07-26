@@ -3,18 +3,29 @@
 <head>
   <meta charset="utf-8">
   
-  <title>titlesubtitle</title>
+  <title>MySQL CPU sys飙高 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Keep it Simple and Stupid">
-<meta property="og:type" content="website">
-<meta property="og:title" content="titlesubtitle">
-<meta property="og:url" content="https://nereuschen.github.io/index.html">
+  <meta name="description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，最终导致系统不可用 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。">
+<meta name="keywords" content="MySQL,Troubleshooting,sysbench">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL CPU sys飙高">
+<meta property="og:url" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="Keep it Simple and Stupid">
+<meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，最终导致系统不可用 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/sql-qps.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg">
+<meta property="og:updated_time" content="2017-07-26T10:01:29.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="titlesubtitle">
-<meta name="twitter:description" content="Keep it Simple and Stupid">
+<meta name="twitter:title" content="MySQL CPU sys飙高">
+<meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，最终导致系统不可用 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
   
@@ -67,9 +78,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/07/12/MySQL-CPU-sys飙高/" class="article-date">
   <time datetime="2017-07-12T04:33:01.000Z" itemprop="datePublished">2017-07-12</time>
@@ -86,8 +95,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/12/MySQL-CPU-sys飙高/">MySQL CPU sys飙高</a>
+    <h1 class="article-title" itemprop="name">
+      MySQL CPU sys飙高
     </h1>
   
 
@@ -223,11 +232,9 @@
     </footer>
   </div>
   
-</article>
-
-
+    
   
-
+</article>
 
 </section>
         
