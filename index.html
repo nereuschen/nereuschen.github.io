@@ -215,7 +215,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kvov6q0006gdshmekc0he3" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kvudm90004h6she90h9f7i" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Troubleshooting/">Troubleshooting</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -253,7 +253,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h2><h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><h3 id="淘宝双十一"><a href="#淘宝双十一" class="headerlink" title="淘宝双十一"></a>淘宝双十一</h3><p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
+        <h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><h3 id="淘宝双十一"><a href="#淘宝双十一" class="headerlink" title="淘宝双十一"></a>淘宝双十一</h3><p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
 <p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX" alt="天猫限流"></p>
 <h4 id="用户洪峰"><a href="#用户洪峰" class="headerlink" title="用户洪峰"></a>用户洪峰</h4><p>特点：</p>
 <ul>
@@ -431,7 +431,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kvov5y0000gdshj9ds0k1l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kvudm40001h6shoe8btbpt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -469,11 +469,13 @@ threads_running_high_watermark=0时自动设置为max_connections
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg" alt="the wall"><br>&gt;<br>绝境长城（冰与火之歌）</p>
+        <p><img src="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg" alt="绝境长城the wall"></p>
 <p>通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击；</p>
 <p>并发数和QPS是紧密相关的，可以参考<a href="http://en.wikipedia.org/wiki/Little&#39;s_law" target="_blank" rel="external">Little’s Law</a>(律特法则)：L = λW （proven 1961）</p>
-<p>&gt;<br>一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于<br>平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W</p>
-<p>&gt;<br>数学定理（严格的数学推理，非经验公式）<br>排队论的理论</p>
+<blockquote>
+<p>一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于<br>平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W</p>
+<p>数学定理（严格的数学推理，非经验公式）<br>排队论的理论</p>
+</blockquote>
 <h2 id="限流算法"><a href="#限流算法" class="headerlink" title="限流算法"></a>限流算法</h2><p>最粗暴的实现方式是每执行一次delay一定时间，从而达到限制QPS的效果</p>
 <p>比如，我们想以最大的QPS为10去处理1000个业务逻辑，那么代码很可能这么写</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</div><div class="line">    doSomething();</div><div class="line">    Thread.sleep(<span class="number">100</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -612,7 +614,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5kvov6p0005gdshu978qq3l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5kvudm00000h6shh9k5yot7" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>

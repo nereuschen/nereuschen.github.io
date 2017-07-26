@@ -5,22 +5,22 @@
   
   <title>限流技术的应用场景 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="具体应用业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主">
+  <meta name="description" content="业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主要模块">
 <meta name="keywords" content="限流">
 <meta property="og:type" content="article">
 <meta property="og:title" content="限流技术的应用场景">
 <meta property="og:url" content="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="具体应用业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主">
+<meta property="og:description" content="业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主要模块">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX">
 <meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB102reJVXXXXbXXpXXXXXXXXXX">
 <meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1gsqUJVXXXXcyXFXXXXXXXXXX">
 <meta property="og:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1pMjsJVXXXXX0XXXXXXXXXXXX">
-<meta property="og:updated_time" content="2017-07-26T10:39:27.000Z">
+<meta property="og:updated_time" content="2017-07-26T10:41:53.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="限流技术的应用场景">
-<meta name="twitter:description" content="具体应用业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主">
+<meta name="twitter:description" content="业务场景淘宝双十一如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待  用户洪峰特点：  允许访问的速率 爆发量 爆发间隔时间  为了提升用户体验，需要支持爆发量，所以采用令牌桶算法  允许最大的访问速率：b+r爆发持续时间：T=b/(m-2r)爆发量：L=T*r 回调洪峰特点：  有间隔频率 每次调用量大 允许有延时  采用漏桶算法  限流框架分成几个主要模块">
 <meta name="twitter:image" content="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -100,7 +100,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h2><h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><h3 id="淘宝双十一"><a href="#淘宝双十一" class="headerlink" title="淘宝双十一"></a>淘宝双十一</h3><p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
+        <h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><h3 id="淘宝双十一"><a href="#淘宝双十一" class="headerlink" title="淘宝双十一"></a>淘宝双十一</h3><p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
 <p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX" alt="天猫限流"></p>
 <h4 id="用户洪峰"><a href="#用户洪峰" class="headerlink" title="用户洪峰"></a>用户洪峰</h4><p>特点：</p>
 <ul>
@@ -278,7 +278,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kvov5y0000gdshj9ds0k1l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kvudm40001h6shoe8btbpt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
