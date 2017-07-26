@@ -3,18 +3,25 @@
 <head>
   <meta charset="utf-8">
   
-  <title>titlesubtitle</title>
+  <title>限流技术的常见算法及其实现 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Keep it Simple and Stupid">
-<meta property="og:type" content="website">
-<meta property="og:title" content="titlesubtitle">
-<meta property="og:url" content="https://nereuschen.github.io/index.html">
+  <meta name="description" content="&amp;gt;绝境长城（冰与火之歌） 通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961） &amp;gt;一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W &amp;gt;数学定理（严格的数学推理，非经">
+<meta name="keywords" content="限流">
+<meta property="og:type" content="article">
+<meta property="og:title" content="限流技术的常见算法及其实现">
+<meta property="og:url" content="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="Keep it Simple and Stupid">
+<meta property="og:description" content="&amp;gt;绝境长城（冰与火之歌） 通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961） &amp;gt;一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W &amp;gt;数学定理（严格的数学推理，非经">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg">
+<meta property="og:image" content="http://www.jackleitch.com/wp-content/uploads/2010/10/Sliding_Window_Rate_Limiting.png">
+<meta property="og:image" content="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im6.JPG">
+<meta property="og:image" content="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im7.JPG">
+<meta property="og:updated_time" content="2017-07-26T10:38:26.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="titlesubtitle">
-<meta name="twitter:description" content="Keep it Simple and Stupid">
+<meta name="twitter:title" content="限流技术的常见算法及其实现">
+<meta name="twitter:description" content="&amp;gt;绝境长城（冰与火之歌） 通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961） &amp;gt;一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W &amp;gt;数学定理（严格的数学推理，非经">
+<meta name="twitter:image" content="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
   
@@ -67,383 +74,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/07/12/MySQL-CPU-sys飙高/" class="article-date">
-  <time datetime="2017-07-12T04:33:01.000Z" itemprop="datePublished">2017-07-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/存储/">存储</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/12/MySQL-CPU-sys飙高/">MySQL CPU sys飙高</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，最终导致系统不可用</p>
-<h2 id="故障现场"><a href="#故障现场" class="headerlink" title="故障现场"></a>故障现场</h2><hr>
-<p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。</p>
-<ul>
-<li>慢查询</li>
-</ul>
-<p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
-<p>从慢查询日志中看出这个SQL的执行时间是10s，但是平时这个SQL的执行时间都在0.01ms以内</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg" alt="slow query"></p>
-<ul>
-<li>system cpu time 飙高</li>
-</ul>
-<p>MySQL服务器的sy平时不到5%；故障期间飙高到77%，而us和load均未出现波动</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
-<ul>
-<li>MySQL的性能急剧下降</li>
-</ul>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
-<ul>
-<li>业务接口</li>
-</ul>
-<p>业务服务接口的QPS未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
-<h2 id="临时解决方案"><a href="#临时解决方案" class="headerlink" title="临时解决方案"></a>临时解决方案</h2><hr>
-<p>为了快速恢复故障，将影响降到最低，我们采取了以下两个措施</p>
-<ol>
-<li><p>直接kill慢查询</p>
-<p> 借助pt-kill工具直接干掉慢查询（–match-info “SELECT|select” ），但是由于这个SQL的QPS比较高，即使在不断地kill SQL，但是还不断地出现，DB依旧不可用，故障未恢复。悲催了是不是？</p>
-</li>
-<li><p>服务降级</p>
-<p> kill SQL无效，只能下线和这个SQL相关的业务服务接口。将相关的业务服务接口下线后，MySQL服务器的sy逐渐恢复，故障恢复。</p>
-</li>
-</ol>
-<p>故障是否由这条SQL导致呢？这个SQL的嫌疑比较大</p>
-<h2 id="故障排查"><a href="#故障排查" class="headerlink" title="故障排查"></a>故障排查</h2><hr>
-<p>变更往往是导致故障的主要原因，所以我们先看看故障发生之前，发生过哪些变更。经过确认</p>
-<blockquote>
-<p>线上代码未做过任何变更</p>
-<p>MySQL的日常维护未执行过</p>
-<p>业务流量未发生明显变化</p>
-<p>该SQL在线上已经运行过1年多,不是最近新上线的SQL</p>
-<p>网络监控一切正常</p>
-</blockquote>
-<p>因此排除了因变更导致MySQL变慢的情况，由于该业务接口下线后，故障逐渐恢复，所以该SQL存在最大的嫌疑</p>
-<ul>
-<li>slow query分析</li>
-</ul>
-<p>该SQL和表都非常简单，这个表的数据量也不大。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`invoice_push_record`</span> (</div><div class="line"><span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'自增主键'</span>,</div><div class="line"><span class="string">`order_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'订单ID'</span>,</div><div class="line"><span class="string">`invoice_type`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'XXX类型'</span>,</div><div class="line"><span class="string">`create_time`</span> <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</div><div class="line">PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</div><div class="line"><span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`uniq_order_id`</span> (<span class="string">`order_id`</span>),</div><div class="line"><span class="keyword">KEY</span> <span class="string">`idx_create_time_invoice_type`</span> (<span class="string">`create_time`</span>,<span class="string">`invoice_type`</span>)</div><div class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">1</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4 <span class="keyword">COMMENT</span>=<span class="string">'XXX记录表'</span></div></pre></td></tr></table></figure>
-<ul>
-<li>system cpu time高</li>
-</ul>
-<p>查找相关资源，发现在<a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">数据库内核月报</a>里面提及到：当time_zone设置为SYSTEM时，MySQL访问到的timestamp字段都会作时区转换，在进行时区转换时会竞争全局的mutex，当大量并发访问timestamp时，会引起大量竞争mutex，从而导致sy飙高。</p>
-<p>该SQL正好使用到了timestamp，并且线上MySQL的time_zone是<code>SYSTEM</code>，所以很可能是timestamp导致的</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mySQL&gt; show variables like '%time_zone%';     </div><div class="line">+------------------+--------+  </div><div class="line">| Variable_name    | Value  |  </div><div class="line">+------------------+--------+  </div><div class="line">| system_time_zone | CST    |  </div><div class="line">| time_zone        | SYSTEM |  </div><div class="line">+------------------+--------+  </div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时不能确定是timestamp导致的</p>
-<p>初步结论：尚无定论，有可能是timestamp的time_zone导致，待继续排查</p>
-<h2 id="故障重现"><a href="#故障重现" class="headerlink" title="故障重现"></a>故障重现</h2><hr>
-<p>为了保证再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由timestamp的time_zone导致。</p>
-<p>再次上线时，观察到system cpu time飙高，和故障现象一致</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="再次上线"></p>
-<blockquote>
-<p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
-</blockquote>
-<h2 id="原因定位"><a href="#原因定位" class="headerlink" title="原因定位"></a>原因定位</h2><hr>
-<p>  到底是不是time_zone导致，压测一下便知。我们在线下借助sysbench对该SQL进行了压测，该问题立即复现了。</p>
-<ul>
-<li><p>sysbench</p>
-<p>压测时，sys cpu time飙高，sys飙高到78%</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
-</li>
-<li><p>vmstat</p>
-<p>上下文切换的次数变化并不大，但运行队列r变化比较大，因为是并发压测引起的</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
-</li>
-<li><p>perf top</p>
-<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，说明</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
-</li>
-<li><p>pstack</p>
-<p>通过分析pstack获取到的MySQL进程的线程堆栈信息，可以发现和SQL执行相关的<code>__lll_lock_wait_private()</code>调用量比较大</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">45 <span class="comment">#0  0x0000003d6acdf1b3 in poll () from /lib64/libc.so.6</span></div><div class="line">20 <span class="comment">#0  0x0000003d6ace1453 in select () from /lib64/libc.so.6</span></div><div class="line">18 <span class="comment">#0  0x0000003d6a800614 in ?? () from /lib64/libaio.so.1</span></div><div class="line">17 <span class="comment">#0  0x0000003d6acf813e in __lll_lock_wait_private () from /lib64/libc.so.6</span></div><div class="line"> 6 <span class="comment">#0  0x0000003d6b00b98e in pthread_cond_timedwait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span></div><div class="line"> 6 <span class="comment">#0  0x0000003d6b00b5bc in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span></div><div class="line"> 5 <span class="comment">#0  0x0000003d6acf816f in __lll_unlock_wake_private () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6b00f4b5 in sigwait () from /lib64/libpthread.so.0</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6ac9daed in __tz_convert () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6ac33857 in sigwaitinfo () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000000000a51628 in srv_release_threads(srv_thread_type, unsigned long) ()</span></div><div class="line"> 1 <span class="comment">#0  0x0000000000979cca in start_table_io_wait_v1 ()</span></div></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>为什么不是<code>poll()</code>,<code>select()</code>,<code>??()</code>的问题呢？因为通过分析三个方法的调用栈，可以看出它们分别实现了读取网络包，读取DB数据以及异步IO相关的功能，和具体的SQL并无直接关系，所以可以排除这三个方法的嫌疑</p>
-</blockquote>
-<p>  通过分析<code>__lll_lock_wait_private（）</code>的调用栈可以发现，在调用<code>__tz_convert ()</code>时会等待获取锁</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">  Thread 75 (Thread 0x7fbd155b2700 (LWP 63182)):</div><div class="line"><span class="comment">#0  0x0000003d6acf813e in __lll_lock_wait_private () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#1  0x0000003d6ac9dcad in _L_lock_2164 () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#2  0x0000003d6ac9da67 in __tz_convert () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#3  0x000000000078be27 in Time_zone_system::gmt_sec_to_TIME(st_mysql_time*, long) const ()</span></div><div class="line"><span class="comment">#4  0x00000000007ce1b7 in Field_timestampf::get_date_internal(st_mysql_time*) ()</span></div><div class="line"><span class="comment">#5  0x00000000007cb029 in Field_temporal_with_date::val_date_temporal() ()</span></div><div class="line"><span class="comment">#6  0x00000000005e12d0 in get_datetime_value(THD*, Item***, Item**, Item*, bool*) ()</span></div><div class="line"><span class="comment">#7  0x00000000005d4367 in Arg_comparator::compare_datetime() ()</span></div><div class="line"><span class="comment">#8  0x00000000005db942 in Item_func_ge::val_int() ()</span></div><div class="line"><span class="comment">#9  0x00000000005bd1ac in Item::val_bool() ()</span></div><div class="line"><span class="comment">#10 0x00000000005d670a in Item_cond_and::val_int() ()</span></div><div class="line"><span class="comment">#11 0x00000000006cc089 in evaluate_join_record(JOIN*, st_join_table*) ()</span></div><div class="line"><span class="comment">#12 0x00000000006cc8b1 in sub_select(JOIN*, st_join_table*, bool) ()</span></div><div class="line"><span class="comment">#13 0x00000000006cd11a in JOIN::exec() ()</span></div><div class="line"><span class="comment">#14 0x0000000000710e10 in mysql_select(THD*, TABLE_LIST*, unsigned int, List&lt;Item&gt;&amp;, Item*, SQL_I_List&lt;st_order&gt;*, SQL_I_List&lt;st_order&gt;*, Item*, unsigned long long, select_result*, st_select_lex_unit*, st_select_lex*) ()</span></div><div class="line"><span class="comment">#15 0x0000000000711697 in handle_select(THD*, select_result*, unsigned long) ()</span></div><div class="line"><span class="comment">#16 0x00000000006eb60d in execute_sqlcom_select(THD*, TABLE_LIST*) ()</span></div><div class="line"><span class="comment">#17 0x00000000006ee5db in mysql_execute_command(THD*) ()</span></div><div class="line"><span class="comment">#18 0x00000000006f2408 in mysql_parse(THD*, char*, unsigned int, Parser_state*) ()</span></div><div class="line"><span class="comment">#19 0x00000000006f3964 in dispatch_command(enum_server_command, THD*, char*, unsigned int) ()</span></div><div class="line"><span class="comment">#20 0x00000000006bf01f in do_handle_one_connection(THD*) ()</span></div><div class="line"><span class="comment">#21 0x00000000006bf0f7 in handle_one_connection ()</span></div><div class="line"><span class="comment">#22 0x000000000097b0ca in pfs_spawn_thread ()</span></div><div class="line"><span class="comment">#23 0x0000003d6b0079d1 in start_thread () from /lib64/libpthread.so.0</span></div><div class="line"><span class="comment">#24 0x0000003d6ace89dd in clone () from /lib64/libc.so.6</span></div></pre></td></tr></table></figure>
-<ol>
-<li><p>修改time_zone，避免时区转换</p>
-<p>修改time_zone为’+8:00’后再次压测，system cpu time显示正常。</p>
-</li>
-</ol>
-<p>  自此可以确定是time_zone导致的。</p>
-<h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><hr>
-<p>基本可行的两种解决方案</p>
-<ul>
-<li>修改time_zone</li>
-</ul>
-<p>最简单直接的解决方案，但是不适用于对时区敏感的业务系统</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">default-time-zone = &apos;+8:00&apos;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>详细讲解MySQL <a href="http://cdn.oreillystatic.com/en/assets/1/event/36/Time%20Zones%20and%20MySQL%20Presentation.pdf" target="_blank" rel="external">Time Zone</a>资料</p>
-</blockquote>
-<ul>
-<li>使用DATETIME</li>
-</ul>
-<p>或者统一使用DATETIME，而不使用TIMESTAMP，天生无时区转换问题，但是这种方案对现有系统的改造成本巨大</p>
-<blockquote>
-<p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
-</blockquote>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><hr>
-<p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kvov6q0006gdshmekc0he3" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Troubleshooting/">Troubleshooting</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-限流技术的应用场景" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/17/限流技术的应用场景/" class="article-date">
-  <time datetime="2016-03-17T10:32:01.000Z" itemprop="datePublished">2016-03-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="具体应用"><a href="#具体应用" class="headerlink" title="具体应用"></a>具体应用</h2><h2 id="业务场景"><a href="#业务场景" class="headerlink" title="业务场景"></a>业务场景</h2><h3 id="淘宝双十一"><a href="#淘宝双十一" class="headerlink" title="淘宝双十一"></a>淘宝双十一</h3><p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX" alt="天猫限流"></p>
-<h4 id="用户洪峰"><a href="#用户洪峰" class="headerlink" title="用户洪峰"></a>用户洪峰</h4><p>特点：</p>
-<ul>
-<li>允许访问的速率</li>
-<li>爆发量</li>
-<li>爆发间隔时间</li>
-</ul>
-<p>为了提升用户体验，需要支持爆发量，所以采用令牌桶算法</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB102reJVXXXXbXXpXXXXXXXXXX" alt="令牌桶算法"></p>
-<p>允许最大的访问速率：b+r<br>爆发持续时间：T=b/(m-2r)<br>爆发量：L=T*r</p>
-<h4 id="回调洪峰"><a href="#回调洪峰" class="headerlink" title="回调洪峰"></a>回调洪峰</h4><p>特点：</p>
-<ul>
-<li>有间隔频率</li>
-<li>每次调用量大</li>
-<li>允许有延时</li>
-</ul>
-<p>采用漏桶算法</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1gsqUJVXXXXcyXFXXXXXXXXXX" alt="漏桶算法"></p>
-<h4 id="限流框架"><a href="#限流框架" class="headerlink" title="限流框架"></a>限流框架</h4><p>分成几个主要模块</p>
-<ul>
-<li><p>监控模块</p>
-<p>  收集数据、实时监控和反馈分析</p>
-</li>
-<li><p>决策模块</p>
-<p>  什么场景使用什么限流方式；比如，用户洪峰采用令牌桶算法，</p>
-<p>  系统回调使用漏桶算法    </p>
-</li>
-<li><p>规则变更模块</p>
-<p>  动态调整令牌桶容量和产生令牌的速率</p>
-</li>
-<li><p>限流模块</p>
-<p>  如何处理被限流的请求，是排队还是丢弃</p>
-</li>
-</ul>
-<p>限流框架的处理流程</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1pMjsJVXXXXX0XXXXXXXXXXXX" alt="处理流程"></p>
-<h3 id="小米秒杀"><a href="#小米秒杀" class="headerlink" title="小米秒杀"></a>小米秒杀</h3><p>TODO   </p>
-<h2 id="分层架构"><a href="#分层架构" class="headerlink" title="分层架构"></a>分层架构</h2><h2 id="Nginx限流"><a href="#Nginx限流" class="headerlink" title="Nginx限流"></a>Nginx限流</h2><h3 id="Nginx限流模块"><a href="#Nginx限流模块" class="headerlink" title="Nginx限流模块"></a>Nginx限流模块</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">vi /etc/nginx/conf.d/default.conf</div><div class="line"></div><div class="line">......</div><div class="line"></div><div class="line">upstream myapp &#123;</div><div class="line">    server 127.0.0.1:8081;</div><div class="line">&#125;</div><div class="line"></div><div class="line">limit_req_zone <span class="variable">$binary_remote_addr</span> zone=login:10m rate=10r/s;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">    server_name _;</div><div class="line">  </div><div class="line">    location / &#123;</div><div class="line">        proxy_pass http://myapp;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    location /account/login/ &#123;</div><div class="line">        <span class="comment"># apply rate limiting</span></div><div class="line">        limit_req zone=login burst=5 nodelay;</div><div class="line">    </div><div class="line">        <span class="comment"># boilerplate copied from location /</span></div><div class="line">        proxy_pass http://myapp;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>参数说明</p>
-<ul>
-<li><p>$binary_remote_addr</p>
-<p>采用二进制表示访问的IP地址</p>
-</li>
-<li><p>zone=login:10m</p>
-<p>表示定义了一个名为login的内存共享区，其占用内存大小为10M。</p>
-<p>10M的内存可以存放16W个二进制表示的IP地址。</p>
-</li>
-<li><p>rate=1r/s</p>
-<p>就是QPS；对同一个IP地址而言，速率被限制为每秒1次请求</p>
-</li>
-<li><p>burst</p>
-<p>如果同一个IP访问的请求超过rate后，没有超过桶上限burst的请求会被放入桶中，等待被处理。</p>
-<p>这个例子中桶的容量是5。</p>
-</li>
-<li><p>nodelay</p>
-<p>单个IP的在某时间段内平均QPS未超过设定的rate，那么桶中的请求会立即被处理，</p>
-<p>此时的瞬间QPS高于设定的rate；如果在某时间段内平均的QPS超过rate，那么超过</p>
-<p>rate的请求会直接被拒绝，直接返回503</p>
-</li>
-</ul>
-<p>从示例配置信息中可以看出：</p>
-<p>对访问/account/login/的请求根据访问的IP进行了限速，QPS是10；</p>
-<p>对于同一个IP地址只允许每秒10个请求访问该URL；</p>
-<p>如果请求量大于QPS(10)，会立即返回503（因为配置了参数nodelay）；</p>
-<p>如果没有配置参数nodelay，那么超过QPS访问量的请求会先积压到桶中(可以积压5个)，</p>
-<p>如果桶满了，就返回503。</p>
-<p>&gt;<br>nginx限流模块默认使用的是漏桶算法，而当配置了nodelay时采用的是令牌算法，此时允许burst请求</p>
-<p>重点说明一下对burst+nodelay的理解</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">limit_req_zone <span class="variable">$binary_remote_addr</span> zone=login:10m rate=1r/s;</div><div class="line"></div><div class="line">......</div><div class="line"></div><div class="line"> location /account/login/ &#123;</div><div class="line">        <span class="comment"># apply rate limiting</span></div><div class="line">        limit_req zone=login burst=15 nodelay;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">时间点</th>
-<th style="text-align:center">并发请求量</th>
-<th style="text-align:center">拒绝的请求次数</th>
-<th style="text-align:center">成功的请求次数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">10:00:01</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:15</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:30</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:45</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:01</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:02</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:03</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:04</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-</tbody>
-</table>
-<p>针对这个case的理解:</p>
-<p>（1）在[10:00:01到10:00:45]期间，每隔15秒会有15个并发请求，虽然在这些时间点上并发</p>
-<p>请求大于rate，但在每个15秒内其QPS是1，依旧未超过rate，所以每次的15个并发请求能够</p>
-<p>被成功处理</p>
-<p>（2）在[11:00:01到11:00:05]期间，每秒15个并发请求，在11:00:01时，请求量未超过burst，</p>
-<p>并且由于配置了nodelay，所以当时15个请求立即被执行了；而在其他的时间点上QPS大于</p>
-<p>rate，所以超出rate的请求直接被拒绝</p>
-<h3 id="Nginx-lua"><a href="#Nginx-lua" class="headerlink" title="Nginx+lua"></a>Nginx+lua</h3><h3 id="REDIS"><a href="#REDIS" class="headerlink" title="REDIS"></a>REDIS</h3><p><a href="http://redis.io/commands/INCR#pattern-rate-limiter" target="_blank" rel="external">http://redis.io/commands/INCR#pattern-rate-limiter</a><br><a href="https://github.com/UsedRarely/spring-rate-limit" target="_blank" rel="external">https://github.com/UsedRarely/spring-rate-limit</a><br><a href="https://github.com/colley/spring-ratelimiter" target="_blank" rel="external">https://github.com/colley/spring-ratelimiter</a><br><a href="https://github.com/nlap/dropwizard-ratelimit" target="_blank" rel="external">https://github.com/nlap/dropwizard-ratelimit</a><br><a href="https://github.com/sudohippie/throttle" target="_blank" rel="external">https://github.com/sudohippie/throttle</a><br><a href="https://github.com/coveo/spillway" target="_blank" rel="external">https://github.com/coveo/spillway</a><br><a href="https://github.com/marcosbarbero/spring-cloud-starter-zuul-ratelimit" target="_blank" rel="external">https://github.com/marcosbarbero/spring-cloud-starter-zuul-ratelimit</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/20872901" target="_blank" rel="external">API 调用次数限制实现</a></p>
-<p><a href="https://github.com/jabley/rate-limit" target="_blank" rel="external">Java Rate-Limiting API</a></p>
-<h3 id="ZK"><a href="#ZK" class="headerlink" title="ZK"></a>ZK</h3><p><a href="http://curator.apache.org/curator-recipes/distributed-atomic-long.html" target="_blank" rel="external">Distributed Atomic Long</a></p>
-<p><a href="http://curator.apache.org/curator-recipes/shared-semaphore.html" target="_blank" rel="external">Shared Semaphore</a></p>
-<h2 id="HTTP-amp-DUBBO-amp-MQ"><a href="#HTTP-amp-DUBBO-amp-MQ" class="headerlink" title="HTTP&amp;DUBBO&amp;MQ"></a>HTTP&amp;DUBBO&amp;MQ</h2><p>filter+</p>
-<h2 id="DB"><a href="#DB" class="headerlink" title="DB"></a>DB</h2><h3 id="淘宝双十一秒杀业务"><a href="#淘宝双十一秒杀业务" class="headerlink" title="淘宝双十一秒杀业务"></a>淘宝双十一秒杀业务</h3><p>秒杀特点：瞬时并发高、数据一致性高、热点更新频率高</p>
-<p>大量更新DB中的同一条记录时，会产生锁等待，导致DB性能急剧下降</p>
-<p>当大量的并发更新同一条记录时，使用排队的方式来保证高并发下热点记录更新依然能保持</p>
-<p>较好的性能，为threads_running设置一个硬上线，当并发超过此值是，拒绝执行sql，</p>
-<p>保护MySQL，我们将这个称之为高水位限流，这样就给数据库加上了一层限流的功能，使得</p>
-<p>数据库不被瞬间的高爆发请求打爆。</p>
-<p>高水位限流实现：</p>
-<p>   监控系统status变量threads_running，当满足拒绝条件，拒绝执行sql，返回用户：</p>
-<p>   MySQL Server is too busy，判断逻辑在dispatch_command中，sql解析之后。</p>
-<p>增加的系统variables：</p>
-<pre><code>1.threads_running_ctl_mode： 限流的sql类型，有两个取值：[ALL | SELECTS]，
-
-默认SELECTS，设置为ALL需谨慎。
-
-2.threads_running_high_watermark： 限流水位值，只有threads_running
-
-超过此值才会触发，默认值为max_connections，当set global 
-
-threads_running_high_watermark=0时自动设置为max_connections
-</code></pre><p>拒绝必要条件：</p>
-<pre><code>1.threads_running超过threads_running_high_watermark
-
-2.threads_running_ctl_mode与sql类型相符
-</code></pre><p>以下情况不拒绝：</p>
-<pre><code>1.用户具有super权限
-
-2.sql所在事务已经开启
-
-3.sql为commit/rollback
-</code></pre><h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="">阿里双11系统管控调度架构与实践.pdf</a></p>
-<p><a href="http://nginx.org/en/docs/http/ngx_http_limit_req_module.html" target="_blank" rel="external">Nginx限流模块</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kvov5y0000gdshj9ds0k1l" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-限流技术的常见算法及其实现" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-限流技术的常见算法及其实现" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/03/06/限流技术的常见算法及其实现/" class="article-date">
   <time datetime="2016-03-06T12:03:01.000Z" itemprop="datePublished">2016-03-06</time>
@@ -460,8 +91,8 @@ threads_running_high_watermark=0时自动设置为max_connections
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
+    <h1 class="article-title" itemprop="name">
+      限流技术的常见算法及其实现
     </h1>
   
 
@@ -620,11 +251,23 @@ threads_running_high_watermark=0时自动设置为max_connections
     </footer>
   </div>
   
-</article>
-
+    
+<nav id="article-nav">
+  
+    <a href="/2016/03/17/限流技术的应用场景/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          限流技术的应用场景
+        
+      </div>
+    </a>
+  
+  
+</nav>
 
   
-
+</article>
 
 </section>
         
