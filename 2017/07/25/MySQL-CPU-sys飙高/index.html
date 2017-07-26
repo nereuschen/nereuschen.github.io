@@ -13,19 +13,19 @@
 <meta property="og:site_name" content="titlesubtitle">
 <meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，系统不可用 故障现场当时观察到的主要异常现象包括MySQL出现大量的慢查询，MySQL服务器的system cpu time非常高，MySQL的性能急剧下降，业务接口响应时间飙高，业务系统大量出现获取不到DB connection的异常日志。  慢查询  慢">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/slow-query.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/slow-query.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/sql-qps.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/db-cs-republish.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/spin-lock-info.jpg">
-<meta property="og:updated_time" content="2017-07-25T12:08:46.000Z">
+<meta property="og:updated_time" content="2017-07-26T04:56:29.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL CPU sys飙高">
 <meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，系统不可用 故障现场当时观察到的主要异常现象包括MySQL出现大量的慢查询，MySQL服务器的system cpu time非常高，MySQL的性能急剧下降，业务接口响应时间飙高，业务系统大量出现获取不到DB connection的异常日志。  慢查询  慢">
-<meta name="twitter:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/slow-query.jpg">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/07/25/MySQL-CPU-sys飙高/slow-query.jpg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
   
@@ -112,7 +112,7 @@
 <p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">select </div><div class="line">    count(*)</div><div class="line">from</div><div class="line">    invoice_push_record</div><div class="line">where</div><div class="line">    create_time &gt;= &apos;2017-07-01 00:00:00&apos;</div><div class="line">	and create_time &lt; &apos;2017-08-01 00:00:00&apos;</div><div class="line">	and invoice_type = &apos;XXX&apos;</div></pre></td></tr></table></figure>
 <p>从慢查询日志中看出这个SQL的执行时间是10s，平时这个SQL的执行时间都是0.01ms以内</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/slow-query.jpg" alt="slow query"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/slow-query.jpg" alt="slow query"></p>
 <ul>
 <li>system cpu time 飙高</li>
 </ul>
@@ -154,7 +154,7 @@
 <p>初步结论：尚无定论，有可能是time_zone导致，待继续排查</p>
 <h2 id="故障重现"><a href="#故障重现" class="headerlink" title="故障重现"></a>故障重现</h2><p>为了再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由time_zone导致。</p>
 <p>再次上线时，观察到system cpu time飙高，和故障现象一致</p>
-<p><img src="/2017/07/25/MySQL-CPU-sys飙高/2017-07-25-MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="再次上线"></p>
+<p><img src="/2017/07/25/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="再次上线"></p>
 <blockquote>
 <p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
 </blockquote>
