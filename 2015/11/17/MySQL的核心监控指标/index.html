@@ -5,23 +5,23 @@
   
   <title>MySQL的核心监控指标 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="监控的重要性监控和代码同等重要， 要想掌控MySQL的性能，首先需要正确理解MySQL的核心监控指标。本文结合结合实际遇到的问题说明Cacti中MySQL的核心监控  通过监控实时了解MySQL的性能问题  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变">
+  <meta name="description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
 <meta name="keywords" content="MySQL,监控">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL的核心监控指标">
 <meta property="og:url" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="监控的重要性监控和代码同等重要， 要想掌控MySQL的性能，首先需要正确理解MySQL的核心监控指标。本文结合结合实际遇到的问题说明Cacti中MySQL的核心监控  通过监控实时了解MySQL的性能问题  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变">
+<meta property="og:description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png">
-<meta property="og:updated_time" content="2017-07-26T12:02:11.000Z">
+<meta property="og:updated_time" content="2017-07-26T12:06:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的核心监控指标">
-<meta name="twitter:description" content="监控的重要性监控和代码同等重要， 要想掌控MySQL的性能，首先需要正确理解MySQL的核心监控指标。本文结合结合实际遇到的问题说明Cacti中MySQL的核心监控  通过监控实时了解MySQL的性能问题  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变">
+<meta name="twitter:description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
 <meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -101,10 +101,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="监控的重要性"><a href="#监控的重要性" class="headerlink" title="监控的重要性"></a>监控的重要性</h2><p>监控和代码同等重要，</p>
-<p>要想掌控MySQL的性能，首先需要正确理解MySQL的核心监控指标。本文结合结合实际遇到的问题说明Cacti中MySQL的核心监控</p>
+        <h2 id="监控的重要性"><a href="#监控的重要性" class="headerlink" title="监控的重要性"></a>监控的重要性</h2><p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
 <blockquote>
-<p>通过监控实时了解MySQL的性能问题</p>
+<p>监控和代码同等重要</p>
 </blockquote>
 <h2 id="主要监控说明"><a href="#主要监控说明" class="headerlink" title="主要监控说明"></a>主要监控说明</h2><h3 id="事务相关"><a href="#事务相关" class="headerlink" title="事务相关"></a>事务相关</h3><h4 id="InnoDB-Transactions"><a href="#InnoDB-Transactions" class="headerlink" title="InnoDB Transactions"></a>InnoDB Transactions</h4><p>内部的事务计算器（Trx id counter）是如何变化的<br>history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长时间。这意味着InnoDB不能够清除旧的行版本。最后数据库会变慢。所以要尽可能快递提交事务</p>
 <h4 id="InnoDB-Active-Locked-Transactions"><a href="#InnoDB-Active-Locked-Transactions" class="headerlink" title="InnoDB Active/Locked Transactions"></a>InnoDB Active/Locked Transactions</h4><ul>
@@ -159,8 +158,8 @@
 <blockquote>
 <p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br><img src="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png" alt="mysql-handlers"></p>
 <p>Handler Read Rnd Next飙高<br><img src="/2015/11/17/MySQL的核心监控指标/" alt="Uploading handlers.png…"></p>
-<h4 id="MySQL-Select-Types"><a href="#MySQL-Select-Types" class="headerlink" title="MySQL Select Types"></a>MySQL Select Types</h4></blockquote>
-<p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>这些显示了执行计划的各种类型的执行次数，尤其要注意<br>尽可能将Select_full_join的出现次数控制在0</p>
+</blockquote>
+<h4 id="MySQL-Select-Types"><a href="#MySQL-Select-Types" class="headerlink" title="MySQL Select Types"></a>MySQL Select Types</h4><p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>这些显示了执行计划的各种类型的执行次数，尤其要注意<br>尽可能将Select_full_join的出现次数控制在0</p>
 <h3 id="连接相关"><a href="#连接相关" class="headerlink" title="连接相关"></a>连接相关</h3><h4 id="MySQL-Connections"><a href="#MySQL-Connections" class="headerlink" title="MySQL Connections"></a>MySQL Connections</h4><p>尤其要注意aborted clients和connections，一般很少出现这两个值飙高的情况</p>
 <ul>
 <li>aborted clients</li>
@@ -204,7 +203,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5kyn27r0007pdshnquv4u0e" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5kysknq0000pqshjxv5u95q" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
