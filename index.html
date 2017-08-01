@@ -87,7 +87,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/12/MySQL-CPU-sys飙高/">MySQL CPU sys飙高</a>
+      <a class="article-title" href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
     </h1>
   
 
@@ -101,7 +101,7 @@
 <ul>
 <li>慢查询</li>
 </ul>
-<p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？</p>
+<p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？读取的数量不到6K</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
 <p>从慢查询日志中看出这个SQL的执行时间是10s，但是平时这个SQL的执行时间都在0.01ms以内</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg" alt="slow query"></p>
@@ -117,7 +117,7 @@
 <ul>
 <li>业务接口</li>
 </ul>
-<p>业务服务接口的QPS未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
+<p>业务服务接口的QPS在30左右未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
 <h2 id="临时解决方案"><a href="#临时解决方案" class="headerlink" title="临时解决方案"></a>临时解决方案</h2><hr>
 <p>为了快速恢复故障，将影响降到最低，我们采取了以下两个措施</p>
@@ -143,7 +143,7 @@
 <ul>
 <li>slow query分析</li>
 </ul>
-<p>该SQL和表都非常简单，这个表的数据量不到1W。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
+<p>该SQL和表都非常简单，这个表的数据量是1W+。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`invoice_push_record`</span> (</div><div class="line"><span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'自增主键'</span>,</div><div class="line"><span class="string">`order_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'订单ID'</span>,</div><div class="line"><span class="string">`invoice_type`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'XXX类型'</span>,</div><div class="line"><span class="string">`create_time`</span> <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</div><div class="line">PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</div><div class="line"><span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`uniq_order_id`</span> (<span class="string">`order_id`</span>),</div><div class="line"><span class="keyword">KEY</span> <span class="string">`idx_create_time_invoice_type`</span> (<span class="string">`create_time`</span>,<span class="string">`invoice_type`</span>)</div><div class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">1</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4 <span class="keyword">COMMENT</span>=<span class="string">'XXX记录表'</span></div></pre></td></tr></table></figure>
 <ul>
@@ -162,7 +162,7 @@
 <p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
 </blockquote>
 <h2 id="原因定位"><a href="#原因定位" class="headerlink" title="原因定位"></a>原因定位</h2><hr>
-<p>  到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测，该问题立即复现。</p>
+<p>  到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测（num-threads=30），该问题立即复现。</p>
 <ul>
 <li><p>sysbench</p>
 <p>压测时，sys cpu time飙高，sys飙高到78%</p>
@@ -173,7 +173,7 @@
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
 </li>
 <li><p>perf top</p>
-<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点。</p>
+<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，CPU被内核的spin lock（自旋锁）占用。</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
 </li>
 <li><p>pstack</p>
@@ -209,7 +209,7 @@
 <blockquote>
 <p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
 </blockquote>
-<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>经过DBA的测试，</p>
+<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者QPS在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及QPS有关，随着这张表的数据量的增长，就触发了这次故障。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><hr>
 <p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
 <a href="!--
@@ -979,7 +979,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       <ul>
         
           <li>
-            <a href="/2017/07/12/MySQL-CPU-sys飙高/">MySQL CPU sys飙高</a>
+            <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
           </li>
         
           <li>
