@@ -76,7 +76,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Troubleshooting/">Troubleshooting</a>►<a class="article-category-link" href="/categories/Troubleshooting/存储/">存储</a>
+    <a class="article-category-link" href="/categories/Troubleshooting/">Troubleshooting</a>
   </div>
 
   </div>
@@ -143,16 +143,16 @@
 <ul>
 <li>slow query分析</li>
 </ul>
-<p>该SQL和表都非常简单，这个表的数据量也不大。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
+<p>该SQL和表都非常简单，这个表的数据量不到1W。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`invoice_push_record`</span> (</div><div class="line"><span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'自增主键'</span>,</div><div class="line"><span class="string">`order_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'订单ID'</span>,</div><div class="line"><span class="string">`invoice_type`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'XXX类型'</span>,</div><div class="line"><span class="string">`create_time`</span> <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</div><div class="line">PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</div><div class="line"><span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`uniq_order_id`</span> (<span class="string">`order_id`</span>),</div><div class="line"><span class="keyword">KEY</span> <span class="string">`idx_create_time_invoice_type`</span> (<span class="string">`create_time`</span>,<span class="string">`invoice_type`</span>)</div><div class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">1</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4 <span class="keyword">COMMENT</span>=<span class="string">'XXX记录表'</span></div></pre></td></tr></table></figure>
 <ul>
 <li>system cpu time高</li>
 </ul>
-<p>查找相关资源，发现在<a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">数据库内核月报</a>里面提及到：当time_zone设置为SYSTEM时，MySQL访问到的timestamp字段都会作时区转换，在进行时区转换时会竞争全局的mutex，当大量并发访问timestamp时，会引起大量竞争mutex，从而导致sy飙高。</p>
+<p>第一次遇到这类问题，于是查找了相关资源，发现在<a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">数据库内核月报</a>里面提及到：当time_zone设置为SYSTEM时，MySQL访问到的timestamp字段都会作时区转换，在进行时区转换时会竞争全局的mutex，当大量并发访问timestamp时，会引起大量竞争mutex，从而导致sy飙高。</p>
 <p>该SQL正好使用到了timestamp，并且线上MySQL的time_zone是<code>SYSTEM</code>，所以很可能是timestamp导致的</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mySQL&gt; show variables like '%time_zone%';     </div><div class="line">+------------------+--------+  </div><div class="line">| Variable_name    | Value  |  </div><div class="line">+------------------+--------+  </div><div class="line">| system_time_zone | CST    |  </div><div class="line">| time_zone        | SYSTEM |  </div><div class="line">+------------------+--------+  </div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时不能确定是timestamp导致的</p>
+<p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时并不能确定是timestamp导致的</p>
 <p>初步结论：尚无定论，有可能是timestamp的time_zone导致，待继续排查</p>
 <h2 id="故障重现"><a href="#故障重现" class="headerlink" title="故障重现"></a>故障重现</h2><hr>
 <p>为了保证再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由timestamp的time_zone导致。</p>
@@ -162,18 +162,18 @@
 <p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
 </blockquote>
 <h2 id="原因定位"><a href="#原因定位" class="headerlink" title="原因定位"></a>原因定位</h2><hr>
-<p>  到底是不是time_zone导致，压测一下便知。我们在线下借助sysbench对该SQL进行了压测，该问题立即复现了。</p>
+<p>  到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测，该问题立即复现。</p>
 <ul>
 <li><p>sysbench</p>
 <p>压测时，sys cpu time飙高，sys飙高到78%</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
 </li>
 <li><p>vmstat</p>
-<p>上下文切换的次数变化并不大，但运行队列r变化比较大，因为是并发压测引起的</p>
+<p>上下文切换的次数变化并不大，涨了10倍，但运行队列r变化比较大，因为是并发压测引起的</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
 </li>
 <li><p>perf top</p>
-<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，说明</p>
+<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点。</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
 </li>
 <li><p>pstack</p>
@@ -191,7 +191,7 @@
 <p>修改time_zone为’+8:00’后再次压测，system cpu time显示正常。</p>
 </li>
 </ol>
-<p>  自此可以确定是time_zone导致的。</p>
+<p>  自此可以确定是time_zone导致</p>
 <h2 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h2><hr>
 <p>基本可行的两种解决方案</p>
 <ul>
@@ -209,13 +209,23 @@
 <blockquote>
 <p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
 </blockquote>
+<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>经过DBA的测试，</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><hr>
 <p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
+<a href="!--
+http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:?pageNum=1&amp;from=20170707T122328&amp;to=20170707T212328
+
+http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:3307:?from=20170707T144547&amp;to=20170707T184547
+--">!--
+http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:?pageNum=1&amp;from=20170707T122328&amp;to=20170707T212328
+
+http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:3307:?from=20170707T144547&amp;to=20170707T184547
+--</a>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kz1qbl0007qgsh8izjrixb" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kz8su4000ar9sh1v3xvdh5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -431,7 +441,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kz1qbi0006qgshc0ns8f5c" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kz8stx0005r9shdp84hbzj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -614,7 +624,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5kz1qbn000aqgshnq4cm7ig" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5kz8su10006r9shsg3kkbaa" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -633,7 +643,7 @@ threads_running_high_watermark=0时自动设置为max_connections
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/存储-分布式/">存储 分布式</a>
+    <a class="article-category-link" href="/categories/存储/">存储</a>
   </div>
 
   </div>
@@ -754,7 +764,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5kz1qbb0002qgshanxbbf8x" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5kz8stw0004r9sh5ljnatok" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -832,7 +842,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5kz1qb50000qgshqncdrp0j" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5kz8stq0001r9sh985epyph" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -905,7 +915,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5kz1qbf0005qgsh6synh5b2" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5kz8stm0000r9shr7rlf0c3" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -927,7 +937,7 @@ threads_running_high_watermark=0时自动设置为max_connections
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/存储/">存储</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储-分布式/">存储 分布式</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
