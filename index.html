@@ -69,6 +69,42 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-周会-201701801" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/08/01/周会-201701801/" class="article-date">
+  <time datetime="2017-08-01T05:47:37.000Z" itemprop="datePublished">2017-08-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/08/01/周会-201701801/">周会-201701801</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2017/08/01/周会-201701801/" data-id="cj5t5wq7q0007fzshm67x1xzx" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/07/12/MySQL-CPU-sys飙高/" class="article-date">
@@ -95,9 +131,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，最终导致系统不可用</p>
+        <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。</p>
 <h2 id="故障现场"><a href="#故障现场" class="headerlink" title="故障现场"></a>故障现场</h2><hr>
-<p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。</p>
+<p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。当时的主要信息如下。</p>
 <ul>
 <li>慢查询</li>
 </ul>
@@ -209,7 +245,7 @@
 <blockquote>
 <p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
 </blockquote>
-<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者QPS在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及QPS有关，随着这张表的数据量的增长，就触发了这次故障。</p>
+<h2 id="触发条件"><a href="#触发条件" class="headerlink" title="触发条件"></a>触发条件</h2><p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者num_threads在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及MySQL当时处理有关，随着这张表的数据量的增长，就触发了这次故障。</p>
 <h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><hr>
 <p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
 <a href="!--
@@ -225,7 +261,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5kz8su4000ar9sh1v3xvdh5" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5t5wq7u000bfzshs3nedex4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -441,7 +477,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5kz8stx0005r9shdp84hbzj" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5t5wq7w000dfzshmnbgoq5q" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -624,7 +660,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5kz8su10006r9shsg3kkbaa" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5t5wq7o0006fzshp5p9fxm8" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -764,7 +800,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5kz8stw0004r9sh5ljnatok" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5t5wq7h0005fzsh34q756j4" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -842,7 +878,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5kz8stq0001r9sh985epyph" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5t5wq7c0002fzshdh2wffun" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -915,7 +951,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5kz8stm0000r9shr7rlf0c3" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5t5wq770000fzshsqo1pm3d" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -966,7 +1002,7 @@ threads_running_high_watermark=0时自动设置为max_connections
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -977,6 +1013,10 @@ threads_running_high_watermark=0时自动设置为max_connections
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/08/01/周会-201701801/">周会-201701801</a>
+          </li>
         
           <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
@@ -992,10 +1032,6 @@ threads_running_high_watermark=0时自动设置为max_connections
         
           <li>
             <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-          </li>
-        
-          <li>
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>
