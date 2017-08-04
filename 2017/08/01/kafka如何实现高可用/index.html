@@ -5,20 +5,20 @@
   
   <title>kafka如何实现高可用 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用  https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186 high throughput 横向扩展的架构  分布式系统的高可用CAP理论">
+  <meta name="description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用   high throughput 横向扩展的架构  分布式系统的高可用CAP理论在分布式系统中，一致性、可用性和分区容忍性最多只能满足两个。在分布式系统中，网络分区是必然存在的，所以需要保证分区容忍性，只能在一致性和可用性之间做权衡">
 <meta name="keywords" content="高可用,消息系统,kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kafka如何实现高可用">
 <meta property="og:url" content="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用  https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186 high throughput 横向扩展的架构  分布式系统的高可用CAP理论">
+<meta property="og:description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用   high throughput 横向扩展的架构  分布式系统的高可用CAP理论在分布式系统中，一致性、可用性和分区容忍性最多只能满足两个。在分布式系统中，网络分区是必然存在的，所以需要保证分区容忍性，只能在一致性和可用性之间做权衡">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/scaled-out-arch.">
-<meta property="og:updated_time" content="2017-08-04T03:19:41.000Z">
+<meta property="og:image" content="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/scaled-out-arch.jgp">
+<meta property="og:updated_time" content="2017-08-04T03:25:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="kafka如何实现高可用">
-<meta name="twitter:description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用  https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186 high throughput 横向扩展的架构  分布式系统的高可用CAP理论">
-<meta name="twitter:image" content="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/scaled-out-arch.">
+<meta name="twitter:description" content="性能Kafka PK XXXhttps://softwaremill.com/mqperf/ kafka的设计哲学设计目标 高吞吐量、低延时 持久化、可靠性 高可用   high throughput 横向扩展的架构  分布式系统的高可用CAP理论在分布式系统中，一致性、可用性和分区容忍性最多只能满足两个。在分布式系统中，网络分区是必然存在的，所以需要保证分区容忍性，只能在一致性和可用性之间做权衡">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/scaled-out-arch.jgp">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
   
@@ -103,9 +103,11 @@
 <li>持久化、可靠性</li>
 <li>高可用</li>
 </ul>
-<p><a href="https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186" target="_blank" rel="external">https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186</a></p>
+<!-- 
+https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186
+-->
 <h4 id="high-throughput"><a href="#high-throughput" class="headerlink" title="high throughput"></a>high throughput</h4><ul>
-<li>横向扩展的架构<br><img src="/2017/08/01/kafka如何实现高可用/scaled-out-arch." alt="scaled-out-arch"></li>
+<li>横向扩展的架构<br><img src="/2017/08/01/kafka如何实现高可用/scaled-out-arch.jgp" alt="scaled-out-arch"></li>
 </ul>
 <h3 id="分布式系统的高可用"><a href="#分布式系统的高可用" class="headerlink" title="分布式系统的高可用"></a>分布式系统的高可用</h3><h4 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h4><p>在分布式系统中，一致性、可用性和分区容忍性最多只能满足两个。在分布式系统中，网络分区是必然存在的，所以需要保证分区容忍性，只能在一致性和可用性之间做权衡。</p>
 <h3 id="一致性方案"><a href="#一致性方案" class="headerlink" title="一致性方案"></a>一致性方案</h3><h4 id="DB"><a href="#DB" class="headerlink" title="DB"></a>DB</h4><p>1.Master-Slave</p>
