@@ -69,14 +69,14 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-周会-201701801" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-kafka如何实现高可用" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2017/08/01/周会-201701801/" class="article-date">
-  <time datetime="2017-08-01T05:47:37.000Z" itemprop="datePublished">2017-08-01</time>
+    <a href="/2017/08/01/kafka如何实现高可用/" class="article-date">
+  <time datetime="2017-08-01T06:22:18.000Z" itemprop="datePublished">2017-08-01</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/管理/">管理</a>
+    <a class="article-category-link" href="/categories/分布式/">分布式</a>
   </div>
 
   </div>
@@ -87,7 +87,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/01/周会-201701801/">周会-201701801</a>
+      <a class="article-title" href="/2017/08/01/kafka如何实现高可用/">kafka如何实现高可用</a>
     </h1>
   
 
@@ -95,26 +95,181 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="绩效标准"><a href="#绩效标准" class="headerlink" title="绩效标准"></a>绩效标准</h2><p>markdown  </p>
-<h2 id="绩效考核"><a href="#绩效考核" class="headerlink" title="绩效考核"></a>绩效考核</h2><h3 id="C类细分"><a href="#C类细分" class="headerlink" title="C类细分"></a>C类细分</h3><ul>
-<li>c+<br>fdsfds</li>
+        <h3 id="性能"><a href="#性能" class="headerlink" title="性能"></a>性能</h3><p>Kafka PK XXX<br><a href="https://softwaremill.com/mqperf/" target="_blank" rel="external">https://softwaremill.com/mqperf/</a></p>
+<h3 id="kafka的设计哲学"><a href="#kafka的设计哲学" class="headerlink" title="kafka的设计哲学"></a>kafka的设计哲学</h3><h3 id="设计目标"><a href="#设计目标" class="headerlink" title="设计目标"></a>设计目标</h3><ul>
+<li>高吞吐量、低延时</li>
+<li>持久化、可靠性</li>
+<li>高可用</li>
 </ul>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> * <span class="keyword">from</span> <span class="keyword">user</span>;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>fdsfdsfdsfds</p>
+<p><a href="https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186" target="_blank" rel="external">https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186</a></p>
+<h4 id="high-throughput"><a href="#high-throughput" class="headerlink" title="high throughput"></a>high throughput</h4><ul>
+<li>横向扩展的架构<br><img src="/2017/08/01/kafka如何实现高可用/scaled-out-arch." alt="scaled-out-arch"></li>
+</ul>
+<h3 id="分布式系统的高可用"><a href="#分布式系统的高可用" class="headerlink" title="分布式系统的高可用"></a>分布式系统的高可用</h3><h4 id="CAP理论"><a href="#CAP理论" class="headerlink" title="CAP理论"></a>CAP理论</h4><p>在分布式系统中，一致性、可用性和分区容忍性最多只能满足两个。在分布式系统中，网络分区是必然存在的，所以需要保证分区容忍性，只能在一致性和可用性之间做权衡。</p>
+<h3 id="一致性方案"><a href="#一致性方案" class="headerlink" title="一致性方案"></a>一致性方案</h3><h4 id="DB"><a href="#DB" class="headerlink" title="DB"></a>DB</h4><p>1.Master-Slave</p>
 <ul>
-<li>c<br>badsfds</li>
-<li>c-<br>badsfds</li>
+<li>同步复制：保证一致性，等所有Slave都同步完数据后，数据才算commit，性能取决于最慢的Slave，影响吞吐率，降低可用性</li>
+<li>异步复制：保证可用性，降低一致性</li>
 </ul>
+<p>2.PXC</p>
+<h4 id="WNR"><a href="#WNR" class="headerlink" title="WNR"></a>WNR</h4><ul>
+<li><p>主要用于去中心化的分布式系统中。DynamoDB与Cassandra即采用此方案或其变种</p>
+</li>
+<li><p>N代表总副本数，W代表每次写操作要保证的最少写成功的副本数，R代表每次读至少要读取的副本数</p>
+</li>
+<li><p>当W+R&gt;N时，可保证每次读取的数据至少有一个副本拥有最新的数据</p>
+</li>
+<li><p>多个写操作的顺序难以保证，可能导致多副本间的写操作顺序不一致。Dynamo通过向量时钟保证最终一致性</p>
+</li>
+</ul>
+<a href="!--
+
+http://www.infoq.com/cn/articles/kafka-analysis-part-6?utm_source=infoq&amp;utm_medium=related_content_link&amp;utm_campaign=relatedContent_articles_clk
+
+--">!--
+
+http://www.infoq.com/cn/articles/kafka-analysis-part-6?utm_source=infoq&amp;utm_medium=related_content_link&amp;utm_campaign=relatedContent_articles_clk
+
+--</a>
+<h4 id="Paxos及其变种"><a href="#Paxos及其变种" class="headerlink" title="Paxos及其变种"></a>Paxos及其变种</h4><ul>
+<li>Google的Chubby，Zookeeper的原子广播协议（Zab），RAFT等</li>
+</ul>
+<h4 id="ISR"><a href="#ISR" class="headerlink" title="ISR"></a>ISR</h4><p>Partition会有多个Replication，ISR（即in-sync Replica）会保存Partition的Leader以及”能够跟得上”的Follower的列表，这个列表是动态调整的。kafka的数据复制是基于ISR实现的，ISR里面的Follower向Leader pull数据。一条消息只有被ISR里的所有Follower都从Leader复制过去才会被认为已提交。</p>
+<h3 id="kafka的高可用实现"><a href="#kafka的高可用实现" class="headerlink" title="kafka的高可用实现"></a>kafka的高可用实现</h3><h3 id="海量数据存储"><a href="#海量数据存储" class="headerlink" title="海量数据存储"></a>海量数据存储</h3><p>分区</p>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><p>使用文件系统实现消息的存储和缓存。</p>
+<p>1.读写磁盘的性能<br>可以充分使用操作系统的文件系统的特性，提升读写磁盘的性能。</p>
+<ul>
+<li>顺序读写<br>读写磁盘的性能并没有大家想象中的那么差，一篇<a href="http://queue.acm.org/detail.cfm?id=1563874" target="_blank" rel="external">ACM Queue的文章</a>中表明在某些情况下通过顺序读写的方式，性能可以和内存的随机访问差不多</li>
+<li>read-ahead<br>局部性原理</li>
+<li>write-behind<br>将数据直接写入Page Cache中，通过操作系统的异步刷磁盘将数据刷到磁盘</li>
+</ul>
+<p>2.缓存更多的数据</p>
+<ul>
+<li>Page Cache<br>基于Java的应用主要面临两件事情：对象的内存消费非常高，经常是存储数据的两倍或者更多；随着堆内数据增多，GC的代价会变得更大</li>
+</ul>
+<p>考虑到以上这些因素，</p>
+<p>简单的设计：直接利用操作系统的Pache Cache，并且定期将数据刷到磁盘；而不是考虑设计一个非常大的进程内的内存作为缓存，然后还要解决内存不够用的时候将数据刷到磁盘</p>
+<a href="!--
+
+https://www.ibm.com/support/knowledgecenter/ssw_aix_71/com.ibm.aix.performance/fs_perf_tuning.htm
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/main-fs.html
+
+https://developer.ridgerun.com/wiki/index.php/Linux_Performance_and_Tuning_Tricks
+
+http://www.kevinboone.net/linux_kernel_file_2.html
+
+
+http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
+--">!--
+
+https://www.ibm.com/support/knowledgecenter/ssw_aix_71/com.ibm.aix.performance/fs_perf_tuning.htm
+
+https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/main-fs.html
+
+https://developer.ridgerun.com/wiki/index.php/Linux_Performance_and_Tuning_Tricks
+
+http://www.kevinboone.net/linux_kernel_file_2.html
+
+
+http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
+--</a>
+<p><a href="http://queue.acm.org/detail.cfm?id=1563874" target="_blank" rel="external">http://queue.acm.org/detail.cfm?id=1563874</a><br><a href="http://deliveryimages.acm.org/10.1145/1570000/1563874/jacobs3.jpg" target="_blank" rel="external">http://deliveryimages.acm.org/10.1145/1570000/1563874/jacobs3.jpg</a></p>
+<ul>
+<li>顺序读写</li>
+</ul>
+<p>因此，操作系统利用read-ahead和write-behind技术来从大的数据块中预取数据，或者将多个逻辑上的写操作组合成一个大写物理写操作中。更多的讨论可以在ACMQueueArtical中找到，他们发现，对磁盘的线性读在有些情况下可以比内存的随机访问要快一些。 </p>
+<ul>
+<li>使用Page Cache</li>
+</ul>
+<p>日志实现</p>
+<ul>
+<li>Partition &amp; Segment</li>
+<li></li>
+</ul>
+<p>文件系统+页面缓存</p>
+<p>文件系统</p>
+<!--
+page cache
+http://blog.csdn.net/thewayma/article/details/4287170
+
+https://tech.meituan.com/kafka-fs-design-theory.html
+-->
+<h3 id="Replication"><a href="#Replication" class="headerlink" title="Replication"></a>Replication</h3><a href="!--
+http://www.infoq.com/cn/articles/kafka-analysis-part-2/
+
+--">!--
+http://www.infoq.com/cn/articles/kafka-analysis-part-2/
+
+--</a>
+<p>副本</p>
+<p>1.同步复制</p>
+<p>2.异步复制</p>
+<p>3.HW复制</p>
+<p>broker是否存活</p>
+<ul>
+<li>与ZK存在session（ZK的Heartbeat机制实现）</li>
+<li>Follower必须能够及时将Leader的消息复制过来，能跟得上CaughtUp</li>
+</ul>
+<p>isr列表<br>跟得上leader的副本列表（含leader本身）</p>
+<blockquote>
+<p>落后太多</p>
+<p>落后时间&gt;replica.lag.time.max.ms（10000ms）</p>
+<p>或者</p>
+<p>落后条数&lt;=replica.lag.max.messages（4000）0.9.0.0版本中已废除</p>
+<p>version&lt;0.8 不提供HA。一旦broker不可用，上面的消息不能被消费，如果磁盘损坏，那么消息会被丢失。</p>
 </blockquote>
+<p>不丢失消息的前提</p>
+<ul>
+<li>ack=-1</li>
+<li>min.insync.replicas</li>
+<li>topic的unclean.leader.election.enable=false，不允许选择非isr列表中的副本作为新的leader</li>
+<li>还会存在丢失消息的可能:s3就要截断日志<br>size(isr列表)&lt;min.insync.replicas<br>写入消息时，返回NotEnoughReplicasException<br>写入后，在返回给producer之前再次判断，返回NotEnoughReplicasAfterAppendException</li>
+</ul>
+<p>丢消息最主要的原因是：<br>由于follower的highWatermarkMetadata相对于leader的highWatermarkMetadata是延迟更新的，当leader选举完成后，所有follower副本的截断到自己的highWatermarkMetadata位置，则可能截断了已被老leader提交了的日志，这样的话，这部分日志仅仅存在新的leader副本中，在其他副本中消失了，一旦leader副本挂了，这部分日志就彻底丢失了</p>
+<!--
+https://m.aliyun.com/yunqi/articles/64703
+
+zero copy
+https://www.ibm.com/developerworks/linux/library/j-zerocopy/
+
+-->
+<a href="!--
+http://www.jasongj.com/2015/04/24/KafkaColumn2/
+
+https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
+--">!--
+http://www.jasongj.com/2015/04/24/KafkaColumn2/
+
+https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
+--</a>
+<h4 id="高性能实现方案"><a href="#高性能实现方案" class="headerlink" title="高性能实现方案"></a>高性能实现方案</h4><p>Partition 提升并行处理能力</p>
+<a href="!--
+http://www.jasongj.com/kafka/high_throughput/
+--">!--
+http://www.jasongj.com/kafka/high_throughput/
+--</a>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><a href="!--
+
+
+http://www.ece.eng.wayne.edu/~sjiang/Tsinghua-2010/linux-readahead.pdf
+http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
+http://careers.directi.com/display/tu/Understanding+and+Optimizing+Disk+IO
+--">!--
+
+
+http://www.ece.eng.wayne.edu/~sjiang/Tsinghua-2010/linux-readahead.pdf
+http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
+http://careers.directi.com/display/tu/Understanding+and+Optimizing+Disk+IO
+--</a>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/08/01/周会-201701801/" data-id="cj5t5wq7q0007fzshm67x1xzx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/08/01/kafka如何实现高可用/" data-id="cj5xazerv000ce8sh3hnh5ubf" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/绩效/">绩效</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/消息系统/">消息系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高可用/">高可用</a></li></ul>
 
     </footer>
   </div>
@@ -279,7 +434,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5t5wq7u000bfzshs3nedex4" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj5xazerp000ae8shphxth3qo" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -495,7 +650,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5t5wq7w000dfzshmnbgoq5q" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj5xazerl0006e8shwojvib1j" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -678,7 +833,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5t5wq7o0006fzshp5p9fxm8" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj5xazerh0005e8shh8sx9f3n" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -818,7 +973,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5t5wq7h0005fzsh34q756j4" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj5xazerg0004e8shj47z73dn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -896,7 +1051,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5t5wq7c0002fzshdh2wffun" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj5xazerc0001e8shwxsxgpim" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -969,7 +1124,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5t5wq770000fzshsqo1pm3d" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj5xazer70000e8shwhew6syn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -991,7 +1146,7 @@ threads_running_high_watermark=0时自动设置为max_connections
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/管理/">管理</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1001,7 +1156,7 @@ threads_running_high_watermark=0时自动设置为max_connections
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/绩效/">绩效</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/消息系统/">消息系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高可用/">高可用</a><span class="tag-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1011,7 +1166,7 @@ threads_running_high_watermark=0时自动设置为max_connections
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/绩效/" style="font-size: 10px;">绩效</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/消息系统/" style="font-size: 10px;">消息系统</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a> <a href="/tags/高可用/" style="font-size: 10px;">高可用</a>
     </div>
   </div>
 
@@ -1033,7 +1188,7 @@ threads_running_high_watermark=0时自动设置为max_connections
       <ul>
         
           <li>
-            <a href="/2017/08/01/周会-201701801/">周会-201701801</a>
+            <a href="/2017/08/01/kafka如何实现高可用/">kafka如何实现高可用</a>
           </li>
         
           <li>
