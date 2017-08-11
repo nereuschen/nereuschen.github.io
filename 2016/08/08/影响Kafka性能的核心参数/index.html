@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>深入理解Kafka优化的核心参数 | titlesubtitle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="!-- http://l-kafka1.dba.cn2.qunar.com:2333 -- 性能测试!-- http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449  https://kafka.apache.org/documentation/#brokerconfigs  -- 权衡throughpu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解Kafka优化的核心参数">
+<meta property="og:url" content="https://nereuschen.github.io/2016/08/08/影响Kafka性能的核心参数/index.html">
+<meta property="og:site_name" content="titlesubtitle">
+<meta property="og:description" content="!-- http://l-kafka1.dba.cn2.qunar.com:2333 -- 性能测试!-- http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449  https://kafka.apache.org/documentation/#brokerconfigs  -- 权衡throughpu">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-08-11T06:38:14.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解Kafka优化的核心参数">
+<meta name="twitter:description" content="!-- http://l-kafka1.dba.cn2.qunar.com:2333 -- 性能测试!-- http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449  https://kafka.apache.org/documentation/#brokerconfigs  -- 权衡throughpu">
+  
+    <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">titlesubtitle</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">subtitle</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://nereuschen.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-影响Kafka性能的核心参数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/08/影响Kafka性能的核心参数/" class="article-date">
+  <time datetime="2016-08-08T11:41:48.000Z" itemprop="datePublished">2016-08-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入理解Kafka优化的核心参数
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a href="!--
+http://l-kafka1.dba.cn2.qunar.com:2333
+--">!--
+http://l-kafka1.dba.cn2.qunar.com:2333
+--</a>
+<h3 id="性能测试"><a href="#性能测试" class="headerlink" title="性能测试"></a>性能测试</h3><a href="!--
+http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449
+
+https://kafka.apache.org/documentation/#brokerconfigs
+
+--">!--
+http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449
+
+https://kafka.apache.org/documentation/#brokerconfigs
+
+--</a>
+<h3 id="权衡throughput-VS-latency-、durability-VS-availability"><a href="#权衡throughput-VS-latency-、durability-VS-availability" class="headerlink" title="权衡throughput VS latency 、durability VS availability"></a>权衡throughput VS latency 、durability VS availability</h3><ul>
+<li><p>优化throughput</p>
+<p>:start: broker端</p>
+</li>
+</ul>
+<ol>
+<li><p>确定topic的分区个数</p>
+<p>topic分区是并行处理的最小单元。消息的并行发送和接收都是基于分区的。通常而言，topic的分区越多，并行处理能力越强，吞吐量越大。我们需要根据producer和consumer的吞吐量去确定分区的个数。</p>
+<blockquote>
+<p>这篇<a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">文章</a>详细讲解了如何确定分区个数</p>
+</blockquote>
+</li>
+</ol>
+<p>生产者端</p>
+<ol>
+<li><p>批量策略<br>生产者通过将多个消息以一个消息的批量方式发送消息。两个核心参数<br>batch.size和linger.ms；但是会影响延时，因为必须消息不是立即发送的，而是需要收集batch.size个消息或者收集消息的等待时间超过linger.ms。设置compression.type（支持lz4, snappy, and gzip），批量消息将通过压缩的方式压缩成一个消息，所以batch.size越大，压缩率越高，吞吐量越大。</p>
+</li>
+<li><p>acks方式<br>acks=1 leader broker收到消息后就返回ack，而不用等所有的followers都收到消息。</p>
+</li>
+<li><p>发送时机<br>buffer.memory<br>max.block.ms<br>二者满其一将发送</p>
+</li>
+</ol>
+<p>消费者端</p>
+<ol>
+<li>fetch.min.bytes<br>这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但是会影响延时时间。达到fetch.min.bytes或者超过fetch.max.wait.ms时，才会消费消息。</li>
+</ol>
+<p>GC<br>gc会导致应用暂停，所以长时间的GC时间会严重影响吞吐量；严重的情况下会导致broker失败，比如长时间的GC会导致ZooKeeper session超时，ZooKeeper会认为该broker不可用。</p>
+<blockquote>
+<p>GC该如何优化参考GC调优</p>
+</blockquote>
+<p>小结</p>
+<p>Producer:<br>• batch.size: increase to 100000 - 200000 (default 16384)<br>• linger.ms: increase to 10 - 100 (default 0)<br>• compression.type=lz4 (default none)<br>• acks=1 (default 1)<br>• retries=0 (default 0)<br>• buffer.memory: increase if there are a lot of partitions (default 33554432)</p>
+<p>Consumer:<br>• fetch.min.bytes: increase to ~100000 (default 1)</p>
+<ul>
+<li>优化latency</li>
+</ul>
+<p>消息复制会影响延时，复制消息的线程个数（num.replica.fetchers）会影响延时，num.replica.fetchers=1（默认值），当followers无法跟上leader时，可以将该值调大。</p>
+<p>linger.ms=0 即时发送<br>compression.type=none 压缩会使用CPU、降低网络带宽使用率<br>acks=0 异步发送，发送者无需等待broker的ack<br>etch.min.bytes=1 有消息就接收</p>
+<p>小结</p>
+<p>Producer:<br>• linger.ms=0 (default 0)<br>• compression.type=none (default none)<br>• acks=1 (default 1)<br>Broker:<br>• num.replica.fetchers: increase if followers can’t keep up with the leader (default 1)<br>Consumer:<br>• fetch.min.bytes=1 (default 1)</p>
+<ul>
+<li>优化durability<br>replication.factor=3 可以保证在2个broker不可用的情况下，消息不丢失。</li>
+</ul>
+<p>auto.create.topics.enable=true 和持久化有什么关系？<br>__consumer_offsets 和自动创建topic的关系？<br>acks=-1<br>retries 自动重试</p>
+<blockquote>
+<p>重试的副作用</p>
+<ol>
+<li>重复消息；集群出现短暂失败时可能会导致重复消息，需要消费者端自己处理重复消息；另外exactly once semantics (EOS) 的功能还在开发中，这种机制可以保证无重复消息。</li>
+<li>导致消息重排；为了保证消息有序并且允许重新发生失败的消息，需要将max.in.flight.requests.per.connection设置为1，从而保证任何时候只有一个消息发送到broker。</li>
+</ol>
+</blockquote>
+<p>unclean.leader.election.enable=false 不允许不在ISR列表中的broker参加leader的选举，否则会导致已经提交但是还未复制的消息的丢失。</p>
+<p>log.flush.interval.ms和log.flush.interval.messages<br>消息写入broker是直接写入OS的PageCache的，然后由OS周期性地将数据从PageCache刷到磁盘；为了保证不丢消息，就需要将消息同步刷到磁盘，所以可以针对这类topic设置log.flush.interval.messages=1</p>
+<p>消费者是通过更新offsets来表明offsets之前的消息已经被消费了；当消费者的poll()执行完时，会自动commit offsets。但是如果poll作为业务事务中的一部分的时候，为了保证可靠性，必须在事务提交之后才能提交offsets，所以需要将auto.commit.enable=false，并且显示地调用<br>commitSync() or commitAsync()</p>
+<p>小结</p>
+<p>Producer:<br>• replication.factor: 3, configure per topic<br>• acks=all (default 1)<br>• retries: 1 or more (default 0)<br>• max.in.flight.requests.per.connection=1 (default 5), to prevent out of order messages<br>Broker:<br>• default.replication.factor=3 (default 1)<br>• auto.create.topics.enable=false (default true)<br>• min.insync.replicas=2 (default 1); topic override available<br>• unclean.leader.election.enable=false (default true); topic override available<br>• broker.rack: rack of the broker (default null)<br>• log.flush.interval.messages, log.flush.interval.ms: for topics with very low throughput, set message interval or time interval low as needed (default allows the OS to control flushing); topic override available<br>Consumer:<br>• auto.commit.enable=false (default true)</p>
+<ul>
+<li>优化availability</li>
+</ul>
+<p>Broker:<br>• unclean.leader.election.enable=true (default true); topic override available<br>• min.insync.replicas=1 (default 1); topic override available<br>• num.recovery.threads.per.data.dir: number of directories in log.dirs broker启动的时候(default 1)</p>
+<p>Consumer:<br>• session.timeout.ms: as low as feasible (default 10000) broker检测consumer是否可用的时间，消费者发生异常时broker会检测到失败并且重新rebalance。消费者失败要么是硬件失败导致，要么是软件失败导致。软件失败最场景的两个场景：<br>poll()处理时间过长；或者是GC暂停时间太长</p>
+<ul>
+<li>GC调优</li>
+</ul>
+<a href="!--
+http://docs.confluent.io/current/kafka/deployment.html#jvm
+--">!--
+http://docs.confluent.io/current/kafka/deployment.html#jvm
+--</a>
+<h3 id="核心参数"><a href="#核心参数" class="headerlink" title="核心参数"></a>核心参数</h3><p>Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf<br>&lt;!–<br><a href="http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111784165" target="_blank" rel="external">http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111784165</a></p>
+<p><a href="http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=109989214" target="_blank" rel="external">http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=109989214</a></p>
+<p><a href="http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111776937" target="_blank" rel="external">http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111776937</a></p>
+<p><a href="http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=112492986" target="_blank" rel="external">http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=112492986</a><br>–&gt;</p>
+<h3 id="运维相关"><a href="#运维相关" class="headerlink" title="运维相关"></a>运维相关</h3><a href="!--
+http://ops.corp.qunar.com/ops/outage/review/#?date_from=2017-06-09&amp;date_to=2017-08-08
+--">!--
+http://ops.corp.qunar.com/ops/outage/review/#?date_from=2017-06-09&amp;date_to=2017-08-08
+--</a>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2016/08/08/影响Kafka性能的核心参数/" data-id="cj67i4qte0000idshy9nb0a6k" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/11/01/kafka如何实现高可用/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          kafka如何实现高可用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/17/限流技术的应用场景/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">限流技术的应用场景</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/消息系统/">消息系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高可用/">高可用</a><span class="tag-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/消息系统/" style="font-size: 10px;">消息系统</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a> <a href="/tags/高可用/" style="font-size: 10px;">高可用</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/08/04/kafka性能调优/">kafka性能调优</a>
+          </li>
+        
+          <li>
+            <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
+          </li>
+        
+          <li>
+            <a href="/2016/11/01/kafka如何实现高可用/">kafka如何实现高可用</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/08/影响Kafka性能的核心参数/">深入理解Kafka优化的核心参数</a>
+          </li>
+        
+          <li>
+            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Nereus Chen<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
