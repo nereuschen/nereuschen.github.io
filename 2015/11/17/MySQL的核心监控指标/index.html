@@ -5,13 +5,13 @@
   
   <title>MySQL的核心监控指标 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
+  <meta name="description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
 <meta name="keywords" content="MySQL,监控">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL的核心监控指标">
 <meta property="og:url" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
+<meta property="og:description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png">
@@ -21,7 +21,7 @@
 <meta property="og:updated_time" content="2017-08-01T02:40:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的核心监控指标">
-<meta name="twitter:description" content="监控的重要性要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  主要监控说明事务相关InnoDB Transactions内部的事务计算器（Trx id counter）是如何变化的history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长">
+<meta name="twitter:description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
 <meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -101,28 +101,40 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="监控的重要性"><a href="#监控的重要性" class="headerlink" title="监控的重要性"></a>监控的重要性</h2><p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
+        <h2 id="监控的重要性"><a class="header-anchor" href="#监控的重要性">¶</a>监控的重要性</h2>
+<p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
 <blockquote>
 <p>监控和代码同等重要</p>
 </blockquote>
-<h2 id="主要监控说明"><a href="#主要监控说明" class="headerlink" title="主要监控说明"></a>主要监控说明</h2><h3 id="事务相关"><a href="#事务相关" class="headerlink" title="事务相关"></a>事务相关</h3><h4 id="InnoDB-Transactions"><a href="#InnoDB-Transactions" class="headerlink" title="InnoDB Transactions"></a>InnoDB Transactions</h4><p>内部的事务计算器（Trx id counter）是如何变化的<br>history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长时间。这意味着InnoDB不能够清除旧的行版本。最后数据库会变慢。所以要尽可能快递提交事务</p>
-<h4 id="InnoDB-Active-Locked-Transactions"><a href="#InnoDB-Active-Locked-Transactions" class="headerlink" title="InnoDB Active/Locked Transactions"></a>InnoDB Active/Locked Transactions</h4><ul>
-<li><p>Active Transactions</p>
+<h2 id="主要监控说明"><a class="header-anchor" href="#主要监控说明">¶</a>主要监控说明</h2>
+<h3 id="事务相关"><a class="header-anchor" href="#事务相关">¶</a>事务相关</h3>
+<h4 id="innodb-transactions"><a class="header-anchor" href="#innodb-transactions">¶</a>InnoDB Transactions</h4>
+<p>内部的事务计算器（Trx id counter）是如何变化的<br>
+history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长时间。这意味着InnoDB不能够清除旧的行版本。最后数据库会变慢。所以要尽可能快递提交事务</p>
+<h4 id="innodb-active-locked-transactions"><a class="header-anchor" href="#innodb-active-locked-transactions">¶</a>InnoDB Active/Locked Transactions</h4>
+<ul>
+<li>
+<p>Active Transactions</p>
 <blockquote>
 <p>活跃的事务就是当前被开启的事务，它介于开始（BEGIN）和提交(COMMIT)之间。如果设置为 auto-commit，正在运行的query，即时它立即提交，也是一个活跃的事务。</p>
 </blockquote>
 </li>
-<li><p>Locked Transactions</p>
+<li>
+<p>Locked Transactions</p>
 <blockquote>
-<p>locked事务是正处于 LOCK WAIT 状态的事务。通常情况下它正在等待一个行锁，但有时候有可能是在等待获取一个表锁或者自增长锁。<br>可以通过 SHOW INNODB STATUS 执行的结果去查找“LOCK WAIT”正在等待哪种类型的锁。<br>导致锁等待的因素有很多，比如，都在获取热表、通过扫描不同的索引来查询数据、或者使用SELECT .. FOR UPDATE这种错误的查询模式</p>
+<p>locked事务是正处于 LOCK WAIT 状态的事务。通常情况下它正在等待一个行锁，但有时候有可能是在等待获取一个表锁或者自增长锁。<br>
+可以通过 SHOW INNODB STATUS 执行的结果去查找“LOCK WAIT”正在等待哪种类型的锁。<br>
+导致锁等待的因素有很多，比如，都在获取热表、通过扫描不同的索引来查询数据、或者使用SELECT … FOR UPDATE这种错误的查询模式</p>
 </blockquote>
 </li>
-<li><p>Current Transactions</p>
+<li>
+<p>Current Transactions</p>
 <blockquote>
 <p>当前事务的总个数，包含所有状态状态（ACTIVE, LOCK WAIT, not started等）的事务；是通过SHOW INNODB STATUS执行的结果统计“—TRANSACTION”出现的总次数</p>
 </blockquote>
 </li>
-<li><p>Read views</p>
+<li>
+<p>Read views</p>
 <blockquote>
 <p>其个数显示了多少个事务对于DB上下文有一致的快照</p>
 </blockquote>
@@ -130,80 +142,126 @@
 </ul>
 <p>案例</p>
 <blockquote>
-<p>某次DB磁盘被写满（磁盘I/O使用率到100%）时，观察到的监控<br>可以看出Active Transactions飙高</p>
+<p>某次DB磁盘被写满（磁盘I/O使用率到100%）时，观察到的监控<br>
+可以看出Active Transactions飙高</p>
 </blockquote>
 <p><img src="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png" alt="transaction-active"></p>
-<h4 id="InnoDB-Current-Lock-Waits"><a href="#InnoDB-Current-Lock-Waits" class="headerlink" title="InnoDB Current Lock Waits"></a>InnoDB Current Lock Waits</h4><hr>
-<p>显示了每秒钟InnoDB事务等待锁的个数。它和InnoDB Active/Locked Transactions有一定的关系<br>如果Lock Waits出现的次数比较多，那么就应该去排查一下LOCK WAIT状态的事务；如果事务一直是处于LOCK WAIT状态，那么最悲催的情况下是，等待时间达到innodb_lock_wait_timeout（默认50秒）时才会放弃获取锁；<br>如果innodb_lock_wait_timeout设置过大，即使只有一个处于LOCK WAIT的事务，它也很可能等待一个比较长的时间</p>
+<h4 id="innodb-current-lock-waits"><a class="header-anchor" href="#innodb-current-lock-waits">¶</a>InnoDB Current Lock Waits</h4>
+<hr>
+<p>显示了每秒钟InnoDB事务等待锁的个数。它和InnoDB Active/Locked Transactions有一定的关系<br>
+如果Lock Waits出现的次数比较多，那么就应该去排查一下LOCK WAIT状态的事务；如果事务一直是处于LOCK WAIT状态，那么最悲催的情况下是，等待时间达到innodb_lock_wait_timeout（默认50秒）时才会放弃获取锁；<br>
+如果innodb_lock_wait_timeout设置过大，即使只有一个处于LOCK WAIT的事务，它也很可能等待一个比较长的时间</p>
 <blockquote>
-<p>innodb_lock_wait_timeout<br>表示在获取锁时等待的最长时间，默认值是50秒<br>如果超过这个时间，应用会收到如下异常信息</p>
+<p>innodb_lock_wait_timeout<br>
+表示在获取锁时等待的最长时间，默认值是50秒<br>
+如果超过这个时间，应用会收到如下异常信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt; java.lang.Exception:</div><div class="line">&gt; ### Error updating database.  Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt; ### The error may involve defaultParameterMap</div><div class="line">&gt; ### The error occurred while setting parameters</div><div class="line">&gt; ### Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction; SQL []; Lock wait timeout exceeded; try restarting transaction; nested exception is java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt;</div></pre></td></tr></table></figure>
 </blockquote>
-<h4 id="InnoDB-Row-Lock-Waits-amp-InnoDB-Row-Lock-Time"><a href="#InnoDB-Row-Lock-Waits-amp-InnoDB-Row-Lock-Time" class="headerlink" title="InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time"></a>InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time</h4><ul>
-<li>Row Lock Time<br>显示了InnoDB在获取行锁时等待的时间（毫秒）；它来源于Innodb_row_lock_time的状态变量的值</li>
-<li>Row Lock Waits<br>显示了InnoDB等待获取行锁的次数；它来源于Innodb_row_lock_waits状态变量的值</li>
+<h4 id="innodb-row-lock-waits-innodb-row-lock-time"><a class="header-anchor" href="#innodb-row-lock-waits-innodb-row-lock-time">¶</a>InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time</h4>
+<ul>
+<li>Row Lock Time<br>
+显示了InnoDB在获取行锁时等待的时间（毫秒）；它来源于Innodb_row_lock_time的状态变量的值</li>
+<li>Row Lock Waits<br>
+显示了InnoDB等待获取行锁的次数；它来源于Innodb_row_lock_waits状态变量的值</li>
 </ul>
 <p>案例</p>
 <blockquote>
 <p>某次发生deadlock时的监控信息</p>
 </blockquote>
 <p><img src="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png" alt="dl-lock-time-waits"></p>
-<h3 id="执行相关"><a href="#执行相关" class="headerlink" title="执行相关"></a>执行相关</h3><hr>
-<h4 id="MySQL-Handlers"><a href="#MySQL-Handlers" class="headerlink" title="MySQL Handlers"></a>MySQL Handlers</h4><p>这些handler记录了MySQL通过存储引擎的API的操作记录</p>
+<h3 id="执行相关"><a class="header-anchor" href="#执行相关">¶</a>执行相关</h3>
+<hr>
+<h4 id="mysql-handlers"><a class="header-anchor" href="#mysql-handlers">¶</a>MySQL Handlers</h4>
+<p>这些handler记录了MySQL通过存储引擎的API的操作记录</p>
 <ul>
-<li>Handler_read_rnd<br>记录调用handler::rnd_pos()的次数；这个方法的作用就是从表中基于固定的位置（比如，随机读）获取一条记录；不同的存储引擎所表示的含义不一样，在MyISAM中这个位置表示一个字节从文件开头算起所在的偏移量，在InnoDB中，它表示根据主键值读取一条记录。</li>
-<li>Handler_read_rnd_next<br>记录调用handler::rnd_next() 的次数；从根本上说是一次游标操作，从表中读取后续的记录。当发生全表扫描时会调用这个方法。<br>出现尖峰表明有大量的表扫描</li>
+<li>Handler_read_rnd<br>
+记录调用handler::rnd_pos()的次数；这个方法的作用就是从表中基于固定的位置（比如，随机读）获取一条记录；不同的存储引擎所表示的含义不一样，在MyISAM中这个位置表示一个字节从文件开头算起所在的偏移量，在InnoDB中，它表示根据主键值读取一条记录。</li>
+<li>Handler_read_rnd_next<br>
+记录调用handler::rnd_next() 的次数；从根本上说是一次游标操作，从表中读取后续的记录。当发生全表扫描时会调用这个方法。<br>
+出现尖峰表明有大量的表扫描</li>
 </ul>
 <p>案例</p>
 <blockquote>
-<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br><img src="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png" alt="mysql-handlers"></p>
-<p>Handler Read Rnd Next飙高<br><img src="/2015/11/17/MySQL的核心监控指标/" alt="Uploading handlers.png…"></p>
+<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br>
+<img src="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png" alt="mysql-handlers"></p>
+<p>Handler Read Rnd Next飙高<br>
+<img src="/2015/11/17/MySQL的核心监控指标/" alt="Uploading handlers.png…"></p>
 </blockquote>
-<h4 id="MySQL-Select-Types"><a href="#MySQL-Select-Types" class="headerlink" title="MySQL Select Types"></a>MySQL Select Types</h4><p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>这些显示了执行计划的各种类型的执行次数，尤其要注意<br>尽可能将Select_full_join的出现次数控制在0</p>
-<h3 id="连接相关"><a href="#连接相关" class="headerlink" title="连接相关"></a>连接相关</h3><h4 id="MySQL-Connections"><a href="#MySQL-Connections" class="headerlink" title="MySQL Connections"></a>MySQL Connections</h4><p>尤其要注意aborted clients和connections，一般很少出现这两个值飙高的情况</p>
+<h4 id="mysql-select-types"><a class="header-anchor" href="#mysql-select-types">¶</a>MySQL Select Types</h4>
+<p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>
+这些显示了执行计划的各种类型的执行次数，尤其要注意<br>
+尽可能将Select_full_join的出现次数控制在0</p>
+<h3 id="连接相关"><a class="header-anchor" href="#连接相关">¶</a>连接相关</h3>
+<h4 id="mysql-connections"><a class="header-anchor" href="#mysql-connections">¶</a>MySQL Connections</h4>
+<p>尤其要注意aborted clients和connections，一般很少出现这两个值飙高的情况</p>
 <ul>
 <li>aborted clients</li>
 </ul>
 <p>以下这几种场景会导致该监控的值飙高</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1. 由于client挂掉而没有正确关闭连接导致被终止的连接数；</div><div class="line">2. 或者client sleep的时间超过了wait_timeout（默认28800秒）或者interactive_timeout（默认28800秒），并且这期间没有向server发送任何请求；</div><div class="line">3. 或者client在传输数据的过程中突然终止</div></pre></td></tr></table></figure>
 <blockquote>
-<p>参考：<br><a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_clients" target="_blank" rel="external">Aborted_clients</a><br><a href="http://dev.mysql.com/doc/refman/5.6/en/communication-errors.html" target="_blank" rel="external">Communication Errors and Aborted Connections</a></p>
+<p>参考：<br>
+<a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_clients" target="_blank" rel="external">Aborted_clients</a><br>
+<a href="http://dev.mysql.com/doc/refman/5.6/en/communication-errors.html" target="_blank" rel="external">Communication Errors and Aborted Connections</a></p>
+</blockquote>
 <ul>
 <li>aborted connections client</li>
 </ul>
-</blockquote>
-<p>尝试连接MySQL的失败次数；<br>导致的原因：</p>
+<p>尝试连接MySQL的失败次数；<br>
+导致的原因：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1. client没有访问权限</div><div class="line">2. client访问密码错误</div><div class="line">3. 连接包不合法</div><div class="line">4. 发送连接包的时间超过了connect_timeout（默认10秒）</div></pre></td></tr></table></figure>
 <blockquote>
-<p>参考：<br><a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_connects" target="_blank" rel="external">Aborted_connects</a><br><a href="http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_connect_timeout" target="_blank" rel="external">connect_timeout</a></p>
+<p>参考：<br>
+<a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_connects" target="_blank" rel="external">Aborted_connects</a><br>
+<a href="http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_connect_timeout" target="_blank" rel="external">connect_timeout</a></p>
 </blockquote>
 <p>网络相关原因也会导致这2种异常</p>
-<h3 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h3><hr>
-<h4 id="InnoDB-Buffer-Pool-Efficiency（效率）"><a href="#InnoDB-Buffer-Pool-Efficiency（效率）" class="headerlink" title="InnoDB Buffer Pool Efficiency（效率）"></a>InnoDB Buffer Pool Efficiency（效率）</h4><p>logical read requests 表示InnoDB已经处理过的数量<br>logical reads 表示InnoDB并不能从buffer pool读取数据，不得不直接从磁盘中读取</p>
+<h3 id="其他"><a class="header-anchor" href="#其他">¶</a>其他</h3>
+<hr>
+<h4 id="innodb-buffer-pool-efficiency-效率"><a class="header-anchor" href="#innodb-buffer-pool-efficiency-效率">¶</a>InnoDB Buffer Pool Efficiency（效率）</h4>
+<p>logical read requests 表示InnoDB已经处理过的数量<br>
+logical reads 表示InnoDB并不能从buffer pool读取数据，不得不直接从磁盘中读取</p>
 <p>案例</p>
 <blockquote>
-<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br><img src="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png" alt="buffer-pool-efficiency"></p>
-<h4 id="InnoDB-Buffer-Pool-Activity"><a href="#InnoDB-Buffer-Pool-Activity" class="headerlink" title="InnoDB Buffer Pool Activity"></a>InnoDB Buffer Pool Activity</h4></blockquote>
+<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br>
+<img src="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png" alt="buffer-pool-efficiency"></p>
+</blockquote>
+<h4 id="innodb-buffer-pool-activity"><a class="header-anchor" href="#innodb-buffer-pool-activity">¶</a>InnoDB Buffer Pool Activity</h4>
 <hr>
-<p>显示了buffer pool中的活动信息：创建、读和写pages<br>它和Handler是一致的</p>
-<h4 id="InnoDB-Checkpoint-Age"><a href="#InnoDB-Checkpoint-Age" class="headerlink" title="InnoDB Checkpoint Age"></a>InnoDB Checkpoint Age</h4><hr>
-<h4 id="InnoDB-I-O-Pending"><a href="#InnoDB-I-O-Pending" class="headerlink" title="InnoDB I/O Pending"></a>InnoDB I/O Pending</h4><hr>
-<p>显示InnoDB的同步和异步的pending I/O.<br>Pending I/O是不理想的；理想情况下，InnoDB后台线程（background thread）能够和写保持同步，并且希望buffer pool足够大能解决读的问题；<br>如果出现大量的pending I/O，那么需要加内存，或者一个更大的buffer pool（或者使用O_DIRECT来double-buffering），或者比较快的磁盘系统</p>
-<h4 id="InnoDB-Lock-Structures"><a href="#InnoDB-Lock-Structures" class="headerlink" title="InnoDB Lock Structures"></a>InnoDB Lock Structures</h4><hr>
-<p>表明InnoDB内部有多少锁结构；这个和事务持有的行锁的个数相当；<br>并没有硬性该规定多少个锁结构是好还是坏，不过当很多事务正在等待锁时，很显然这个值越小越好</p>
+<p>显示了buffer pool中的活动信息：创建、读和写pages<br>
+它和Handler是一致的</p>
+<h4 id="innodb-checkpoint-age"><a class="header-anchor" href="#innodb-checkpoint-age">¶</a>InnoDB Checkpoint Age</h4>
+<hr>
+<h4 id="innodb-i-o-pending"><a class="header-anchor" href="#innodb-i-o-pending">¶</a>InnoDB I/O Pending</h4>
+<hr>
+<p>显示InnoDB的同步和异步的pending I/O.<br>
+Pending I/O是不理想的；理想情况下，InnoDB后台线程（background thread）能够和写保持同步，并且希望buffer pool足够大能解决读的问题；<br>
+如果出现大量的pending I/O，那么需要加内存，或者一个更大的buffer pool（或者使用O_DIRECT来double-buffering），或者比较快的磁盘系统</p>
+<h4 id="innodb-lock-structures"><a class="header-anchor" href="#innodb-lock-structures">¶</a>InnoDB Lock Structures</h4>
+<hr>
+<p>表明InnoDB内部有多少锁结构；这个和事务持有的行锁的个数相当；<br>
+并没有硬性该规定多少个锁结构是好还是坏，不过当很多事务正在等待锁时，很显然这个值越小越好</p>
 <p>通过SHOW INNODB STATUS可以查看锁信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">23 lock struct(s), heap size 3024, undo log entries 27</div><div class="line">LOCK WAIT 12 lock struct(s), heap size 3024, undo log entries 5</div><div class="line">LOCK WAIT 2 lock struct(s), heap size 368</div></pre></td></tr></table></figure>
-<h4 id="InnoDB-Log-Activity"><a href="#InnoDB-Log-Activity" class="headerlink" title="InnoDB Log Activity"></a>InnoDB Log Activity</h4><hr>
-<p>显示了InnoDB Log的活动<br>If transactions need to write to the log buffer and it’s either not big enough or is currently being flushed, they’ll stall.</p>
-<h4 id="Binary-Relay-logs"><a href="#Binary-Relay-logs" class="headerlink" title="Binary/Relay logs"></a>Binary/Relay logs</h4><hr>
-<p>当日志被清理时，size会发生变化，比如设置了expire_logs_days。<br>如果size突然增大了，可以看看是不是清除（purge）的时候出了问题，有可能是配置发生了变化，或者有人手动删除了文件触发了自动清除从而导致MySQL停止工作</p>
-<h4 id="MySQL-Replication"><a href="#MySQL-Replication" class="headerlink" title="MySQL Replication"></a>MySQL Replication</h4><hr>
-<p>显示了复制线程的状态。有2种方式衡量复制延时<br>1.通过SHOW SLAVE STATUS去查看Seconds_behind_master信息<br>2.通过心跳表去check<br>当复制正在工作的时候，绿色区域的大小就是复制延时。当复制停止的时候，也有个红色的区域，其大小也是复制延时；所以通过观察区域的颜色就能知道复制是否被终止了。如果复制没有延时，那么看不到绿色或者红色的区域</p>
+<h4 id="innodb-log-activity"><a class="header-anchor" href="#innodb-log-activity">¶</a>InnoDB Log Activity</h4>
+<hr>
+<p>显示了InnoDB Log的活动<br>
+If transactions need to write to the log buffer and it’s either not big enough or is currently being flushed, they’ll stall.</p>
+<h4 id="binary-relay-logs"><a class="header-anchor" href="#binary-relay-logs">¶</a>Binary/Relay logs</h4>
+<hr>
+<p>当日志被清理时，size会发生变化，比如设置了expire_logs_days。<br>
+如果size突然增大了，可以看看是不是清除（purge）的时候出了问题，有可能是配置发生了变化，或者有人手动删除了文件触发了自动清除从而导致MySQL停止工作</p>
+<h4 id="mysql-replication"><a class="header-anchor" href="#mysql-replication">¶</a>MySQL Replication</h4>
+<hr>
+<p>显示了复制线程的状态。有2种方式衡量复制延时<br>
+1.通过SHOW SLAVE STATUS去查看Seconds_behind_master信息<br>
+2.通过心跳表去check<br>
+当复制正在工作的时候，绿色区域的大小就是复制延时。当复制停止的时候，也有个红色的区域，其大小也是复制延时；所以通过观察区域的颜色就能知道复制是否被终止了。如果复制没有延时，那么看不到绿色或者红色的区域</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67i4qtv0005idshhmwzjryy" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67jnuik0006myshccrnhvbn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
