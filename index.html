@@ -69,89 +69,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-fdsfds" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/11/fdsfds/" class="article-date">
-  <time datetime="2017-08-11T07:23:57.000Z" itemprop="datePublished">2017-08-11</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/test/">test</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/11/fdsfds/">fdsfds</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>发范德萨范德萨</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/08/11/fdsfds/" data-id="cj67juapk000nojsh3t7pkpfx" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/test/">test</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kafka性能调优" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/08/04/kafka性能调优/" class="article-date">
-  <time datetime="2017-08-04T06:43:18.000Z" itemprop="datePublished">2017-08-04</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/08/04/kafka性能调优/">kafka性能调优</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>参考<br>
-<a href="https://www.slideshare.net/miguno/apache-kafka-08-basic-training-verisign" target="_blank" rel="external">https://www.slideshare.net/miguno/apache-kafka-08-basic-training-verisign</a></p>
-<p><a href="https://www.confluent.io/blog/optimizing-apache-kafka-deployment/" target="_blank" rel="external">https://www.confluent.io/blog/optimizing-apache-kafka-deployment/</a></p>
-<p>调优文档pdf</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/08/04/kafka性能调优/" data-id="cj67juaph000iojsh23ghcwx4" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/07/12/MySQL-CPU-sys飙高/" class="article-date">
@@ -323,468 +240,11 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj67juap9000gojsh4usbr5cp" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj67jykx2000cp8sh7rbwzfau" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
 
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-kafka如何实现高可用" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/11/01/kafka如何实现高可用/" class="article-date">
-  <time datetime="2016-11-01T06:22:18.000Z" itemprop="datePublished">2016-11-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/11/01/kafka如何实现高可用/">kafka如何实现高可用</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>16  63</p>
-<h3 id="性能"><a class="header-anchor" href="#性能">¶</a>性能</h3>
-<p>Kafka PK XXX</p>
-<!--
-https://softwaremill.com/mqperf/
-https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines
--->
-<h3 id="kafka的设计哲学"><a class="header-anchor" href="#kafka的设计哲学">¶</a>kafka的设计哲学</h3>
-<ul>
-<li>高吞吐量和低延时</li>
-<li>高可用</li>
-<li>持久化和可靠性</li>
-</ul>
-<!-- 
-https://www.slideshare.net/ConfluentInc/deep-dive-into-apache-kafka-66821186
-
-https://www.slideshare.net/jhols1/kafka-atlmeetuppublicv2
--->
-<h3 id="如何实现高吞吐量和低延时"><a class="header-anchor" href="#如何实现高吞吐量和低延时">¶</a>如何实现高吞吐量和低延时</h3>
-<ol>
-<li>磁盘读写能力</li>
-</ol>
-<ul>
-<li>顺序读写</li>
-<li>尽可能避免磁盘IO</li>
-</ul>
-<p>1.读写磁盘的性能<br>
-可以充分使用操作系统的文件系统的特性，提升读写磁盘的性能。</p>
-<ul>
-<li>顺序读写<br>
-读写磁盘的性能并没有大家想象中的那么差，一篇<a href="http://queue.acm.org/detail.cfm?id=1563874" target="_blank" rel="external">ACM Queue的文章</a>中表明在某些情况下通过顺序读写的方式，性能可以和内存的随机访问差不多</li>
-<li>read-ahead<br>
-局部性原理</li>
-<li>write-behind<br>
-将数据直接写入Page Cache中，通过操作系统的异步刷磁盘将数据刷到磁盘</li>
-</ul>
-<p>重度依赖Linux的PageCache机制<br>
-写入请求直接将数据写入page cache，并把对应的page标记为dirty page，然后由后台进程pdflush将dirty page的数据刷入到磁盘</p>
-<blockquote>
-<p>pdflush刷数据的时机</p>
-<ol>
-<li>dirty_writeback_centisecs /proc/sys/vm/dirty_writeback_centisecs查看这个值，默认一般是500（单位是1/100秒）。这个参数表示5s的时间pdflush就会被唤起去刷新脏数据。</li>
-<li>dirty_expire_centisecs cat /proc/sys/vm/dirty_expire_centicecs查看这个值，默认是3000（单位是1/100秒）。这个值表示page cache中的数据多久之后被标记为脏数据。只有标记为脏的数据在下一个周期到来时pdflush才会刷入到磁盘，这样就意味着用户写的数据在30秒之后才有可能被刷入磁盘，在这期间断电都是会丢数据的。</li>
-<li>dirty_backgroud_ratio<br>
-pdflush进程会开启多个线程刷数据<br>
-/proc/sys/vm/nr_pdflush_threads</li>
-</ol>
-</blockquote>
-<!--
-http://www.cnblogs.com/zengkefu/p/5634853.html
-http://blog.sina.com.cn/s/blog_96757e4b01011b1n.html
-http://calvin1978.blogcn.com/articles/kafkaio.html
-https://www.thomas-krenn.com/en/wiki/Linux_Page_Cache_Basics
-https://lonesysadmin.net/2013/12/22/better-linux-disk-caching-performance-vm-dirty_ratio/
--->
-<blockquote>
-<ol start="4">
-<li>读请求直接从page cache里面读</li>
-</ol>
-</blockquote>
-<blockquote>
-<p>数据丢失：如果在page cache里面的数据在刷入到磁盘之前出现系统断电，则数据将被丢失</p>
-</blockquote>
-<p>IO调度层主要做两个事情，合并和排序。 合并是将相同和相邻扇区(每个512字节)的操作合并成一个，比如我现在要读扇区1，2，3，那可以合并成一个读扇区1-3的操作。排序就是将所有操作按扇区方向排成一个队列，让磁盘的磁头可以按顺序移动，有效减少了机械硬盘寻址这个最慢最慢的操作。<br>
-在Apache Kafka里，消息的读写都发生在内存中，真正写盘的就是那条fluher内核线程，因为都是顺序写，即使一台服务器上有多个Partition文件，经过合并和排序后都能获得很好的性能，或者说，Partition文件的个数并不影响性能，不会出现文件多了变成随机读写的情况。<br>
-如果是SSD硬盘，没有寻址的花销，排序好像就没必要了，但合并的帮助依然良多，所以还有另一种只合并不排序的NOOP算法可供选择。</p>
-<!--
-http://calvin1978.blogcn.com/articles/kafkaio.html
--->
-<p>Efficiency - Implication</p>
-<ul>
-<li>读操作可直接在Page Cache内进行。如果消费和生产速度相当，甚至不需要通过物理磁盘（直接通过Page Cache）交换数据</li>
-</ul>
-<p>如果进程重启，JVM内的Cache会失效，但Page Cache仍然可用</p>
-<p>Broker收到数据后，写磁盘时只是将数据写入Page Cache，并不保证数据一定完全写入磁盘。从这一点看，可能会造成机器宕机时，Page Cache内的数据未写入磁盘从而造成数据丢失。但是这种丢失只发生在机器断电等造成操作系统不工作的场景，而这种场景完全可以由Kafka层面的Replication机制去解决。如果为了保证这种情况下数据不丢失而强制将Page Cache中的数据Flush到磁盘，反而会降低性能。也正因如此，Kafka虽然提供了flush.messages和flush.ms两个参数将Page Cache中的数据强制Flush到磁盘，但是Kafka并不建议使用。</p>
-<p>如果数据消费速度与生产速度相当，甚至不需要通过物理磁盘交换数据，而是直接通过Page Cache交换数据。同时，Follower从Leader Fetch数据时，也可通过Page Cache完成。下图为某Partition的Leader节点的网络/磁盘读写信息。</p>
-<ul>
-<li>零拷贝</li>
-</ul>
-<!--
-http://www.infoq.com/cn/articles/kafka-analysis-part-6
--->
-<p>Zero copy I/O using sendfile (Java’s NIO FileChannel transferTo method).<br>
-Implements linux sendfile() system call which skips unnecessary copies<br>
-Linux 2.4+内核通过sendfile系统调用，提供了零拷贝。数据通过DMA拷贝到内核态Buffer后，直接通过DMA拷贝到NIC Buffer，无需CPU拷贝。这也是零拷贝这一说法的来源。除了减少数据拷贝外，因为整个读文件-网络发送由一个sendfile调用完成，整个过程只有两次上下文切换，因此大大提高了性能。</p>
-<ul>
-<li>
-<p>批量<br>
-批处理是一种常用的用于提高I/O性能的方式。对Kafka而言，批处理既减少了网络传输的Overhead，又提高了写磁盘的效率。<br>
-Producer API通过batch.size和linger.ms控制实际发送频率，从而实现批量发送。由于每次网络传输，除了传输消息本身以外，还要传输非常多的网络协议本身的一些内容（称为Overhead），所以将多条消息合并到一起传输，可有效减少网络传输的Overhead，进而提高了传输效率。</p>
-</li>
-<li>
-<p>压缩<br>
-支持将数据压缩后再传输给Broker。除了可以将每条消息单独压缩然后传输外，Kafka还支持在批量发送时，将整个Batch的消息一起压缩后传输。数据压缩的一个基本原理是，重复数据越多压缩效果越好。因此将整个Batch的数据一起压缩能更大幅度减小数据量，从而更大程度提高网络传输效率。</p>
-</li>
-</ul>
-<p>Broker接收消息后，并不直接解压缩，而是直接将消息以压缩后的形式持久化到磁盘。Consumer Fetch到数据后再解压缩。因此Kafka的压缩不仅减少了Producer到Broker的网络传输负载，同时也降低了Broker磁盘操作的负载，也降低了Consumer与Broker间的网络传输量，从而极大得提高了传输效率，提高了吞吐量。</p>
-<p>Producer支持End-to-End的压缩。数据在本地压缩后放到网络上传输，在Broker一般不解压(除非指定要Deep-Iteration)，直至消息被Consume之后在客户端解压。<br>
-当然用户也可以选择自己在应用层上做压缩和解压的工作(毕竟Kafka目前支持的压缩算法有限，只有GZIP和Snappy)，不过这样做反而会意外的降低效率！！！！ Kafka的End-to-End压缩与MessageSet配合在一起工作效果最佳，上面的做法直接割裂了两者间联系。至于道理其实很简单，压缩算法中一条基本的原理“重复的数据量越多，压缩比越高”。无关于消息体的内容，无关于消息体的数量，大多数情况下输入数据量大一些会取得更好的压缩比。</p>
-<ul>
-<li>序列化</li>
-</ul>
-<h4 id="多机并行处理"><a class="header-anchor" href="#多机并行处理">¶</a>多机并行处理</h4>
-<p><img src="/2016/11/01/kafka如何实现高可用/scaled-out-arch.jgp" alt="scaled-out-arch"></p>
-<p>Partition 提升并行处理能力</p>
-<!--
-http://www.infoq.com/cn/articles/kafka-analysis-part-6
--->
-<p>每个Topic都包含一个或多个Partition，不同Partition可位于不同节点。同时Partition在物理上对应一个本地文件夹，每个Partition包含一个或多个Segment，每个Segment包含一个数据文件和一个与之对应的索引文件。在逻辑上，可以把一个Partition当作一个非常长的数组，可通过这个“数组”的索引（offset）去访问其数据。</p>
-<p>一方面，由于不同Partition可位于不同机器，因此可以充分利用集群优势，实现机器间的并行处理。另一方面，由于Partition在物理上对应一个文件夹，即使多个Partition位于同一个节点，也可通过配置让同一节点上的不同Partition置于不同的disk drive上，从而实现磁盘间的并行处理，充分发挥多磁盘的优势。</p>
-<p>注：虽然物理上最小单位是Segment，但Kafka并不提供同一Partition内不同Segment间的并行处理。因为对于写而言，每次只会写Partition内的一个Segment，而对于读而言，也只会顺序读取同一Partition内的不同Segment。</p>
-<p>Consumer消费同一个Topic时，同一条消息只会被同一Consumer Group内的一个Consumer所消费。而数据并非按消息为单位分配，而是以Partition为单位分配，也即同一个Partition的数据只会被一个Consumer所消费（在不考虑Rebalance的前提下）。</p>
-<p>如果Consumer的个数多于Partition的个数，那么会有部分Consumer无法消费该Topic的任何数据，也即当Consumer个数超过Partition后，增加Consumer并不能增加并行度。</p>
-<p>简而言之，Partition个数决定了可能的最大并行度。</p>
-<h4 id="高可用"><a class="header-anchor" href="#高可用">¶</a>高可用</h4>
-<!--
-http://kaimingwan.com/post/kafka/kafkayuan-li-yi-ji-she-ji-shi-xian-si-xiang
--->
-<ul>
-<li>replication<br>
-基于ISR的数据复制方案</li>
-</ul>
-<p>Partition会有多个Replication，ISR（即in-sync Replica）会保存Partition的Leader以及&quot;能够跟得上&quot;的Follower的列表，这个列表是动态调整的。kafka的数据复制是基于ISR实现的，ISR里面的Follower向Leader pull数据。一条消息只有被ISR里的所有Follower都从Leader复制过去才会被认为已提交。</p>
-<p>ISR，也即In-sync Replica。每个Partition的Leader都会维护这样一个列表，该列表中，包含了所有与之同步的Replica（包含Leader自己）。每次数据写入时，只有ISR中的所有Replica都复制完，Leader才会将其置为Commit，它才能被Consumer所消费。</p>
-<p>这种方案，与同步复制非常接近。但不同的是，这个ISR是由Leader动态维护的。如果Follower不能紧“跟上”Leader，它将被Leader从ISR中移除，待它又重新“跟上”Leader后，会被Leader再次加加ISR中。每次改变ISR后，Leader都会将最新的ISR持久化到Zookeeper中。<br>
-复制是基于topic partition的，每个partition可以复制repliaction refactor份，容忍repliaction refactor-1个副本的失败<br>
-选举算法不是基于quorum的，</p>
-<p>和ZK不同，不采用议员投票(Quorum)的方式，而是选取复制日志最完整的节点作为leader。这里相比Quorum就需要一些额外的操作，比如判断到底怎样才算是“日志最完整”，这样就需要一些额外的开销。<br>
-kafka采用了一种稍微不同的方法选择quorum集，而不是多数投票，kafka动态维护一组同步副本（ISR），就是以后的leader，只有这个组的成员才又资格当选leader，kafka副本写入不被认为是已提交，直到所有的同步副本已经接收才认为。这组ISR保存在zookeeper，正因为如此，在ISR中的任何副本都有资格当选leader，这是kafka的使用模型，有多个分区和确保leader平衡是很重要的一个重要因素。有了这个模型，ISR和f+1副本，kafka的主题可以容忍f失败而不会丢失已提交的消息。<br>
-这种投票表决的方式有一个非常好的特性：仅依赖速度最快的服务器，也就是说，如果复制因子为三个，由最快的一个来确定。</p>
-<p>多数投票的缺点是，它不需要通过很多次的失败来让你没有候选人，容忍一次失败需要3个数据副本，容忍2个故障需要5个数据副本。实际的系统以我们的经验只能容忍单个故障的冗余是不够的，但是如果5个数据副本，每个写5次，5倍的磁盘空间要求，1/5的吞吐量，对于大数据量不实用，这可能是quorum算法更通常在共享集群配置。如zookeeper，用于主数据存储不太常见。例如，在HDFS namenode的高可用性特性是建立在majority-vote-based日报，但这更昂贵的方法不用于数据本身。</p>
-<p>总结：zk的quorum选举适用在共享集群配置而不是主数据存储。因为其吞吐量低，容忍故障所需要的冗余副本比较多</p>
-<p>broker是否存活</p>
-<ul>
-<li>与ZK存在session（ZK的Heartbeat机制实现）</li>
-<li>Follower必须能够及时将Leader的消息复制过来，能跟得上CaughtUp</li>
-</ul>
-<p>isr列表<br>
-跟得上leader的副本列表（含leader本身）</p>
-<blockquote>
-<p>落后太多</p>
-<p>落后时间&gt;<a href="http://replica.lag.time.max.ms" target="_blank" rel="external">replica.lag.time.max.ms</a>（10000ms）</p>
-<p>或者</p>
-<p>落后条数&lt;=replica.lag.max.messages（4000）0.9.0.0版本中已废除</p>
-</blockquote>
-<blockquote>
-<p>version&lt;0.8 不提供HA。一旦broker不可用，上面的消息不能被消费，如果磁盘损坏，那么消息会被丢失。</p>
-</blockquote>
-<p>Mission Critical Data</p>
-<ul>
-<li>
-<p>Disable Unclean Leader Electio</p>
-<p>unclean.leader.election.enable = false</p>
-</li>
-<li>
-<p>Set replication factor</p>
-<p>default.replication.factor = 3</p>
-</li>
-<li>
-<p>Set minimum ISRs</p>
-<p>min.insync.replicas = 2</p>
-</li>
-<li>
-<p>Set producer acks</p>
-<p>acks = all</p>
-</li>
-</ul>
-<h4 id="compacted-topic"><a class="header-anchor" href="#compacted-topic">¶</a>compacted topic</h4>
-<p>log compaction</p>
-<ul>
-<li>
-<p>Cleaning Configs<br>
-• log.cleaner.min.cleanable.ratio (default 0.5)<br>
-• dirty/total ratio when log cleaner is triggered<br>
-• log.cleaner.io.max.bytes.per.second (default infinite)<br>
-• Max rate cleaning can be done<br>
-• Can be used for throttling</p>
-</li>
-<li>
-<p>Be Careful with Deletes<br>
-• Delete tombstone modeled as null message<br>
-• Danger of removing a deleted key too soon<br>
-• Consumer still assumes the old value with the key<br>
-• <a href="http://log.cleaner.delete.retention.ms" target="_blank" rel="external">log.cleaner.delete.retention.ms</a> (default 1 day)<br>
-• “Delete tombstone” removed after that time<br>
-• Consumer needs to finish consuming the tombstone before that time</p>
-</li>
-</ul>
-<!--
-https://www.slideshare.net/miguno/apache-kafka-08-basic-training-verisign
--->
-<p><a href="http://www.developer-tech.com/news/2014/jun/10/why-loggly-loves-apache-kafka-how-unbreakable-infinitely-scalable-messaging-makes-log-management-better/" target="_blank" rel="external">http://www.developer-tech.com/news/2014/jun/10/why-loggly-loves-apache-kafka-how-unbreakable-infinitely-scalable-messaging-makes-log-management-better/</a></p>
-<p>replication 3 min.insync.replicas 2 request.required.acks -1</p>
-<h3 id="持久化"><a class="header-anchor" href="#持久化">¶</a>持久化</h3>
-<p>Filesystem Cache<br>
-Zero-copy transfer of messages<br>
-Batching of Messages<br>
- Batch Compression<br>
- Automatic Producer Load balancing.<br>
- Broker does not Push messages to Consumer, Consumer Polls messages from Broker.<br>
- And Some others.<br>
- Cluster formation of Broker/Consumer using Zookeeper, So on the fly more consumer, broker can be introduced. The new cluster rebalancing will be taken care by Zookeeper<br>
- Data is persisted in broker and is not removed on consumption (till retention period), so if one consumer fails while consuming, same message can be re-consume again later from broker.<br>
- Simplified storage mechanism for message, not for each message per consumer.</p>
-<h4 id="不丢失消息的前提"><a class="header-anchor" href="#不丢失消息的前提">¶</a>不丢失消息的前提</h4>
-<ul>
-<li>ack=-1</li>
-<li>min.insync.replicas</li>
-<li>topic的unclean.leader.election.enable=false，不允许选择非isr列表中的副本作为新的leader</li>
-<li>还会存在丢失消息的可能:s3就要截断日志<br>
-size(isr列表)&lt;min.insync.replicas<br>
-写入消息时，返回NotEnoughReplicasException<br>
-写入后，在返回给producer之前再次判断，返回NotEnoughReplicasAfterAppendException</li>
-</ul>
-<p>丢消息最主要的原因是：<br>
-由于follower的highWatermarkMetadata相对于leader的highWatermarkMetadata是延迟更新的，当leader选举完成后，所有follower副本的截断到自己的highWatermarkMetadata位置，则可能截断了已被老leader提交了的日志，这样的话，这部分日志仅仅存在新的leader副本中，在其他副本中消失了，一旦leader副本挂了，这部分日志就彻底丢失了</p>
-<!--
-
-https://www.ibm.com/support/knowledgecenter/ssw_aix_71/com.ibm.aix.performance/fs_perf_tuning.htm
-
-https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Performance_Tuning_Guide/main-fs.html
-
-https://developer.ridgerun.com/wiki/index.php/Linux_Performance_and_Tuning_Tricks
-
-http://www.kevinboone.net/linux_kernel_file_2.html
-
-
-http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
-
-
-http://queue.acm.org/detail.cfm?id=1563874
-http://deliveryimages.acm.org/10.1145/1570000/1563874/jacobs3.jpg
-
-
-page cache
-http://blog.csdn.net/thewayma/article/details/4287170
-
-https://tech.meituan.com/kafka-fs-design-theory.html
--->
-<!--
-http://www.infoq.com/cn/articles/kafka-analysis-part-2/
-
--->
-<h3 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h3>
-<!--
-https://m.aliyun.com/yunqi/articles/64703
-
-zero copy
-https://www.ibm.com/developerworks/linux/library/j-zerocopy/
-
--->
-<!--
-http://www.jasongj.com/2015/04/24/KafkaColumn2/
-
-https://engineering.linkedin.com/distributed-systems/log-what-every-software-engineer-should-know-about-real-time-datas-unifying
--->
-<!--
-http://www.jasongj.com/kafka/high_throughput/
--->
-<!--
-
-
-http://www.ece.eng.wayne.edu/~sjiang/Tsinghua-2010/linux-readahead.pdf
-http://osr507doc.xinuos.com/en/PERFORM/buffer_cache.html
-http://careers.directi.com/display/tu/Understanding+and+Optimizing+Disk+IO
--->
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/11/01/kafka如何实现高可用/" data-id="cj67juaox0008ojshd2y28tdb" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/消息系统/">消息系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/高可用/">高可用</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-影响Kafka性能的核心参数" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/08/08/影响Kafka性能的核心参数/" class="article-date">
-  <time datetime="2016-08-08T11:41:48.000Z" itemprop="datePublished">2016-08-08</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/08/影响Kafka性能的核心参数/">深入理解Kafka优化的核心参数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <!--
-http://l-kafka1.dba.cn2.qunar.com:2333
--->
-<h3 id="性能测试"><a class="header-anchor" href="#性能测试">¶</a>性能测试</h3>
-<!--
-http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449
-
-https://kafka.apache.org/documentation/#brokerconfigs
-
--->
-<h3 id="权衡throughput-vs-latency-durability-vs-availability"><a class="header-anchor" href="#权衡throughput-vs-latency-durability-vs-availability">¶</a>权衡throughput VS latency 、durability VS availability</h3>
-<ul>
-<li>优化throughput</li>
-</ul>
-<p>:start: broker端</p>
-<ol>
-<li>
-<p>确定topic的分区个数</p>
-<p>topic分区是并行处理的最小单元。消息的并行发送和接收都是基于分区的。通常而言，topic的分区越多，并行处理能力越强，吞吐量越大。我们需要根据producer和consumer的吞吐量去确定分区的个数。</p>
-<blockquote>
-<p>这篇<a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">文章</a>详细讲解了如何确定分区个数</p>
-</blockquote>
-</li>
-</ol>
-<p>生产者端</p>
-<ol>
-<li>
-<p>批量策略<br>
-生产者通过将多个消息以一个消息的批量方式发送消息。两个核心参数<br>
-<a href="http://batch.xn--sizelinger-kh7q.ms" target="_blank" rel="external">batch.size和linger.ms</a>；但是会影响延时，因为必须消息不是立即发送的，<a href="http://xn--batch-1j0kg0dm23hu1rvk4afsa.xn--sizelinger-0s2pe08n5qca854dzpol7csq3cda5117bv6uyzxk54emllit1b2pe.ms" target="_blank" rel="external">而是需要收集batch.size个消息或者收集消息的等待时间超过linger.ms</a>。设置compression.type（支持lz4, snappy, and gzip），批量消息将通过压缩的方式压缩成一个消息，所以batch.size越大，压缩率越高，吞吐量越大。</p>
-</li>
-<li>
-<p>acks方式<br>
-acks=1 leader broker收到消息后就返回ack，而不用等所有的followers都收到消息。</p>
-</li>
-<li>
-<p>发送时机<br>
-buffer.memory<br>
-<a href="http://max.block.ms" target="_blank" rel="external">max.block.ms</a><br>
-二者满其一将发送</p>
-</li>
-</ol>
-<p>消费者端</p>
-<ol>
-<li>fetch.min.bytes<br>
-这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但是会影响延时时间。达到fetch.min.bytes或者超过fetch.max.wait.ms时，才会消费消息。</li>
-</ol>
-<p>GC<br>
-gc会导致应用暂停，所以长时间的GC时间会严重影响吞吐量；严重的情况下会导致broker失败，比如长时间的GC会导致ZooKeeper session超时，ZooKeeper会认为该broker不可用。</p>
-<blockquote>
-<p>GC该如何优化参考GC调优</p>
-</blockquote>
-<p>小结</p>
-<p>Producer:• batch.size: increase to 100000 - 200000 (default 16384)• <a href="http://linger.ms" target="_blank" rel="external">linger.ms</a>: increase to 10 - 100 (default 0)• compression.type=lz4 (default none)• acks=1 (default 1)• retries=0 (default 0)• buffer.memory: increase if there are a lot of partitions (default 33554432)<br>
-Consumer:• fetch.min.bytes: increase to ~100000 (default 1)</p>
-<ul>
-<li>优化latency</li>
-</ul>
-<p>消息复制会影响延时，复制消息的线程个数（num.replica.fetchers）会影响延时，num.replica.fetchers=1（默认值），当followers无法跟上leader时，可以将该值调大。</p>
-<p>linger.ms=0 即时发送<br>
-compression.type=none 压缩会使用CPU、降低网络带宽使用率<br>
-acks=0 异步发送，发送者无需等待broker的ack<br>
-etch.min.bytes=1 有消息就接收</p>
-<p>小结</p>
-<p>Producer:• linger.ms=0 (default 0)• compression.type=none (default none)• acks=1 (default 1)Broker:• num.replica.fetchers: increase if followers can’t keep up with the leader (default 1)Consumer:• fetch.min.bytes=1 (default 1)</p>
-<ul>
-<li>优化durability<br>
-replication.factor=3 可以保证在2个broker不可用的情况下，消息不丢失。</li>
-</ul>
-<p>auto.create.topics.enable=true 和持久化有什么关系？<br>
-__consumer_offsets 和自动创建topic的关系？<br>
-acks=-1<br>
-retries 自动重试</p>
-<blockquote>
-<p>重试的副作用</p>
-<ol>
-<li>重复消息；集群出现短暂失败时可能会导致重复消息，需要消费者端自己处理重复消息；另外exactly once semantics (EOS) 的功能还在开发中，这种机制可以保证无重复消息。</li>
-<li>导致消息重排；为了保证消息有序并且允许重新发生失败的消息，需要将max.in.flight.requests.per.connection设置为1，从而保证任何时候只有一个消息发送到broker。</li>
-</ol>
-</blockquote>
-<p>unclean.leader.election.enable=false 不允许不在ISR列表中的broker参加leader的选举，否则会导致已经提交但是还未复制的消息的丢失。</p>
-<p>log.flush.interval.ms和log.flush.interval.messages<br>
-消息写入broker是直接写入OS的PageCache的，然后由OS周期性地将数据从PageCache刷到磁盘；为了保证不丢消息，就需要将消息同步刷到磁盘，所以可以针对这类topic设置log.flush.interval.messages=1</p>
-<p>消费者是通过更新offsets来表明offsets之前的消息已经被消费了；当消费者的poll()执行完时，会自动commit offsets。但是如果poll作为业务事务中的一部分的时候，为了保证可靠性，必须在事务提交之后才能提交offsets，所以需要将auto.commit.enable=false，并且显示地调用<br>
-commitSync() or commitAsync()</p>
-<p>小结</p>
-<p>Producer:• replication.factor: 3, configure per topic• acks=all (default 1)• retries: 1 or more (default 0)• max.in.flight.requests.per.connection=1 (default 5), to prevent out of order messagesBroker:• default.replication.factor=3 (default 1)• auto.create.topics.enable=false (default true)• min.insync.replicas=2 (default 1); topic override available• unclean.leader.election.enable=false (default true); topic override available• broker.rack: rack of the broker (default null)• log.flush.interval.messages, <a href="http://log.flush.interval.ms" target="_blank" rel="external">log.flush.interval.ms</a>: for topics with very low throughput, set message interval or time interval low as needed (default allows the OS to control flushing); topic override availableConsumer:• auto.commit.enable=false (default true)</p>
-<ul>
-<li>优化availability</li>
-</ul>
-<p>Broker:• unclean.leader.election.enable=true (default true); topic override available• min.insync.replicas=1 (default 1); topic override available• num.recovery.threads.per.data.dir: number of directories in log.dirs broker启动的时候(default 1)<br>
-Consumer:• <a href="http://session.timeout.ms" target="_blank" rel="external">session.timeout.ms</a>: as low as feasible (default 10000) broker检测consumer是否可用的时间，消费者发生异常时broker会检测到失败并且重新rebalance。消费者失败要么是硬件失败导致，要么是软件失败导致。软件失败最场景的两个场景：<br>
-poll()处理时间过长；或者是GC暂停时间太长</p>
-<ul>
-<li>GC调优</li>
-</ul>
-<!--
-http://docs.confluent.io/current/kafka/deployment.html#jvm
--->
-<h3 id="核心参数"><a class="header-anchor" href="#核心参数">¶</a>核心参数</h3>
-<p>Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf</p>
-<!--
-http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111784165
-
-http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=109989214
-
-http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=111776937
-
-http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=112492986
--->
-<h3 id="运维相关"><a class="header-anchor" href="#运维相关">¶</a>运维相关</h3>
-<!--
-http://ops.corp.qunar.com/ops/outage/review/#?date_from=2017-06-09&date_to=2017-08-08
--->
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/影响Kafka性能的核心参数/" data-id="cj67juaom0003ojsh811bl1tk" class="article-share-link">Share</a>
-      
-      
     </footer>
   </div>
   
@@ -1033,7 +493,7 @@ http://ops.corp.qunar.com/ops/outage/review/#?date_from=2017-06-09&date_to=2017-
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj67juap6000dojshl4soxxrt" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj67jykx5000ep8shwzb03ekn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -1255,7 +715,7 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj67juap3000bojshgum0gtvn" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj67jykwv0008p8shy5ktg4bf" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -1453,7 +913,7 @@ If transactions need to write to the log buffer and it’s either not big enough
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67juaot0006ojsh2wa0zo9q" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67jykwu0007p8shfb25mk0a" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -1550,7 +1010,7 @@ If transactions need to write to the log buffer and it’s either not big enough
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj67juaoh0001ojshtxsrpr44" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj67jykwx0009p8shyyyf5vlz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -1628,7 +1088,7 @@ If transactions need to write to the log buffer and it’s either not big enough
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj67juaou0007ojshsxj76bok" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj67jykwn0004p8shrcsua67v" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -1650,7 +1110,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/test/">test</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1660,7 +1120,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/test/">test</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/消息系统/">消息系统</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/高可用/">高可用</a><span class="tag-list-count">1</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -1670,7 +1130,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/test/" style="font-size: 10px;">test</a> <a href="/tags/消息系统/" style="font-size: 10px;">消息系统</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a> <a href="/tags/高可用/" style="font-size: 10px;">高可用</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -1679,7 +1139,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/11/">十一月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1692,23 +1152,23 @@ If transactions need to write to the log buffer and it’s either not big enough
       <ul>
         
           <li>
-            <a href="/2017/08/11/fdsfds/">fdsfds</a>
-          </li>
-        
-          <li>
-            <a href="/2017/08/04/kafka性能调优/">kafka性能调优</a>
-          </li>
-        
-          <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
           </li>
         
           <li>
-            <a href="/2016/11/01/kafka如何实现高可用/">kafka如何实现高可用</a>
+            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
           <li>
-            <a href="/2016/08/08/影响Kafka性能的核心参数/">深入理解Kafka优化的核心参数</a>
+            <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
+          </li>
+        
+          <li>
+            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>
