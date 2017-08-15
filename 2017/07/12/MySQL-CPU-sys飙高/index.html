@@ -5,13 +5,13 @@
   
   <title>system cpu time飙高导致MySQL不可用 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 ¶故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connectio">
+  <meta name="description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
 <meta name="keywords" content="MySQL,sysbench">
 <meta property="og:type" content="article">
 <meta property="og:title" content="system cpu time飙高导致MySQL不可用">
 <meta property="og:url" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 ¶故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connectio">
+<meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu.jpg">
@@ -21,10 +21,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg">
-<meta property="og:updated_time" content="2017-08-01T03:18:17.000Z">
+<meta property="og:updated_time" content="2017-08-14T01:51:49.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="system cpu time飙高导致MySQL不可用">
-<meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 ¶故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connectio">
+<meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -105,9 +105,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。</p>
-<h2 id="故障现场"><a class="header-anchor" href="#故障现场">¶</a>故障现场</h2>
+<h2 id="故障现场">故障现场</h2>
 <hr>
 <p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。当时的主要信息如下。</p>
+<a id="more"></a>
 <ul>
 <li>慢查询</li>
 </ul>
@@ -129,7 +130,7 @@
 </ul>
 <p>业务服务接口的QPS在30左右未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
-<h2 id="临时解决方案"><a class="header-anchor" href="#临时解决方案">¶</a>临时解决方案</h2>
+<h2 id="临时解决方案">临时解决方案</h2>
 <hr>
 <p>为了快速恢复故障，将影响降到最低，我们采取了以下两个措施</p>
 <ol>
@@ -143,7 +144,7 @@
 </li>
 </ol>
 <p>故障是否由这条SQL导致呢？这个SQL的嫌疑比较大</p>
-<h2 id="故障排查"><a class="header-anchor" href="#故障排查">¶</a>故障排查</h2>
+<h2 id="故障排查">故障排查</h2>
 <hr>
 <p>变更往往是导致故障的主要原因，所以我们先看看故障发生之前，发生过哪些变更。经过确认</p>
 <blockquote>
@@ -176,7 +177,7 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mySQL&gt; show variables like '%time_zone%';     </div><div class="line">+------------------+--------+  </div><div class="line">| Variable_name    | Value  |  </div><div class="line">+------------------+--------+  </div><div class="line">| system_time_zone | CST    |  </div><div class="line">| time_zone        | SYSTEM |  </div><div class="line">+------------------+--------+  </div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
 <p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时并不能确定是timestamp导致的</p>
 <p>初步结论：尚无定论，有可能是timestamp的time_zone导致，待继续排查</p>
-<h2 id="故障重现"><a class="header-anchor" href="#故障重现">¶</a>故障重现</h2>
+<h2 id="故障重现">故障重现</h2>
 <hr>
 <p>为了保证再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由timestamp的time_zone导致。</p>
 <p>再次上线时，观察到system cpu time飙高，和故障现象一致</p>
@@ -184,7 +185,7 @@
 <blockquote>
 <p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
 </blockquote>
-<h2 id="原因定位"><a class="header-anchor" href="#原因定位">¶</a>原因定位</h2>
+<h2 id="原因定位">原因定位</h2>
 <hr>
 <p>到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测（num-threads=30），该问题立即复现。</p>
 <ul>
@@ -217,7 +218,7 @@
 </ol>
 <p>修改time_zone为’+8:00’后再次压测，system cpu time显示正常。</p>
 <p>自此可以确定是time_zone导致</p>
-<h2 id="解决方案"><a class="header-anchor" href="#解决方案">¶</a>解决方案</h2>
+<h2 id="解决方案">解决方案</h2>
 <hr>
 <p>基本可行的两种解决方案</p>
 <ul>
@@ -235,9 +236,9 @@
 <blockquote>
 <p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
 </blockquote>
-<h2 id="触发条件"><a class="header-anchor" href="#触发条件">¶</a>触发条件</h2>
+<h2 id="触发条件">触发条件</h2>
 <p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者num_threads在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及MySQL当时处理有关，随着这张表的数据量的增长，就触发了这次故障。</p>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
+<h2 id="参考资料">参考资料</h2>
 <hr>
 <p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
 <!--
@@ -249,7 +250,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj67jykx2000cp8sh7rbwzfau" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj6d6zkn2000cgnshg9nbv9uq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -261,9 +262,9 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
 <nav id="article-nav">
   
   
-    <a href="/2016/03/17/限流技术的应用场景/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="/2016/08/08/深入理解Kafka调优的核心参数/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">限流技术的应用场景</div>
+      <div class="article-nav-title">深入理解Kafka调优的核心参数</div>
     </a>
   
 </nav>
@@ -279,7 +280,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -289,7 +290,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -299,7 +300,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -308,7 +309,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -325,6 +326,10 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
           </li>
         
           <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+          </li>
+        
+          <li>
             <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
@@ -334,10 +339,6 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
         
           <li>
             <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-          </li>
-        
-          <li>
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>

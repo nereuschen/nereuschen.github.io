@@ -5,22 +5,22 @@
   
   <title>限流技术的常见算法及其实现 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论  ¶限流算法">
+  <meta name="description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论">
 <meta name="keywords" content="限流">
 <meta property="og:type" content="article">
 <meta property="og:title" content="限流技术的常见算法及其实现">
 <meta property="og:url" content="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论  ¶限流算法">
+<meta property="og:description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg">
 <meta property="og:image" content="http://www.jackleitch.com/wp-content/uploads/2010/10/Sliding_Window_Rate_Limiting.png">
 <meta property="og:image" content="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im6.JPG">
 <meta property="og:image" content="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im7.JPG">
-<meta property="og:updated_time" content="2017-07-26T10:43:21.000Z">
+<meta property="og:updated_time" content="2017-08-14T01:54:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="限流技术的常见算法及其实现">
-<meta name="twitter:description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论  ¶限流算法">
+<meta name="twitter:description" content="通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击； 并发数和QPS是紧密相关的，可以参考Little’s Law(律特法则)：L = λW （proven 1961）  一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于 平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W   数学定理（严格的数学推理，非经验公式） 排队论的理论">
 <meta name="twitter:image" content="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -111,7 +111,8 @@
 <p>数学定理（严格的数学推理，非经验公式）<br>
 排队论的理论</p>
 </blockquote>
-<h2 id="限流算法"><a class="header-anchor" href="#限流算法">¶</a>限流算法</h2>
+<a id="more"></a>
+<h2 id="限流算法">限流算法</h2>
 <p>最粗暴的实现方式是每执行一次delay一定时间，从而达到限制QPS的效果</p>
 <p>比如，我们想以最大的QPS为10去处理1000个业务逻辑，那么代码很可能这么写</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</div><div class="line">    doSomething();</div><div class="line">    Thread.sleep(<span class="number">100</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -150,18 +151,18 @@
 <p><img src="http://www.jackleitch.com/wp-content/uploads/2010/10/Sliding_Window_Rate_Limiting.png" alt="Fixed_Sliding_Window"></p>
 <p><a href="https://en.wikipedia.org/wiki/Leaky_bucket" target="_blank" rel="external">Leaky bucket</a>(漏桶算法)正好解决了这些问题</p>
 <p><a href="https://en.wikipedia.org/wiki/Token_bucket" target="_blank" rel="external">Token bucket</a>(令牌桶算法)和它一样，都是最常见的两种限流算法</p>
-<h3 id="leaky-bucket漏桶算法"><a class="header-anchor" href="#leaky-bucket漏桶算法">¶</a>Leaky bucket漏桶算法</h3>
-<h4 id="算法实现"><a class="header-anchor" href="#算法实现">¶</a>算法实现</h4>
+<h3 id="leaky-bucket漏桶算法">Leaky bucket漏桶算法</h3>
+<h4 id="算法实现">算法实现</h4>
 <p><img src="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im6.JPG" alt="Leaky bucket"></p>
 <p>不断的往桶里面注水，无论注水的速度是大还是小，水都是按固定的速率往外漏水；</p>
 <p>如果桶满了，水会溢出；</p>
-<h4 id="特点"><a class="header-anchor" href="#特点">¶</a>特点</h4>
+<h4 id="特点">特点</h4>
 <ul>
 <li>漏水的速率是固定的</li>
 <li>即使存在注水burst（突然注水量变大）的情况，漏水的速率也是固定的</li>
 </ul>
-<h3 id="token-bucket令牌桶算法"><a class="header-anchor" href="#token-bucket令牌桶算法">¶</a>Token bucket令牌桶算法</h3>
-<h4 id="算法实现-v2"><a class="header-anchor" href="#算法实现-v2">¶</a>算法实现</h4>
+<h3 id="token-bucket令牌桶算法">Token bucket令牌桶算法</h3>
+<h4 id="算法实现-v2">算法实现</h4>
 <p><img src="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im7.JPG" alt="Token bucket"></p>
 <p>令牌发送：每秒往桶里面发送r个令牌(token)</p>
 <p>桶的容量：桶中最多可以存放b个token；当放入的token数量超过b时，新放入的token会被丢弃</p>
@@ -183,7 +184,7 @@
 </li>
 </ul>
 <p>由于每秒会不断地往桶中放r个token，所以当无业务请求需处理时，桶中的token数量会不断增加，止到达到桶的容量b为止</p>
-<h4 id="特点-v2"><a class="header-anchor" href="#特点-v2">¶</a>特点</h4>
+<h4 id="特点-v2">特点</h4>
 <ul>
 <li>
 <p>令牌可以积累</p>
@@ -194,7 +195,7 @@
 <p>桶中token可以积累到n(b&lt;=n&lt;=0)，此时如果有n个突发请求同时到达，这n个请求是可以同时允许处理的</p>
 </li>
 </ul>
-<h3 id="leakly-bucket-vs-token-bucket"><a class="header-anchor" href="#leakly-bucket-vs-token-bucket">¶</a>Leakly bucket VS Token bucket</h3>
+<h3 id="leakly-bucket-vs-token-bucket">Leakly bucket VS Token bucket</h3>
 <table>
 <thead>
 <tr>
@@ -231,11 +232,11 @@
 </tr>
 </tbody>
 </table>
-<h2 id="具体实现"><a class="header-anchor" href="#具体实现">¶</a>具体实现</h2>
-<h3 id="guava的ratelimiter实现"><a class="header-anchor" href="#guava的ratelimiter实现">¶</a>Guava的RateLimiter实现</h3>
+<h2 id="具体实现">具体实现</h2>
+<h3 id="guava的ratelimiter实现">Guava的RateLimiter实现</h3>
 <p>在Guava中RateLimiter的实现有两种：<code>SmoothBursty</code>和<code>SmoothWarmUp</code></p>
 <p>补充类图</p>
-<h4 id="smoothbursty"><a class="header-anchor" href="#smoothbursty">¶</a>SmoothBursty</h4>
+<h4 id="smoothbursty">SmoothBursty</h4>
 <ul>
 <li>基于Token bucket算法的实现</li>
 </ul>
@@ -254,7 +255,7 @@
 </ul>
 <blockquote></blockquote>
 <p>注意：SmoothBursty中maxBurstSeconds的默认值是1，并且不可以修改，所以SmoothBursty最多只能积累permitsPerSecond个permits</p>
-<h3 id="smoothwarmingup"><a class="header-anchor" href="#smoothwarmingup">¶</a>SmoothWarmingUp</h3>
+<h3 id="smoothwarmingup">SmoothWarmingUp</h3>
 <ul>
 <li>基于Leaky bucket算法实现</li>
 <li>QPS是固定的</li>
@@ -264,11 +265,11 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
 </ul>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//创建一个SmoothWarmingUp实例；warmupPeriod是指预热的时间</span></div><div class="line">RateLimiter rateLimiter =</div><div class="line">            RateLimiter.create(permitsPerSecond,warmupPeriod,timeUnit);</div><div class="line">rateLimiter.acquire();<span class="comment">//获取1个permit；可能会被阻塞止到获取到为止</span></div></pre></td></tr></table></figure>
 <p>预热期间QPS会平滑地逐步加速到最大的速率（也就是QPS）</p>
-<h4 id="简单用例代码"><a class="header-anchor" href="#简单用例代码">¶</a>简单用例代码</h4>
+<h4 id="简单用例代码">简单用例代码</h4>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RateLimiterUseCase</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(RateLimiterUseCase.class);</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> qps;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> requestCount;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> RateLimiter rateLimiter;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RateLimiterUseCase</span><span class="params">(<span class="keyword">int</span> qps, <span class="keyword">int</span> requestCount)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.qps = qps;</div><div class="line">        <span class="keyword">this</span>.requestCount = requestCount;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">buildRateLimiter</span><span class="params">(RateLimiter rateLimiter)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.rateLimiter = rateLimiter;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processRequest</span><span class="params">(<span class="keyword">int</span> requestCount)</span> </span>&#123;</div><div class="line">        logger.info(<span class="string">"RateLimiter 类型:&#123;&#125;"</span>, rateLimiter.getClass());</div><div class="line">        <span class="keyword">long</span> startTimeMillis = System.currentTimeMillis();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; requestCount; i++) &#123;</div><div class="line">            rateLimiter.acquire();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> usedTimeMillis = System.currentTimeMillis() - startTimeMillis;</div><div class="line">        logger.info(<span class="string">"处理请求数:&#123;&#125;,耗时:&#123;&#125;,限流的qps:&#123;&#125;,实际的qps:&#123;&#125;"</span>, requestCount, usedTimeMillis, rateLimiter.getRate(), Math.ceil(requestCount / (usedTimeMillis / <span class="number">1000.00</span>)));</div><div class="line">        logger.info(<span class="string">""</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sleep</span><span class="params">(<span class="keyword">int</span> sleepTimeSeconds)</span> </span>&#123;</div><div class="line">        logger.info(<span class="string">"等待&#123;&#125;秒后，继续处理下一批&#123;&#125;个请求"</span>, sleepTimeSeconds, requestCount);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Thread.sleep(sleepTimeSeconds * <span class="number">1000</span>);</div><div class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processWithTokenBucket</span><span class="params">()</span> </span>&#123;</div><div class="line">        buildRateLimiter(RateLimiter.create(qps));</div><div class="line">        doProcess();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processWithLeakBucket</span><span class="params">()</span> </span>&#123;</div><div class="line">        buildRateLimiter(RateLimiter.create(qps, <span class="number">0</span>, TimeUnit.MILLISECONDS));</div><div class="line">        doProcess();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doProcess</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">        sleep(<span class="number">0</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">1</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">5</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">10</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        RateLimiterUseCase test = <span class="keyword">new</span> RateLimiterUseCase(<span class="number">10</span>, <span class="number">100</span>);</div><div class="line">        test.processWithLeakBucket();</div><div class="line">        test.processWithTokenBucket();</div><div class="line"></div><div class="line">        test = <span class="keyword">new</span> RateLimiterUseCase(<span class="number">10</span>, <span class="number">15</span>);</div><div class="line">        test.processWithLeakBucket();</div><div class="line">        test.processWithTokenBucket();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>运行结果</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line">09:55:47.662 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批100个请求</div><div class="line">09:55:47.668 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:55:57.573 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9904,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:55:57.574 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:55:57.574 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批100个请求</div><div class="line">09:55:58.578 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9903,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批100个请求</div><div class="line">09:56:13.486 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9902,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批100个请求</div><div class="line">09:56:33.391 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:43.293 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9902,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批100个请求</div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:56:53.195 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9901,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:53.196 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:53.196 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批100个请求</div><div class="line">09:56:54.197 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8997,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批100个请求</div><div class="line">09:57:08.198 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:17.102 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8904,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:17.103 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:17.103 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批100个请求</div><div class="line">09:57:27.107 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8905,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批15个请求</div><div class="line">09:57:36.013 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批15个请求</div><div class="line">09:57:38.417 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:39.820 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1402,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:39.821 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:39.821 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批15个请求</div><div class="line">09:57:44.825 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:46.228 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:46.229 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:46.229 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批15个请求</div><div class="line">09:57:56.233 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批15个请求</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1400,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批15个请求</div><div class="line">09:58:00.038 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:00.539 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:501,限流的qps:10.0,实际的qps:30.0</div><div class="line">09:58:00.540 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:58:00.540 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批15个请求</div><div class="line">09:58:05.542 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:05.945 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:403,限流的qps:10.0,实际的qps:38.0</div><div class="line">09:58:05.946 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:58:05.946 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批15个请求</div><div class="line">09:58:15.947 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:16.350 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:403,限流的qps:10.0,实际的qps:38.0</div><div class="line">09:58:16.350 [main] INFO  c.n.guava.RateLimiterUseCase -</div></pre></td></tr></table></figure>
-<h3 id="ratelimiter的结论"><a class="header-anchor" href="#ratelimiter的结论">¶</a>RateLimiter的结论</h3>
+<h3 id="ratelimiter的结论">RateLimiter的结论</h3>
 <p>对于SmoothBurst而言，是基于Token bucket算法，因此</p>
 <blockquote></blockquote>
 <p>速率不是固定的，会出现burst突发情况<br>
@@ -277,14 +278,14 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
 <p>对于SmoothWarmingUp而言，是基于Leaky bucket算法，因此</p>
 <blockquote></blockquote>
 <p>速率是固定的，因此QPS也是固定的，不会出现burst突发情况</p>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
+<h2 id="参考资料">参考资料</h2>
 <p><a href="http://www.eenadupratibha.net/pratibha/engineering/content_three_tra_layer_u6.html" target="_blank" rel="external">Token bucket算法图片</a></p>
 <p><a href="http://www.jackleitch.net/2010/10/better-rate-limiting-with-dot-net/" target="_blank" rel="external">Better Rate Limiting in .NET</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj67jykwv0008p8shy5ktg4bf" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj6d6zkmv0006gnshz4pwgsqd" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -323,7 +324,7 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -333,7 +334,7 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -343,7 +344,7 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -352,7 +353,7 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -369,6 +370,10 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
           </li>
         
           <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+          </li>
+        
+          <li>
             <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
@@ -378,10 +383,6 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
         
           <li>
             <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-          </li>
-        
-          <li>
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>

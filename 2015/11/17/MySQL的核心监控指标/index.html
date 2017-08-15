@@ -5,23 +5,23 @@
   
   <title>MySQL的核心监控指标 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
+  <meta name="description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta name="keywords" content="MySQL,监控">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL的核心监控指标">
 <meta property="og:url" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
+<meta property="og:description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png">
-<meta property="og:updated_time" content="2017-08-01T02:40:01.000Z">
+<meta property="og:updated_time" content="2017-08-14T01:53:21.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的核心监控指标">
-<meta name="twitter:description" content="¶监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要  ¶主要监控说明 ¶事务相关 ¶InnoDB Transactions 内部的事务计算器（Trx id counter）是如何变化的 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明">
+<meta name="twitter:description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -101,17 +101,18 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="监控的重要性"><a class="header-anchor" href="#监控的重要性">¶</a>监控的重要性</h2>
+        <h2 id="监控的重要性">监控的重要性</h2>
 <p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
 <blockquote>
 <p>监控和代码同等重要</p>
 </blockquote>
-<h2 id="主要监控说明"><a class="header-anchor" href="#主要监控说明">¶</a>主要监控说明</h2>
-<h3 id="事务相关"><a class="header-anchor" href="#事务相关">¶</a>事务相关</h3>
-<h4 id="innodb-transactions"><a class="header-anchor" href="#innodb-transactions">¶</a>InnoDB Transactions</h4>
+<a id="more"></a>
+<h2 id="主要监控说明">主要监控说明</h2>
+<h3 id="事务相关">事务相关</h3>
+<h4 id="innodb-transactions">InnoDB Transactions</h4>
 <p>内部的事务计算器（Trx id counter）是如何变化的<br>
 history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长时间。这意味着InnoDB不能够清除旧的行版本。最后数据库会变慢。所以要尽可能快递提交事务</p>
-<h4 id="innodb-active-locked-transactions"><a class="header-anchor" href="#innodb-active-locked-transactions">¶</a>InnoDB Active/Locked Transactions</h4>
+<h4 id="innodb-active-locked-transactions">InnoDB Active/Locked Transactions</h4>
 <ul>
 <li>
 <p>Active Transactions</p>
@@ -146,7 +147,7 @@ history list的长度表明最老的未被清除的事务有多老。如果这�
 可以看出Active Transactions飙高</p>
 </blockquote>
 <p><img src="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png" alt="transaction-active"></p>
-<h4 id="innodb-current-lock-waits"><a class="header-anchor" href="#innodb-current-lock-waits">¶</a>InnoDB Current Lock Waits</h4>
+<h4 id="innodb-current-lock-waits">InnoDB Current Lock Waits</h4>
 <hr>
 <p>显示了每秒钟InnoDB事务等待锁的个数。它和InnoDB Active/Locked Transactions有一定的关系<br>
 如果Lock Waits出现的次数比较多，那么就应该去排查一下LOCK WAIT状态的事务；如果事务一直是处于LOCK WAIT状态，那么最悲催的情况下是，等待时间达到innodb_lock_wait_timeout（默认50秒）时才会放弃获取锁；<br>
@@ -157,7 +158,7 @@ history list的长度表明最老的未被清除的事务有多老。如果这�
 如果超过这个时间，应用会收到如下异常信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt; java.lang.Exception:</div><div class="line">&gt; ### Error updating database.  Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt; ### The error may involve defaultParameterMap</div><div class="line">&gt; ### The error occurred while setting parameters</div><div class="line">&gt; ### Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction; SQL []; Lock wait timeout exceeded; try restarting transaction; nested exception is java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt;</div></pre></td></tr></table></figure>
 </blockquote>
-<h4 id="innodb-row-lock-waits-innodb-row-lock-time"><a class="header-anchor" href="#innodb-row-lock-waits-innodb-row-lock-time">¶</a>InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time</h4>
+<h4 id="innodb-row-lock-waits-innodb-row-lock-time">InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time</h4>
 <ul>
 <li>Row Lock Time<br>
 显示了InnoDB在获取行锁时等待的时间（毫秒）；它来源于Innodb_row_lock_time的状态变量的值</li>
@@ -169,9 +170,9 @@ history list的长度表明最老的未被清除的事务有多老。如果这�
 <p>某次发生deadlock时的监控信息</p>
 </blockquote>
 <p><img src="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png" alt="dl-lock-time-waits"></p>
-<h3 id="执行相关"><a class="header-anchor" href="#执行相关">¶</a>执行相关</h3>
+<h3 id="执行相关">执行相关</h3>
 <hr>
-<h4 id="mysql-handlers"><a class="header-anchor" href="#mysql-handlers">¶</a>MySQL Handlers</h4>
+<h4 id="mysql-handlers">MySQL Handlers</h4>
 <p>这些handler记录了MySQL通过存储引擎的API的操作记录</p>
 <ul>
 <li>Handler_read_rnd<br>
@@ -187,12 +188,12 @@ history list的长度表明最老的未被清除的事务有多老。如果这�
 <p>Handler Read Rnd Next飙高<br>
 <img src="/2015/11/17/MySQL的核心监控指标/" alt="Uploading handlers.png…"></p>
 </blockquote>
-<h4 id="mysql-select-types"><a class="header-anchor" href="#mysql-select-types">¶</a>MySQL Select Types</h4>
+<h4 id="mysql-select-types">MySQL Select Types</h4>
 <p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>
 这些显示了执行计划的各种类型的执行次数，尤其要注意<br>
 尽可能将Select_full_join的出现次数控制在0</p>
-<h3 id="连接相关"><a class="header-anchor" href="#连接相关">¶</a>连接相关</h3>
-<h4 id="mysql-connections"><a class="header-anchor" href="#mysql-connections">¶</a>MySQL Connections</h4>
+<h3 id="连接相关">连接相关</h3>
+<h4 id="mysql-connections">MySQL Connections</h4>
 <p>尤其要注意aborted clients和connections，一般很少出现这两个值飙高的情况</p>
 <ul>
 <li>aborted clients</li>
@@ -216,9 +217,9 @@ history list的长度表明最老的未被清除的事务有多老。如果这�
 <a href="http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_connect_timeout" target="_blank" rel="external">connect_timeout</a></p>
 </blockquote>
 <p>网络相关原因也会导致这2种异常</p>
-<h3 id="其他"><a class="header-anchor" href="#其他">¶</a>其他</h3>
+<h3 id="其他">其他</h3>
 <hr>
-<h4 id="innodb-buffer-pool-efficiency-效率"><a class="header-anchor" href="#innodb-buffer-pool-efficiency-效率">¶</a>InnoDB Buffer Pool Efficiency（效率）</h4>
+<h4 id="innodb-buffer-pool-efficiency-效率">InnoDB Buffer Pool Efficiency（效率）</h4>
 <p>logical read requests 表示InnoDB已经处理过的数量<br>
 logical reads 表示InnoDB并不能从buffer pool读取数据，不得不直接从磁盘中读取</p>
 <p>案例</p>
@@ -226,32 +227,32 @@ logical reads 表示InnoDB并不能从buffer pool读取数据，不得不直接�
 <p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br>
 <img src="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png" alt="buffer-pool-efficiency"></p>
 </blockquote>
-<h4 id="innodb-buffer-pool-activity"><a class="header-anchor" href="#innodb-buffer-pool-activity">¶</a>InnoDB Buffer Pool Activity</h4>
+<h4 id="innodb-buffer-pool-activity">InnoDB Buffer Pool Activity</h4>
 <hr>
 <p>显示了buffer pool中的活动信息：创建、读和写pages<br>
 它和Handler是一致的</p>
-<h4 id="innodb-checkpoint-age"><a class="header-anchor" href="#innodb-checkpoint-age">¶</a>InnoDB Checkpoint Age</h4>
+<h4 id="innodb-checkpoint-age">InnoDB Checkpoint Age</h4>
 <hr>
-<h4 id="innodb-i-o-pending"><a class="header-anchor" href="#innodb-i-o-pending">¶</a>InnoDB I/O Pending</h4>
+<h4 id="innodb-i-o-pending">InnoDB I/O Pending</h4>
 <hr>
 <p>显示InnoDB的同步和异步的pending I/O.<br>
 Pending I/O是不理想的；理想情况下，InnoDB后台线程（background thread）能够和写保持同步，并且希望buffer pool足够大能解决读的问题；<br>
 如果出现大量的pending I/O，那么需要加内存，或者一个更大的buffer pool（或者使用O_DIRECT来double-buffering），或者比较快的磁盘系统</p>
-<h4 id="innodb-lock-structures"><a class="header-anchor" href="#innodb-lock-structures">¶</a>InnoDB Lock Structures</h4>
+<h4 id="innodb-lock-structures">InnoDB Lock Structures</h4>
 <hr>
 <p>表明InnoDB内部有多少锁结构；这个和事务持有的行锁的个数相当；<br>
 并没有硬性该规定多少个锁结构是好还是坏，不过当很多事务正在等待锁时，很显然这个值越小越好</p>
 <p>通过SHOW INNODB STATUS可以查看锁信息</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">23 lock struct(s), heap size 3024, undo log entries 27</div><div class="line">LOCK WAIT 12 lock struct(s), heap size 3024, undo log entries 5</div><div class="line">LOCK WAIT 2 lock struct(s), heap size 368</div></pre></td></tr></table></figure>
-<h4 id="innodb-log-activity"><a class="header-anchor" href="#innodb-log-activity">¶</a>InnoDB Log Activity</h4>
+<h4 id="innodb-log-activity">InnoDB Log Activity</h4>
 <hr>
 <p>显示了InnoDB Log的活动<br>
 If transactions need to write to the log buffer and it’s either not big enough or is currently being flushed, they’ll stall.</p>
-<h4 id="binary-relay-logs"><a class="header-anchor" href="#binary-relay-logs">¶</a>Binary/Relay logs</h4>
+<h4 id="binary-relay-logs">Binary/Relay logs</h4>
 <hr>
 <p>当日志被清理时，size会发生变化，比如设置了expire_logs_days。<br>
 如果size突然增大了，可以看看是不是清除（purge）的时候出了问题，有可能是配置发生了变化，或者有人手动删除了文件触发了自动清除从而导致MySQL停止工作</p>
-<h4 id="mysql-replication"><a class="header-anchor" href="#mysql-replication">¶</a>MySQL Replication</h4>
+<h4 id="mysql-replication">MySQL Replication</h4>
 <hr>
 <p>显示了复制线程的状态。有2种方式衡量复制延时<br>
 1.通过SHOW SLAVE STATUS去查看Seconds_behind_master信息<br>
@@ -261,7 +262,7 @@ If transactions need to write to the log buffer and it’s either not big enough
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67jykwu0007p8shfb25mk0a" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj6d6zkmp0004gnshn7qww3hi" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -300,7 +301,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -310,7 +311,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -320,7 +321,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -329,7 +330,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -346,6 +347,10 @@ If transactions need to write to the log buffer and it’s either not big enough
           </li>
         
           <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+          </li>
+        
+          <li>
             <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
@@ -355,10 +360,6 @@ If transactions need to write to the log buffer and it’s either not big enough
         
           <li>
             <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-          </li>
-        
-          <li>
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>

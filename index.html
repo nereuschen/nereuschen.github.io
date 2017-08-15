@@ -96,154 +96,75 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。</p>
-<h2 id="故障现场"><a class="header-anchor" href="#故障现场">¶</a>故障现场</h2>
+<h2 id="故障现场">故障现场</h2>
 <hr>
 <p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。当时的主要信息如下。</p>
-<ul>
-<li>慢查询</li>
-</ul>
-<p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？读取的数量不到6K</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
-<p>从慢查询日志中看出这个SQL的执行时间是10s，但是平时这个SQL的执行时间都在0.01ms以内</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg" alt="slow query"></p>
-<ul>
-<li>system cpu time 飙高</li>
-</ul>
-<p>MySQL服务器的sy平时不到5%；故障期间飙高到77%，而us和load均未出现波动</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu.jpg" alt="system cpu time飙高"></p>
-<ul>
-<li>MySQL的性能急剧下降</li>
-</ul>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/sql-qps.jpg" alt="QPS"></p>
-<ul>
-<li>业务接口</li>
-</ul>
-<p>业务服务接口的QPS在30左右未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
-<h2 id="临时解决方案"><a class="header-anchor" href="#临时解决方案">¶</a>临时解决方案</h2>
-<hr>
-<p>为了快速恢复故障，将影响降到最低，我们采取了以下两个措施</p>
-<ol>
-<li>
-<p>直接kill慢查询</p>
-<p>借助pt-kill工具直接干掉慢查询（–match-info “SELECT|select” ），但是由于这个SQL的QPS比较高，即使在不断地kill SQL，但是还不断地出现，DB依旧不可用，故障未恢复。悲催了是不是？</p>
-</li>
-<li>
-<p>服务降级</p>
-<p>kill SQL无效，只能下线和这个SQL相关的业务服务接口。将相关的业务服务接口下线后，MySQL服务器的sy逐渐恢复，故障恢复。</p>
-</li>
-</ol>
-<p>故障是否由这条SQL导致呢？这个SQL的嫌疑比较大</p>
-<h2 id="故障排查"><a class="header-anchor" href="#故障排查">¶</a>故障排查</h2>
-<hr>
-<p>变更往往是导致故障的主要原因，所以我们先看看故障发生之前，发生过哪些变更。经过确认</p>
-<blockquote>
-<p>线上代码未做过任何变更</p>
-</blockquote>
-<blockquote>
-<p>MySQL的日常维护未执行过</p>
-</blockquote>
-<blockquote>
-<p>业务流量未发生明显变化</p>
-</blockquote>
-<blockquote>
-<p>该SQL在线上已经运行过1年多,不是最近新上线的SQL</p>
-</blockquote>
-<blockquote>
-<p>网络监控一切正常</p>
-</blockquote>
-<p>因此排除了因变更导致MySQL变慢的情况，由于该业务接口下线后，故障逐渐恢复，所以该SQL存在最大的嫌疑</p>
-<ul>
-<li>slow query分析</li>
-</ul>
-<p>该SQL和表都非常简单，这个表的数据量是1W+。平时在线上执行该SQL时，执行时间在0.01ms以下</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`invoice_push_record`</span> (</div><div class="line"><span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">unsigned</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT <span class="keyword">COMMENT</span> <span class="string">'自增主键'</span>,</div><div class="line"><span class="string">`order_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0'</span> <span class="keyword">COMMENT</span> <span class="string">'订单ID'</span>,</div><div class="line"><span class="string">`invoice_type`</span> <span class="built_in">varchar</span>(<span class="number">64</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span> <span class="keyword">COMMENT</span> <span class="string">'XXX类型'</span>,</div><div class="line"><span class="string">`create_time`</span> <span class="keyword">timestamp</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</div><div class="line">PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>),</div><div class="line"><span class="keyword">UNIQUE</span> <span class="keyword">KEY</span> <span class="string">`uniq_order_id`</span> (<span class="string">`order_id`</span>),</div><div class="line"><span class="keyword">KEY</span> <span class="string">`idx_create_time_invoice_type`</span> (<span class="string">`create_time`</span>,<span class="string">`invoice_type`</span>)</div><div class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">1</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8mb4 <span class="keyword">COMMENT</span>=<span class="string">'XXX记录表'</span></div></pre></td></tr></table></figure>
-<ul>
-<li>system cpu time高</li>
-</ul>
-<p>第一次遇到这类问题，于是查找了相关资源，发现在<a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">数据库内核月报</a>里面提及到：当time_zone设置为SYSTEM时，MySQL访问到的timestamp字段都会作时区转换，在进行时区转换时会竞争全局的mutex，当大量并发访问timestamp时，会引起大量竞争mutex，从而导致sy飙高。</p>
-<p>该SQL正好使用到了timestamp，并且线上MySQL的time_zone是<code>SYSTEM</code>，所以很可能是timestamp导致的</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">mySQL&gt; show variables like '%time_zone%';     </div><div class="line">+------------------+--------+  </div><div class="line">| Variable_name    | Value  |  </div><div class="line">+------------------+--------+  </div><div class="line">| system_time_zone | CST    |  </div><div class="line">| time_zone        | SYSTEM |  </div><div class="line">+------------------+--------+  </div><div class="line">2 rows in set (0.00 sec)</div></pre></td></tr></table></figure>
-<p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时并不能确定是timestamp导致的</p>
-<p>初步结论：尚无定论，有可能是timestamp的time_zone导致，待继续排查</p>
-<h2 id="故障重现"><a class="header-anchor" href="#故障重现">¶</a>故障重现</h2>
-<hr>
-<p>为了保证再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由timestamp的time_zone导致。</p>
-<p>再次上线时，观察到system cpu time飙高，和故障现象一致</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="再次上线"></p>
-<blockquote>
-<p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
-</blockquote>
-<h2 id="原因定位"><a class="header-anchor" href="#原因定位">¶</a>原因定位</h2>
-<hr>
-<p>到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测（num-threads=30），该问题立即复现。</p>
-<ul>
-<li>sysbench</li>
-</ul>
-<p>压测时，sys cpu time飙高，sys飙高到78%</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="sys飙高"></p>
-<ul>
-<li>vmstat</li>
-</ul>
-<p>上下文切换的次数变化并不大，涨了10倍，但运行队列r变化比较大，因为是并发压测引起的</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg" alt="上下文切换"></p>
-<ul>
-<li>perf top</li>
-</ul>
-<p>通过perf top查看热点函数，可以看出<code>_spin_lock</code>是热点，CPU被内核的spin lock（自旋锁）占用。</p>
-<p><img src="/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg" alt="spin情况"></p>
-<ul>
-<li>pstack</li>
-</ul>
-<p>通过分析pstack获取到的MySQL进程的线程堆栈信息，可以发现和SQL执行相关的<code>__lll_lock_wait_private()</code>调用量比较大</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">45 <span class="comment">#0  0x0000003d6acdf1b3 in poll () from /lib64/libc.so.6</span></div><div class="line">20 <span class="comment">#0  0x0000003d6ace1453 in select () from /lib64/libc.so.6</span></div><div class="line">18 <span class="comment">#0  0x0000003d6a800614 in ?? () from /lib64/libaio.so.1</span></div><div class="line">17 <span class="comment">#0  0x0000003d6acf813e in __lll_lock_wait_private () from /lib64/libc.so.6</span></div><div class="line"> 6 <span class="comment">#0  0x0000003d6b00b98e in pthread_cond_timedwait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span></div><div class="line"> 6 <span class="comment">#0  0x0000003d6b00b5bc in pthread_cond_wait@@GLIBC_2.3.2 () from /lib64/libpthread.so.0</span></div><div class="line"> 5 <span class="comment">#0  0x0000003d6acf816f in __lll_unlock_wake_private () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6b00f4b5 in sigwait () from /lib64/libpthread.so.0</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6ac9daed in __tz_convert () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000003d6ac33857 in sigwaitinfo () from /lib64/libc.so.6</span></div><div class="line"> 1 <span class="comment">#0  0x0000000000a51628 in srv_release_threads(srv_thread_type, unsigned long) ()</span></div><div class="line"> 1 <span class="comment">#0  0x0000000000979cca in start_table_io_wait_v1 ()</span></div></pre></td></tr></table></figure>
-<blockquote>
-<p>为什么不是<code>poll()</code>,<code>select()</code>,<code>??()</code>的问题呢？因为通过分析三个方法的调用栈，可以看出它们分别实现了读取网络包，读取DB数据以及异步IO相关的功能，和具体的SQL并无直接关系，所以可以排除这三个方法的嫌疑</p>
-</blockquote>
-<p>通过分析<code>__lll_lock_wait_private（）</code>的调用栈可以发现，在调用<code>__tz_convert ()</code>时会等待获取锁</p>
-  <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">  Thread 75 (Thread 0x7fbd155b2700 (LWP 63182)):</div><div class="line"><span class="comment">#0  0x0000003d6acf813e in __lll_lock_wait_private () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#1  0x0000003d6ac9dcad in _L_lock_2164 () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#2  0x0000003d6ac9da67 in __tz_convert () from /lib64/libc.so.6</span></div><div class="line"><span class="comment">#3  0x000000000078be27 in Time_zone_system::gmt_sec_to_TIME(st_mysql_time*, long) const ()</span></div><div class="line"><span class="comment">#4  0x00000000007ce1b7 in Field_timestampf::get_date_internal(st_mysql_time*) ()</span></div><div class="line"><span class="comment">#5  0x00000000007cb029 in Field_temporal_with_date::val_date_temporal() ()</span></div><div class="line"><span class="comment">#6  0x00000000005e12d0 in get_datetime_value(THD*, Item***, Item**, Item*, bool*) ()</span></div><div class="line"><span class="comment">#7  0x00000000005d4367 in Arg_comparator::compare_datetime() ()</span></div><div class="line"><span class="comment">#8  0x00000000005db942 in Item_func_ge::val_int() ()</span></div><div class="line"><span class="comment">#9  0x00000000005bd1ac in Item::val_bool() ()</span></div><div class="line"><span class="comment">#10 0x00000000005d670a in Item_cond_and::val_int() ()</span></div><div class="line"><span class="comment">#11 0x00000000006cc089 in evaluate_join_record(JOIN*, st_join_table*) ()</span></div><div class="line"><span class="comment">#12 0x00000000006cc8b1 in sub_select(JOIN*, st_join_table*, bool) ()</span></div><div class="line"><span class="comment">#13 0x00000000006cd11a in JOIN::exec() ()</span></div><div class="line"><span class="comment">#14 0x0000000000710e10 in mysql_select(THD*, TABLE_LIST*, unsigned int, List&lt;Item&gt;&amp;, Item*, SQL_I_List&lt;st_order&gt;*, SQL_I_List&lt;st_order&gt;*, Item*, unsigned long long, select_result*, st_select_lex_unit*, st_select_lex*) ()</span></div><div class="line"><span class="comment">#15 0x0000000000711697 in handle_select(THD*, select_result*, unsigned long) ()</span></div><div class="line"><span class="comment">#16 0x00000000006eb60d in execute_sqlcom_select(THD*, TABLE_LIST*) ()</span></div><div class="line"><span class="comment">#17 0x00000000006ee5db in mysql_execute_command(THD*) ()</span></div><div class="line"><span class="comment">#18 0x00000000006f2408 in mysql_parse(THD*, char*, unsigned int, Parser_state*) ()</span></div><div class="line"><span class="comment">#19 0x00000000006f3964 in dispatch_command(enum_server_command, THD*, char*, unsigned int) ()</span></div><div class="line"><span class="comment">#20 0x00000000006bf01f in do_handle_one_connection(THD*) ()</span></div><div class="line"><span class="comment">#21 0x00000000006bf0f7 in handle_one_connection ()</span></div><div class="line"><span class="comment">#22 0x000000000097b0ca in pfs_spawn_thread ()</span></div><div class="line"><span class="comment">#23 0x0000003d6b0079d1 in start_thread () from /lib64/libpthread.so.0</span></div><div class="line"><span class="comment">#24 0x0000003d6ace89dd in clone () from /lib64/libc.so.6</span></div></pre></td></tr></table></figure>
-<ol start="2">
-<li>修改time_zone，避免时区转换</li>
-</ol>
-<p>修改time_zone为’+8:00’后再次压测，system cpu time显示正常。</p>
-<p>自此可以确定是time_zone导致</p>
-<h2 id="解决方案"><a class="header-anchor" href="#解决方案">¶</a>解决方案</h2>
-<hr>
-<p>基本可行的两种解决方案</p>
-<ul>
-<li>修改time_zone</li>
-</ul>
-<p>最简单直接的解决方案，但是不适用于对时区敏感的业务系统</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">default-time-zone = &apos;+8:00&apos;</div></pre></td></tr></table></figure>
-<blockquote>
-<p>详细讲解MySQL <a href="http://cdn.oreillystatic.com/en/assets/1/event/36/Time%20Zones%20and%20MySQL%20Presentation.pdf" target="_blank" rel="external">Time Zone</a>资料</p>
-</blockquote>
-<ul>
-<li>使用DATETIME</li>
-</ul>
-<p>或者统一使用DATETIME，而不使用TIMESTAMP，天生无时区转换问题，但是这种方案对现有系统的改造成本巨大</p>
-<blockquote>
-<p>OS上关于<a href="https://stackoverflow.com/questions/409286/should-i-use-field-datetime-or-timestamp" target="_blank" rel="external">DATETIME VS TIMESTAMP</a>的<a href="https://stackoverflow.com/questions/5989539/when-to-use-datetime-or-timestamp" target="_blank" rel="external">讨论</a></p>
-</blockquote>
-<h2 id="触发条件"><a class="header-anchor" href="#触发条件">¶</a>触发条件</h2>
-<p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者num_threads在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及MySQL当时处理有关，随着这张表的数据量的增长，就触发了这次故障。</p>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
-<hr>
-<p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
-<!--
-http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:?pageNum=1&from=20170707T122328&to=20170707T212328
-
-http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:3307:?from=20170707T144547&to=20170707T184547
--->
-
+        
+          <p class="article-more-link">
+            <a href="/2017/07/12/MySQL-CPU-sys飙高/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj67jykx2000cp8sh7rbwzfau" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj6d6zkn2000cgnshg9nbv9uq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-深入理解Kafka调优的核心参数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/08/深入理解Kafka调优的核心参数/" class="article-date">
+  <time datetime="2016-08-08T11:41:48.000Z" itemprop="datePublished">2016-08-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- http://l-kafka1.dba.cn2.qunar.com:2333 -->
+<!--  Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf -->
+<p>kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？</p>
+<p>在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。</p>
+<p>本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。</p>
+<blockquote>
+<p>kafka的<a href="https://kafka.apache.org/documentation/#configuration" target="_blank" rel="external">主要配置参数</a></p>
+</blockquote>
+        
+          <p class="article-more-link">
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj6dehuqu0000o5shsvgpi3n3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
 
     </footer>
   </div>
@@ -278,222 +199,18 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="业务场景"><a class="header-anchor" href="#业务场景">¶</a>业务场景</h2>
-<h3 id="淘宝双十一"><a class="header-anchor" href="#淘宝双十一">¶</a>淘宝双十一</h3>
+        <h2 id="业务场景">业务场景</h2>
+<h3 id="淘宝双十一">淘宝双十一</h3>
 <p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1S0YoJVXXXXaVXXXXXXXXXXXX" alt="天猫限流"></p>
-<h4 id="用户洪峰"><a class="header-anchor" href="#用户洪峰">¶</a>用户洪峰</h4>
-<p>特点：</p>
-<ul>
-<li>允许访问的速率</li>
-<li>爆发量</li>
-<li>爆发间隔时间</li>
-</ul>
-<p>为了提升用户体验，需要支持爆发量，所以采用令牌桶算法</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB102reJVXXXXbXXpXXXXXXXXXX" alt="令牌桶算法"></p>
-<p>允许最大的访问速率：b+r<br>
-爆发持续时间：T=b/(m-2r)<br>
-爆发量：L=T*r</p>
-<h4 id="回调洪峰"><a class="header-anchor" href="#回调洪峰">¶</a>回调洪峰</h4>
-<p>特点：</p>
-<ul>
-<li>有间隔频率</li>
-<li>每次调用量大</li>
-<li>允许有延时</li>
-</ul>
-<p>采用漏桶算法</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1gsqUJVXXXXcyXFXXXXXXXXXX" alt="漏桶算法"></p>
-<h4 id="限流框架"><a class="header-anchor" href="#限流框架">¶</a>限流框架</h4>
-<p>分成几个主要模块</p>
-<ul>
-<li>
-<p>监控模块</p>
-<p>收集数据、实时监控和反馈分析</p>
-</li>
-<li>
-<p>决策模块</p>
-<p>什么场景使用什么限流方式；比如，用户洪峰采用令牌桶算法，</p>
-<p>系统回调使用漏桶算法</p>
-</li>
-<li>
-<p>规则变更模块</p>
-<p>动态调整令牌桶容量和产生令牌的速率</p>
-</li>
-<li>
-<p>限流模块</p>
-<p>如何处理被限流的请求，是排队还是丢弃</p>
-</li>
-</ul>
-<p>限流框架的处理流程</p>
-<p><img src="http://img3.tbcdn.cn/5476e8b07b923/TB1pMjsJVXXXXX0XXXXXXXXXXXX" alt="处理流程"></p>
-<h3 id="小米秒杀"><a class="header-anchor" href="#小米秒杀">¶</a>小米秒杀</h3>
-<p>TODO</p>
-<h2 id="分层架构"><a class="header-anchor" href="#分层架构">¶</a>分层架构</h2>
-<h2 id="nginx限流"><a class="header-anchor" href="#nginx限流">¶</a>Nginx限流</h2>
-<h3 id="nginx限流模块"><a class="header-anchor" href="#nginx限流模块">¶</a>Nginx限流模块</h3>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">vi /etc/nginx/conf.d/default.conf</div><div class="line"></div><div class="line">......</div><div class="line"></div><div class="line">upstream myapp &#123;</div><div class="line">    server 127.0.0.1:8081;</div><div class="line">&#125;</div><div class="line"></div><div class="line">limit_req_zone <span class="variable">$binary_remote_addr</span> zone=login:10m rate=10r/s;</div><div class="line"></div><div class="line">server &#123;</div><div class="line">    server_name _;</div><div class="line">  </div><div class="line">    location / &#123;</div><div class="line">        proxy_pass http://myapp;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    location /account/login/ &#123;</div><div class="line">        <span class="comment"># apply rate limiting</span></div><div class="line">        limit_req zone=login burst=5 nodelay;</div><div class="line">    </div><div class="line">        <span class="comment"># boilerplate copied from location /</span></div><div class="line">        proxy_pass http://myapp;</div><div class="line">        proxy_set_header X-Real-IP <span class="variable">$remote_addr</span>;</div><div class="line">        proxy_set_header X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</div><div class="line">        proxy_set_header Host <span class="variable">$http_host</span>;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>参数说明</p>
-<ul>
-<li>
-<p>$binary_remote_addr</p>
-<p>采用二进制表示访问的IP地址</p>
-</li>
-<li>
-<p>zone=login:10m</p>
-<p>表示定义了一个名为login的内存共享区，其占用内存大小为10M。</p>
-<p>10M的内存可以存放16W个二进制表示的IP地址。</p>
-</li>
-<li>
-<p>rate=1r/s</p>
-<p>就是QPS；对同一个IP地址而言，速率被限制为每秒1次请求</p>
-</li>
-<li>
-<p>burst</p>
-<p>如果同一个IP访问的请求超过rate后，没有超过桶上限burst的请求会被放入桶中，等待被处理。</p>
-<p>这个例子中桶的容量是5。</p>
-</li>
-<li>
-<p>nodelay</p>
-<p>单个IP的在某时间段内平均QPS未超过设定的rate，那么桶中的请求会立即被处理，</p>
-<p>此时的瞬间QPS高于设定的rate；如果在某时间段内平均的QPS超过rate，那么超过</p>
-<p>rate的请求会直接被拒绝，直接返回503</p>
-</li>
-</ul>
-<p>从示例配置信息中可以看出：</p>
-<p>对访问/account/login/的请求根据访问的IP进行了限速，QPS是10；</p>
-<p>对于同一个IP地址只允许每秒10个请求访问该URL；</p>
-<p>如果请求量大于QPS(10)，会立即返回503（因为配置了参数nodelay）；</p>
-<p>如果没有配置参数nodelay，那么超过QPS访问量的请求会先积压到桶中(可以积压5个)，</p>
-<p>如果桶满了，就返回503。</p>
-<blockquote></blockquote>
-<p>nginx限流模块默认使用的是漏桶算法，而当配置了nodelay时采用的是令牌算法，此时允许burst请求</p>
-<p>重点说明一下对burst+nodelay的理解</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">limit_req_zone <span class="variable">$binary_remote_addr</span> zone=login:10m rate=1r/s;</div><div class="line"></div><div class="line">......</div><div class="line"></div><div class="line"> location /account/login/ &#123;</div><div class="line">        <span class="comment"># apply rate limiting</span></div><div class="line">        limit_req zone=login burst=15 nodelay;</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">时间点</th>
-<th style="text-align:center">并发请求量</th>
-<th style="text-align:center">拒绝的请求次数</th>
-<th style="text-align:center">成功的请求次数</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">10:00:01</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:15</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:30</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">10:00:45</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:01</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">0</td>
-<td style="text-align:center">15</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:02</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:03</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-<tr>
-<td style="text-align:center">11:00:04</td>
-<td style="text-align:center">15</td>
-<td style="text-align:center">14</td>
-<td style="text-align:center">1</td>
-</tr>
-</tbody>
-</table>
-<p>针对这个case的理解:</p>
-<p>（1）在[10:00:01到10:00:45]期间，每隔15秒会有15个并发请求，虽然在这些时间点上并发</p>
-<p>请求大于rate，但在每个15秒内其QPS是1，依旧未超过rate，所以每次的15个并发请求能够</p>
-<p>被成功处理</p>
-<p>（2）在[11:00:01到11:00:05]期间，每秒15个并发请求，在11:00:01时，请求量未超过burst，</p>
-<p>并且由于配置了nodelay，所以当时15个请求立即被执行了；而在其他的时间点上QPS大于</p>
-<p>rate，所以超出rate的请求直接被拒绝</p>
-<h3 id="nginx-lua"><a class="header-anchor" href="#nginx-lua">¶</a>Nginx+lua</h3>
-<h3 id="redis"><a class="header-anchor" href="#redis">¶</a>REDIS</h3>
-<p><a href="http://redis.io/commands/INCR#pattern-rate-limiter" target="_blank" rel="external">http://redis.io/commands/INCR#pattern-rate-limiter</a><br>
-<a href="https://github.com/UsedRarely/spring-rate-limit" target="_blank" rel="external">https://github.com/UsedRarely/spring-rate-limit</a><br>
-<a href="https://github.com/colley/spring-ratelimiter" target="_blank" rel="external">https://github.com/colley/spring-ratelimiter</a><br>
-<a href="https://github.com/nlap/dropwizard-ratelimit" target="_blank" rel="external">https://github.com/nlap/dropwizard-ratelimit</a><br>
-<a href="https://github.com/sudohippie/throttle" target="_blank" rel="external">https://github.com/sudohippie/throttle</a><br>
-<a href="https://github.com/coveo/spillway" target="_blank" rel="external">https://github.com/coveo/spillway</a><br>
-<a href="https://github.com/marcosbarbero/spring-cloud-starter-zuul-ratelimit" target="_blank" rel="external">https://github.com/marcosbarbero/spring-cloud-starter-zuul-ratelimit</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/20872901" target="_blank" rel="external">API 调用次数限制实现</a></p>
-<p><a href="https://github.com/jabley/rate-limit" target="_blank" rel="external">Java Rate-Limiting API</a></p>
-<h3 id="zk"><a class="header-anchor" href="#zk">¶</a>ZK</h3>
-<p><a href="http://curator.apache.org/curator-recipes/distributed-atomic-long.html" target="_blank" rel="external">Distributed Atomic Long</a></p>
-<p><a href="http://curator.apache.org/curator-recipes/shared-semaphore.html" target="_blank" rel="external">Shared Semaphore</a></p>
-<h2 id="http-dubbo-mq"><a class="header-anchor" href="#http-dubbo-mq">¶</a>HTTP&amp;DUBBO&amp;MQ</h2>
-<p>filter+</p>
-<h2 id="db"><a class="header-anchor" href="#db">¶</a>DB</h2>
-<h3 id="淘宝双十一秒杀业务"><a class="header-anchor" href="#淘宝双十一秒杀业务">¶</a>淘宝双十一秒杀业务</h3>
-<p>秒杀特点：瞬时并发高、数据一致性高、热点更新频率高</p>
-<p>大量更新DB中的同一条记录时，会产生锁等待，导致DB性能急剧下降</p>
-<p>当大量的并发更新同一条记录时，使用排队的方式来保证高并发下热点记录更新依然能保持</p>
-<p>较好的性能，为threads_running设置一个硬上线，当并发超过此值是，拒绝执行sql，</p>
-<p>保护MySQL，我们将这个称之为高水位限流，这样就给数据库加上了一层限流的功能，使得</p>
-<p>数据库不被瞬间的高爆发请求打爆。</p>
-<p>高水位限流实现：</p>
-<p>监控系统status变量threads_running，当满足拒绝条件，拒绝执行sql，返回用户：</p>
-<p>MySQL Server is too busy，判断逻辑在dispatch_command中，sql解析之后。</p>
-<p>增加的系统variables：</p>
-<pre><code>  1.threads_running_ctl_mode： 限流的sql类型，有两个取值：[ALL | SELECTS]，
-  
-  默认SELECTS，设置为ALL需谨慎。
-  
-  2.threads_running_high_watermark： 限流水位值，只有threads_running
-  
-  超过此值才会触发，默认值为max_connections，当set global 
-  
-  threads_running_high_watermark=0时自动设置为max_connections
-</code></pre>
-<p>拒绝必要条件：</p>
-<pre><code> 1.threads_running超过threads_running_high_watermark
- 
- 2.threads_running_ctl_mode与sql类型相符
-</code></pre>
-<p>以下情况不拒绝：</p>
-<pre><code> 1.用户具有super权限
- 
- 2.sql所在事务已经开启
- 
- 3.sql为commit/rollback
-</code></pre>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
-<p><a href="">阿里双11系统管控调度架构与实践.pdf</a></p>
-<p><a href="http://nginx.org/en/docs/http/ngx_http_limit_req_module.html" target="_blank" rel="external">Nginx限流模块</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/2016/03/17/限流技术的应用场景/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj67jykx5000ep8shwzb03ekn" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj6d6zkmy000agnsh01i7mkm5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -542,180 +259,15 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
 <p>数学定理（严格的数学推理，非经验公式）<br>
 排队论的理论</p>
 </blockquote>
-<h2 id="限流算法"><a class="header-anchor" href="#限流算法">¶</a>限流算法</h2>
-<p>最粗暴的实现方式是每执行一次delay一定时间，从而达到限制QPS的效果</p>
-<p>比如，我们想以最大的QPS为10去处理1000个业务逻辑，那么代码很可能这么写</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">1000</span>; i++) &#123;</div><div class="line">    doSomething();</div><div class="line">    Thread.sleep(<span class="number">100</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>这种写法有什么弊端？</p>
-<ul>
-<li>
-<p>delay的预估时间不精确</p>
-<p>为什么是100ms呢？其实QPS还依赖于doSomething的执行时间；</p>
-<p>如果doSomething的执行时间短，比如是1ms，那么QPS最接近10；</p>
-<p>如果doSomething的执行时间长，比如是500，那么QPS还不到2</p>
-<p>通常情况下，doSomething的执行时间是非常不确定的，所以我们很难给出一个相对精确的delay时间</p>
-</li>
-<li>
-<p>多线程下如何控制呢？</p>
-<p>显然，由于doSomething的执行时间不确定，会导致没法在较短的时间内处理完1000个业务逻辑</p>
-<p>所以必须借助线程池，通过并行去处理，但是QPS也必须控制在10以内</p>
-<p>WorkThread的代码很有可能这么写，然后启多少个线程合适呢？</p>
-</li>
-</ul>
- <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">    doSomething();</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Thread.sleep(<span class="number">100</span>);</div><div class="line">    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">        e.printStackTrace();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>因此，采用delay这种粗暴的实现方式很难将QPS稳定地控制在10</p>
-<p>要想解决这个问题，就必须做到</p>
-<ul>
-<li>
-<p>固定速率</p>
-<p>在1秒这个时间窗口内，将执行的次数控制在10，这样速率是固定的</p>
-</li>
-<li>
-<p>不允许突发情况<br>
-在任何1秒时间窗口内，不能超过10个</p>
-<p>所以不能出现以下突发情况：比如QPS=2，0.0s到1.0s和1.0s到2.0s分别指允许执行2次，</p>
-<p>但是在0.08秒、0.09秒、1.01秒、1.02秒执行了4次，所以在0.5秒到1.5秒这期间的1秒，</p>
-<p>QPS是4并且超过了2</p>
-</li>
-</ul>
-<p><img src="http://www.jackleitch.com/wp-content/uploads/2010/10/Sliding_Window_Rate_Limiting.png" alt="Fixed_Sliding_Window"></p>
-<p><a href="https://en.wikipedia.org/wiki/Leaky_bucket" target="_blank" rel="external">Leaky bucket</a>(漏桶算法)正好解决了这些问题</p>
-<p><a href="https://en.wikipedia.org/wiki/Token_bucket" target="_blank" rel="external">Token bucket</a>(令牌桶算法)和它一样，都是最常见的两种限流算法</p>
-<h3 id="leaky-bucket漏桶算法"><a class="header-anchor" href="#leaky-bucket漏桶算法">¶</a>Leaky bucket漏桶算法</h3>
-<h4 id="算法实现"><a class="header-anchor" href="#算法实现">¶</a>算法实现</h4>
-<p><img src="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im6.JPG" alt="Leaky bucket"></p>
-<p>不断的往桶里面注水，无论注水的速度是大还是小，水都是按固定的速率往外漏水；</p>
-<p>如果桶满了，水会溢出；</p>
-<h4 id="特点"><a class="header-anchor" href="#特点">¶</a>特点</h4>
-<ul>
-<li>漏水的速率是固定的</li>
-<li>即使存在注水burst（突然注水量变大）的情况，漏水的速率也是固定的</li>
-</ul>
-<h3 id="token-bucket令牌桶算法"><a class="header-anchor" href="#token-bucket令牌桶算法">¶</a>Token bucket令牌桶算法</h3>
-<h4 id="算法实现-v2"><a class="header-anchor" href="#算法实现-v2">¶</a>算法实现</h4>
-<p><img src="http://www.eenadupratibha.net/pratibha/engineering/images/content_pics/content_three_Tra_layer_im7.JPG" alt="Token bucket"></p>
-<p>令牌发送：每秒往桶里面发送r个令牌(token)</p>
-<p>桶的容量：桶中最多可以存放b个token；当放入的token数量超过b时，新放入的token会被丢弃</p>
-<p>请求访问：每次请求访问时先check桶中有没有剩余的令牌</p>
-<ul>
-<li>
-<p>如果桶中有足够的令牌，那么允许这次业务请求，并将这次从桶中取出的令牌删除</p>
-</li>
-<li>
-<p>如果桶中令牌不足，那么这次业务请求不允许操作，会以如下方式处理：</p>
-<ul>
-<li>
-<p>直接被丢弃</p>
-</li>
-<li>
-<p>放到队列中，当桶中有足够多令牌时再允许该业务请求</p>
-</li>
-</ul>
-</li>
-</ul>
-<p>由于每秒会不断地往桶中放r个token，所以当无业务请求需处理时，桶中的token数量会不断增加，止到达到桶的容量b为止</p>
-<h4 id="特点-v2"><a class="header-anchor" href="#特点-v2">¶</a>特点</h4>
-<ul>
-<li>
-<p>令牌可以积累</p>
-<p>桶中最大的令牌数是b，也是可以积累的最大令牌数</p>
-</li>
-<li>
-<p>允许突发流量</p>
-<p>桶中token可以积累到n(b&lt;=n&lt;=0)，此时如果有n个突发请求同时到达，这n个请求是可以同时允许处理的</p>
-</li>
-</ul>
-<h3 id="leakly-bucket-vs-token-bucket"><a class="header-anchor" href="#leakly-bucket-vs-token-bucket">¶</a>Leakly bucket VS Token bucket</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">对比项</th>
-<th style="text-align:center">Leakly bucket</th>
-<th style="text-align:right">Token bucket</th>
-<th style="text-align:right">Token bucket的备注</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">依赖token</td>
-<td style="text-align:center">否</td>
-<td style="text-align:right">是</td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td style="text-align:left">立即执行</td>
-<td style="text-align:center">是</td>
-<td style="text-align:right">否</td>
-<td style="text-align:right">有足够的token才能执行</td>
-</tr>
-<tr>
-<td style="text-align:left">堆积token</td>
-<td style="text-align:center">否</td>
-<td style="text-align:right">是</td>
-<td style="text-align:right"></td>
-</tr>
-<tr>
-<td style="text-align:left">速率恒定</td>
-<td style="text-align:center">是</td>
-<td style="text-align:right">否</td>
-<td style="text-align:right">可以大于设定的QPS</td>
-</tr>
-</tbody>
-</table>
-<h2 id="具体实现"><a class="header-anchor" href="#具体实现">¶</a>具体实现</h2>
-<h3 id="guava的ratelimiter实现"><a class="header-anchor" href="#guava的ratelimiter实现">¶</a>Guava的RateLimiter实现</h3>
-<p>在Guava中RateLimiter的实现有两种：<code>SmoothBursty</code>和<code>SmoothWarmUp</code></p>
-<p>补充类图</p>
-<h4 id="smoothbursty"><a class="header-anchor" href="#smoothbursty">¶</a>SmoothBursty</h4>
-<ul>
-<li>基于Token bucket算法的实现</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RateLimiter rateLimiter = RateLimiter.create(permitsPerSecond);<span class="comment">//创建一个SmoothBursty实例</span></div><div class="line"></div><div class="line">rateLimiter.acquire();<span class="comment">//获取1个permit；可能会被阻塞止到获取到为止</span></div></pre></td></tr></table></figure>
-<p>以下场景，调用acquire()时何时有返回值？</p>
-<p>QPS=1,4个线程在以下时间点依次调用acquire()方法</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">T0 at 0    seconds  --&gt; 0 excute</div><div class="line"></div><div class="line">T1 at 1.05 seconds	--&gt;	1.05</div><div class="line"></div><div class="line">T2 at 2    seconds	--&gt; 2.05(=1.05+1)</div><div class="line"></div><div class="line">T3 at 3    seconds	--&gt; 3.05(=2.05+1)</div></pre></td></tr></table></figure>
-<ul>
-<li>
-<p>存储token,具备处理突发请求的能力</p>
-<p>当RateLimiter空闲时(无请求需处理)，可以积累一定时间内的permits(token)</p>
-<p>比如，当QPS=2，maxBurstSeconds=10时，也就意味着如果RateLimiter空闲，那么可以积累</p>
-<p>10秒的permits，也就是10*2=20个(maxPermits = maxBurstSeconds *permitsPerSecond)，</p>
-<p>当下次有请求过来时，可以立即取走这20个permits，从而可以达到突发请求的效果</p>
-</li>
-</ul>
-<blockquote></blockquote>
-<p>注意：SmoothBursty中maxBurstSeconds的默认值是1，并且不可以修改，所以SmoothBursty最多只能积累permitsPerSecond个permits</p>
-<h3 id="smoothwarmingup"><a class="header-anchor" href="#smoothwarmingup">¶</a>SmoothWarmingUp</h3>
-<ul>
-<li>基于Leaky bucket算法实现</li>
-<li>QPS是固定的</li>
-<li>不支持burst</li>
-<li>使用于需要预热时间的使用场景<br>
-RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</li>
-</ul>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//创建一个SmoothWarmingUp实例；warmupPeriod是指预热的时间</span></div><div class="line">RateLimiter rateLimiter =</div><div class="line">            RateLimiter.create(permitsPerSecond,warmupPeriod,timeUnit);</div><div class="line">rateLimiter.acquire();<span class="comment">//获取1个permit；可能会被阻塞止到获取到为止</span></div></pre></td></tr></table></figure>
-<p>预热期间QPS会平滑地逐步加速到最大的速率（也就是QPS）</p>
-<h4 id="简单用例代码"><a class="header-anchor" href="#简单用例代码">¶</a>简单用例代码</h4>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RateLimiterUseCase</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> Logger logger = LoggerFactory.getLogger(RateLimiterUseCase.class);</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> qps;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> requestCount;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> RateLimiter rateLimiter;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">RateLimiterUseCase</span><span class="params">(<span class="keyword">int</span> qps, <span class="keyword">int</span> requestCount)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.qps = qps;</div><div class="line">        <span class="keyword">this</span>.requestCount = requestCount;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">buildRateLimiter</span><span class="params">(RateLimiter rateLimiter)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.rateLimiter = rateLimiter;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processRequest</span><span class="params">(<span class="keyword">int</span> requestCount)</span> </span>&#123;</div><div class="line">        logger.info(<span class="string">"RateLimiter 类型:&#123;&#125;"</span>, rateLimiter.getClass());</div><div class="line">        <span class="keyword">long</span> startTimeMillis = System.currentTimeMillis();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; requestCount; i++) &#123;</div><div class="line">            rateLimiter.acquire();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">long</span> usedTimeMillis = System.currentTimeMillis() - startTimeMillis;</div><div class="line">        logger.info(<span class="string">"处理请求数:&#123;&#125;,耗时:&#123;&#125;,限流的qps:&#123;&#125;,实际的qps:&#123;&#125;"</span>, requestCount, usedTimeMillis, rateLimiter.getRate(), Math.ceil(requestCount / (usedTimeMillis / <span class="number">1000.00</span>)));</div><div class="line">        logger.info(<span class="string">""</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sleep</span><span class="params">(<span class="keyword">int</span> sleepTimeSeconds)</span> </span>&#123;</div><div class="line">        logger.info(<span class="string">"等待&#123;&#125;秒后，继续处理下一批&#123;&#125;个请求"</span>, sleepTimeSeconds, requestCount);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Thread.sleep(sleepTimeSeconds * <span class="number">1000</span>);</div><div class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processWithTokenBucket</span><span class="params">()</span> </span>&#123;</div><div class="line">        buildRateLimiter(RateLimiter.create(qps));</div><div class="line">        doProcess();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processWithLeakBucket</span><span class="params">()</span> </span>&#123;</div><div class="line">        buildRateLimiter(RateLimiter.create(qps, <span class="number">0</span>, TimeUnit.MILLISECONDS));</div><div class="line">        doProcess();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doProcess</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">        sleep(<span class="number">0</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">1</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">5</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line"></div><div class="line">        sleep(<span class="number">10</span>);</div><div class="line">        processRequest(requestCount);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        RateLimiterUseCase test = <span class="keyword">new</span> RateLimiterUseCase(<span class="number">10</span>, <span class="number">100</span>);</div><div class="line">        test.processWithLeakBucket();</div><div class="line">        test.processWithTokenBucket();</div><div class="line"></div><div class="line">        test = <span class="keyword">new</span> RateLimiterUseCase(<span class="number">10</span>, <span class="number">15</span>);</div><div class="line">        test.processWithLeakBucket();</div><div class="line">        test.processWithTokenBucket();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行结果</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div></pre></td><td class="code"><pre><div class="line">09:55:47.662 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批100个请求</div><div class="line">09:55:47.668 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:55:57.573 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9904,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:55:57.574 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:55:57.574 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批100个请求</div><div class="line">09:55:58.578 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9903,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:08.481 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批100个请求</div><div class="line">09:56:13.486 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9902,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:23.388 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批100个请求</div><div class="line">09:56:33.391 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:56:43.293 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9902,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批100个请求</div><div class="line">09:56:43.294 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:56:53.195 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:9901,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:56:53.196 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:56:53.196 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批100个请求</div><div class="line">09:56:54.197 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8997,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:03.194 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批100个请求</div><div class="line">09:57:08.198 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:17.102 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8904,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:17.103 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:17.103 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批100个请求</div><div class="line">09:57:27.107 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:100,耗时:8905,限流的qps:10.0,实际的qps:12.0</div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:36.012 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批15个请求</div><div class="line">09:57:36.013 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:37.416 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批15个请求</div><div class="line">09:57:38.417 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:39.820 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1402,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:39.821 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:39.821 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批15个请求</div><div class="line">09:57:44.825 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:46.228 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:46.229 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:46.229 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批15个请求</div><div class="line">09:57:56.233 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothWarmingUp</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1403,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - 等待0秒后，继续处理下一批15个请求</div><div class="line">09:57:57.636 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:1400,限流的qps:10.0,实际的qps:11.0</div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:57:59.037 [main] INFO  c.n.guava.RateLimiterUseCase - 等待1秒后，继续处理下一批15个请求</div><div class="line">09:58:00.038 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:00.539 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:501,限流的qps:10.0,实际的qps:30.0</div><div class="line">09:58:00.540 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:58:00.540 [main] INFO  c.n.guava.RateLimiterUseCase - 等待5秒后，继续处理下一批15个请求</div><div class="line">09:58:05.542 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:05.945 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:403,限流的qps:10.0,实际的qps:38.0</div><div class="line">09:58:05.946 [main] INFO  c.n.guava.RateLimiterUseCase - </div><div class="line">09:58:05.946 [main] INFO  c.n.guava.RateLimiterUseCase - 等待10秒后，继续处理下一批15个请求</div><div class="line">09:58:15.947 [main] INFO  c.n.guava.RateLimiterUseCase - RateLimiter 类型:class com.google.common.util.concurrent.SmoothRateLimiter$SmoothBursty</div><div class="line">09:58:16.350 [main] INFO  c.n.guava.RateLimiterUseCase - 处理请求数:15,耗时:403,限流的qps:10.0,实际的qps:38.0</div><div class="line">09:58:16.350 [main] INFO  c.n.guava.RateLimiterUseCase -</div></pre></td></tr></table></figure>
-<h3 id="ratelimiter的结论"><a class="header-anchor" href="#ratelimiter的结论">¶</a>RateLimiter的结论</h3>
-<p>对于SmoothBurst而言，是基于Token bucket算法，因此</p>
-<blockquote></blockquote>
-<p>速率不是固定的，会出现burst突发情况<br>
-设定的QPS越大，需要处理的request越小时，实际的QPS越大；<br>
-设定的QPS越小，需要处理的request越大时，实际的QPS越平稳，越接近设定的QPS</p>
-<p>对于SmoothWarmingUp而言，是基于Leaky bucket算法，因此</p>
-<blockquote></blockquote>
-<p>速率是固定的，因此QPS也是固定的，不会出现burst突发情况</p>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
-<p><a href="http://www.eenadupratibha.net/pratibha/engineering/content_three_tra_layer_u6.html" target="_blank" rel="external">Token bucket算法图片</a></p>
-<p><a href="http://www.jackleitch.net/2010/10/better-rate-limiting-with-dot-net/" target="_blank" rel="external">Better Rate Limiting in .NET</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/2016/03/06/限流技术的常见算法及其实现/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj67jykwv0008p8shy5ktg4bf" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj6d6zkmv0006gnshz4pwgsqd" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -753,167 +305,20 @@ RateLimiter create(double permitsPerSecond, long warmupPeriod, TimeUnit unit)</l
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="监控的重要性"><a class="header-anchor" href="#监控的重要性">¶</a>监控的重要性</h2>
+        <h2 id="监控的重要性">监控的重要性</h2>
 <p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
 <blockquote>
 <p>监控和代码同等重要</p>
 </blockquote>
-<h2 id="主要监控说明"><a class="header-anchor" href="#主要监控说明">¶</a>主要监控说明</h2>
-<h3 id="事务相关"><a class="header-anchor" href="#事务相关">¶</a>事务相关</h3>
-<h4 id="innodb-transactions"><a class="header-anchor" href="#innodb-transactions">¶</a>InnoDB Transactions</h4>
-<p>内部的事务计算器（Trx id counter）是如何变化的<br>
-history list的长度表明最老的未被清除的事务有多老。如果这个值变大了，说明有些事务开启了很长时间。这意味着InnoDB不能够清除旧的行版本。最后数据库会变慢。所以要尽可能快递提交事务</p>
-<h4 id="innodb-active-locked-transactions"><a class="header-anchor" href="#innodb-active-locked-transactions">¶</a>InnoDB Active/Locked Transactions</h4>
-<ul>
-<li>
-<p>Active Transactions</p>
-<blockquote>
-<p>活跃的事务就是当前被开启的事务，它介于开始（BEGIN）和提交(COMMIT)之间。如果设置为 auto-commit，正在运行的query，即时它立即提交，也是一个活跃的事务。</p>
-</blockquote>
-</li>
-<li>
-<p>Locked Transactions</p>
-<blockquote>
-<p>locked事务是正处于 LOCK WAIT 状态的事务。通常情况下它正在等待一个行锁，但有时候有可能是在等待获取一个表锁或者自增长锁。<br>
-可以通过 SHOW INNODB STATUS 执行的结果去查找“LOCK WAIT”正在等待哪种类型的锁。<br>
-导致锁等待的因素有很多，比如，都在获取热表、通过扫描不同的索引来查询数据、或者使用SELECT … FOR UPDATE这种错误的查询模式</p>
-</blockquote>
-</li>
-<li>
-<p>Current Transactions</p>
-<blockquote>
-<p>当前事务的总个数，包含所有状态状态（ACTIVE, LOCK WAIT, not started等）的事务；是通过SHOW INNODB STATUS执行的结果统计“—TRANSACTION”出现的总次数</p>
-</blockquote>
-</li>
-<li>
-<p>Read views</p>
-<blockquote>
-<p>其个数显示了多少个事务对于DB上下文有一致的快照</p>
-</blockquote>
-</li>
-</ul>
-<p>案例</p>
-<blockquote>
-<p>某次DB磁盘被写满（磁盘I/O使用率到100%）时，观察到的监控<br>
-可以看出Active Transactions飙高</p>
-</blockquote>
-<p><img src="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png" alt="transaction-active"></p>
-<h4 id="innodb-current-lock-waits"><a class="header-anchor" href="#innodb-current-lock-waits">¶</a>InnoDB Current Lock Waits</h4>
-<hr>
-<p>显示了每秒钟InnoDB事务等待锁的个数。它和InnoDB Active/Locked Transactions有一定的关系<br>
-如果Lock Waits出现的次数比较多，那么就应该去排查一下LOCK WAIT状态的事务；如果事务一直是处于LOCK WAIT状态，那么最悲催的情况下是，等待时间达到innodb_lock_wait_timeout（默认50秒）时才会放弃获取锁；<br>
-如果innodb_lock_wait_timeout设置过大，即使只有一个处于LOCK WAIT的事务，它也很可能等待一个比较长的时间</p>
-<blockquote>
-<p>innodb_lock_wait_timeout<br>
-表示在获取锁时等待的最长时间，默认值是50秒<br>
-如果超过这个时间，应用会收到如下异常信息</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&gt; java.lang.Exception:</div><div class="line">&gt; ### Error updating database.  Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt; ### The error may involve defaultParameterMap</div><div class="line">&gt; ### The error occurred while setting parameters</div><div class="line">&gt; ### Cause: java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction; SQL []; Lock wait timeout exceeded; try restarting transaction; nested exception is java.sql.SQLException: Lock wait timeout exceeded; try restarting transaction</div><div class="line">&gt;</div></pre></td></tr></table></figure>
-</blockquote>
-<h4 id="innodb-row-lock-waits-innodb-row-lock-time"><a class="header-anchor" href="#innodb-row-lock-waits-innodb-row-lock-time">¶</a>InnoDB Row Lock Waits &amp;  InnoDB Row Lock Time</h4>
-<ul>
-<li>Row Lock Time<br>
-显示了InnoDB在获取行锁时等待的时间（毫秒）；它来源于Innodb_row_lock_time的状态变量的值</li>
-<li>Row Lock Waits<br>
-显示了InnoDB等待获取行锁的次数；它来源于Innodb_row_lock_waits状态变量的值</li>
-</ul>
-<p>案例</p>
-<blockquote>
-<p>某次发生deadlock时的监控信息</p>
-</blockquote>
-<p><img src="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png" alt="dl-lock-time-waits"></p>
-<h3 id="执行相关"><a class="header-anchor" href="#执行相关">¶</a>执行相关</h3>
-<hr>
-<h4 id="mysql-handlers"><a class="header-anchor" href="#mysql-handlers">¶</a>MySQL Handlers</h4>
-<p>这些handler记录了MySQL通过存储引擎的API的操作记录</p>
-<ul>
-<li>Handler_read_rnd<br>
-记录调用handler::rnd_pos()的次数；这个方法的作用就是从表中基于固定的位置（比如，随机读）获取一条记录；不同的存储引擎所表示的含义不一样，在MyISAM中这个位置表示一个字节从文件开头算起所在的偏移量，在InnoDB中，它表示根据主键值读取一条记录。</li>
-<li>Handler_read_rnd_next<br>
-记录调用handler::rnd_next() 的次数；从根本上说是一次游标操作，从表中读取后续的记录。当发生全表扫描时会调用这个方法。<br>
-出现尖峰表明有大量的表扫描</li>
-</ul>
-<p>案例</p>
-<blockquote>
-<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br>
-<img src="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png" alt="mysql-handlers"></p>
-<p>Handler Read Rnd Next飙高<br>
-<img src="/2015/11/17/MySQL的核心监控指标/" alt="Uploading handlers.png…"></p>
-</blockquote>
-<h4 id="mysql-select-types"><a class="header-anchor" href="#mysql-select-types">¶</a>MySQL Select Types</h4>
-<p>显示了各种select类型的执行次数：full join, full range join, range, range check, and scan<br>
-这些显示了执行计划的各种类型的执行次数，尤其要注意<br>
-尽可能将Select_full_join的出现次数控制在0</p>
-<h3 id="连接相关"><a class="header-anchor" href="#连接相关">¶</a>连接相关</h3>
-<h4 id="mysql-connections"><a class="header-anchor" href="#mysql-connections">¶</a>MySQL Connections</h4>
-<p>尤其要注意aborted clients和connections，一般很少出现这两个值飙高的情况</p>
-<ul>
-<li>aborted clients</li>
-</ul>
-<p>以下这几种场景会导致该监控的值飙高</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">1. 由于client挂掉而没有正确关闭连接导致被终止的连接数；</div><div class="line">2. 或者client sleep的时间超过了wait_timeout（默认28800秒）或者interactive_timeout（默认28800秒），并且这期间没有向server发送任何请求；</div><div class="line">3. 或者client在传输数据的过程中突然终止</div></pre></td></tr></table></figure>
-<blockquote>
-<p>参考：<br>
-<a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_clients" target="_blank" rel="external">Aborted_clients</a><br>
-<a href="http://dev.mysql.com/doc/refman/5.6/en/communication-errors.html" target="_blank" rel="external">Communication Errors and Aborted Connections</a></p>
-</blockquote>
-<ul>
-<li>aborted connections client</li>
-</ul>
-<p>尝试连接MySQL的失败次数；<br>
-导致的原因：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">1. client没有访问权限</div><div class="line">2. client访问密码错误</div><div class="line">3. 连接包不合法</div><div class="line">4. 发送连接包的时间超过了connect_timeout（默认10秒）</div></pre></td></tr></table></figure>
-<blockquote>
-<p>参考：<br>
-<a href="http://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Aborted_connects" target="_blank" rel="external">Aborted_connects</a><br>
-<a href="http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_connect_timeout" target="_blank" rel="external">connect_timeout</a></p>
-</blockquote>
-<p>网络相关原因也会导致这2种异常</p>
-<h3 id="其他"><a class="header-anchor" href="#其他">¶</a>其他</h3>
-<hr>
-<h4 id="innodb-buffer-pool-efficiency-效率"><a class="header-anchor" href="#innodb-buffer-pool-efficiency-效率">¶</a>InnoDB Buffer Pool Efficiency（效率）</h4>
-<p>logical read requests 表示InnoDB已经处理过的数量<br>
-logical reads 表示InnoDB并不能从buffer pool读取数据，不得不直接从磁盘中读取</p>
-<p>案例</p>
-<blockquote>
-<p>某次出现一条sql在一个从库上的执行计划中没有使用到索引时导致的监控飙升<br>
-<img src="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png" alt="buffer-pool-efficiency"></p>
-</blockquote>
-<h4 id="innodb-buffer-pool-activity"><a class="header-anchor" href="#innodb-buffer-pool-activity">¶</a>InnoDB Buffer Pool Activity</h4>
-<hr>
-<p>显示了buffer pool中的活动信息：创建、读和写pages<br>
-它和Handler是一致的</p>
-<h4 id="innodb-checkpoint-age"><a class="header-anchor" href="#innodb-checkpoint-age">¶</a>InnoDB Checkpoint Age</h4>
-<hr>
-<h4 id="innodb-i-o-pending"><a class="header-anchor" href="#innodb-i-o-pending">¶</a>InnoDB I/O Pending</h4>
-<hr>
-<p>显示InnoDB的同步和异步的pending I/O.<br>
-Pending I/O是不理想的；理想情况下，InnoDB后台线程（background thread）能够和写保持同步，并且希望buffer pool足够大能解决读的问题；<br>
-如果出现大量的pending I/O，那么需要加内存，或者一个更大的buffer pool（或者使用O_DIRECT来double-buffering），或者比较快的磁盘系统</p>
-<h4 id="innodb-lock-structures"><a class="header-anchor" href="#innodb-lock-structures">¶</a>InnoDB Lock Structures</h4>
-<hr>
-<p>表明InnoDB内部有多少锁结构；这个和事务持有的行锁的个数相当；<br>
-并没有硬性该规定多少个锁结构是好还是坏，不过当很多事务正在等待锁时，很显然这个值越小越好</p>
-<p>通过SHOW INNODB STATUS可以查看锁信息</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">23 lock struct(s), heap size 3024, undo log entries 27</div><div class="line">LOCK WAIT 12 lock struct(s), heap size 3024, undo log entries 5</div><div class="line">LOCK WAIT 2 lock struct(s), heap size 368</div></pre></td></tr></table></figure>
-<h4 id="innodb-log-activity"><a class="header-anchor" href="#innodb-log-activity">¶</a>InnoDB Log Activity</h4>
-<hr>
-<p>显示了InnoDB Log的活动<br>
-If transactions need to write to the log buffer and it’s either not big enough or is currently being flushed, they’ll stall.</p>
-<h4 id="binary-relay-logs"><a class="header-anchor" href="#binary-relay-logs">¶</a>Binary/Relay logs</h4>
-<hr>
-<p>当日志被清理时，size会发生变化，比如设置了expire_logs_days。<br>
-如果size突然增大了，可以看看是不是清除（purge）的时候出了问题，有可能是配置发生了变化，或者有人手动删除了文件触发了自动清除从而导致MySQL停止工作</p>
-<h4 id="mysql-replication"><a class="header-anchor" href="#mysql-replication">¶</a>MySQL Replication</h4>
-<hr>
-<p>显示了复制线程的状态。有2种方式衡量复制延时<br>
-1.通过SHOW SLAVE STATUS去查看Seconds_behind_master信息<br>
-2.通过心跳表去check<br>
-当复制正在工作的时候，绿色区域的大小就是复制延时。当复制停止的时候，也有个红色的区域，其大小也是复制延时；所以通过观察区域的颜色就能知道复制是否被终止了。如果复制没有延时，那么看不到绿色或者红色的区域</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2015/11/17/MySQL的核心监控指标/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj67jykwu0007p8shfb25mk0a" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj6d6zkmp0004gnshn7qww3hi" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -951,66 +356,19 @@ If transactions need to write to the log buffer and it’s either not big enough
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>近期遇到一个堆外内存导致swap飙高的问题，这类问题比较罕见，因此将整个排查过程记录下来了</p>
-<h2 id="现象描述"><a class="header-anchor" href="#现象描述">¶</a>现象描述</h2>
+        <p>近期遇到一个堆外内存导致swap飙高的问题，这类问题比较少见，因此将整个排查过程记录下来了</p>
+<h2 id="现象描述">现象描述</h2>
 <p>最近1周线上服务器时不时出现swap报警（swap超过内存10%时触发报警，内存是4G，因此swap超过400M会触发报警），每次都是童鞋们通过重启tomcat解决的；<br>
 但导致的根本原因是什么呢？必须找到根本原因才行，总是这么重启就有点low了</p>
-<h2 id="问题排查"><a class="header-anchor" href="#问题排查">¶</a>问题排查</h2>
-<p>于是找了1台占用了swap但还未触发报警的服务器进行了排查<br>
-以下是当时通过top命令观察到的结果</p>
-<p>23:03:22 swap占用了354M的内存<br>
-<img src="https://cloud.githubusercontent.com/assets/864066/7699109/1fa23612-fe48-11e4-86ce-0eef2f688b1b.png" alt="top-swap"></p>
-<p>23:55:42 swap占用了398M的内存<br>
-<img src="https://cloud.githubusercontent.com/assets/864066/7699108/1f27a262-fe48-11e4-87ce-c6e4a3f593e4.png" alt="top-swap-2"></p>
-<h2 id="原因分析"><a class="header-anchor" href="#原因分析">¶</a>原因分析</h2>
-<p>到底是什么原因导致swap飙高呢？肯定是tomcat，因为每次重启tomcat就解决了;但根本原因是？</p>
-<h3 id="谁占用了swap"><a class="header-anchor" href="#谁占用了swap">¶</a>谁占用了swap</h3>
-<p>通过以下脚本 <a href="http://swap.sh" target="_blank" rel="external">swap.sh</a></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="comment"># Get current swap usage for all running processes</span></div><div class="line"><span class="comment"># Erik Ljungstrom 27/05/2011</span></div><div class="line"><span class="function"><span class="title">do_swap</span></span> () &#123;</div><div class="line">SUM=0</div><div class="line">OVERALL=0</div><div class="line"><span class="keyword">for</span> DIR <span class="keyword">in</span> `find /proc/ -maxdepth 1 -<span class="built_in">type</span> d | egrep <span class="string">"^/proc/[0-9]"</span>` ; <span class="keyword">do</span></div><div class="line">PID=`<span class="built_in">echo</span> <span class="variable">$DIR</span> | cut -d / -f 3`</div><div class="line">PROGNAME=`ps -p <span class="variable">$PID</span> -o comm --no-headers`</div><div class="line"><span class="keyword">for</span> SWAP <span class="keyword">in</span> `grep Swap <span class="variable">$DIR</span>/smaps 2&gt;/dev/null| awk <span class="string">'&#123; print $2 &#125;'</span>`</div><div class="line"><span class="keyword">do</span></div><div class="line"><span class="built_in">let</span> SUM=<span class="variable">$SUM</span>+<span class="variable">$SWAP</span></div><div class="line"><span class="keyword">done</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"PID=<span class="variable">$PID</span> - Swap used: <span class="variable">$SUM</span> - (<span class="variable">$PROGNAME</span> )"</span></div><div class="line"><span class="built_in">let</span> OVERALL=<span class="variable">$OVERALL</span>+<span class="variable">$SUM</span></div><div class="line">SUM=0</div><div class="line"></div><div class="line"><span class="keyword">done</span></div><div class="line"><span class="built_in">echo</span> <span class="string">"Overall swap used: <span class="variable">$OVERALL</span>"</span></div><div class="line">&#125;</div><div class="line">do_swap  |awk -F[\ \(] <span class="string">'&#123;print $5,$1,$8&#125;'</span> | sort -n | tail -3</div></pre></td></tr></table></figure>
-<p>可以看出PID=19911这个进程使用了324M的swap</p>
-<p><img src="https://cloud.githubusercontent.com/assets/864066/7699275/57c95d80-fe49-11e4-9631-39853c9539d6.png" alt="swap-sh"></p>
-<p>通过grep进程号19911可以看出确实是tomcat占用swap最多<br>
-<img src="https://cloud.githubusercontent.com/assets/864066/7699364/eda2a730-fe49-11e4-9779-756836f85609.png" alt="grep-pid"></p>
-<p>进程19911占用总的物理内存是3.1G，java占用的堆内内存大小为2.78G，剩下的320M是堆外内存占用的</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Max memory = [-Xmx] + [-XX:MaxPermSize] + number_of_threads * [-Xss]</div></pre></td></tr></table></figure>
-<p>2779M=2048M+268M+463*1M</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo -u tomcat ./jinfo -flag MaxPermSize 19911</div><div class="line">-XX:MaxPermSize=268435456</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">java -XX:+PrintFlagsFinal -version | grep ThreadStackSize</div><div class="line">     intx CompilerThreadStackSize                   = 0               &#123;pd product&#125;</div><div class="line">     intx ThreadStackSize                           = 1024            &#123;pd product&#125;</div><div class="line">     intx VMThreadStackSize                         = 1024            &#123;pd product&#125;</div><div class="line">java version &quot;1.7.0_45&quot;</div><div class="line">Java(TM) SE Runtime Environment (build 1.7.0_45-b18)</div><div class="line">Java HotSpot(TM) 64-Bit Server VM (build 24.45-b08, mixed mode)</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">java -XX:+PrintFlagsFinal -version | grep -i permsize</div><div class="line">    uintx AdaptivePermSizeWeight                    = 20              &#123;product&#125;</div><div class="line">    uintx MaxPermSize                               = 85983232        &#123;pd product&#125;</div><div class="line">    uintx PermSize                                  = 21757952        &#123;pd product&#125;</div><div class="line">java version &quot;1.7.0_45&quot;</div><div class="line">Java(TM) SE Runtime Environment (build 1.7.0_45-b18)</div><div class="line">Java HotSpot(TM) 64-Bit Server VM (build 24.45-b08, mixed mode)</div></pre></td></tr></table></figure>
-<h3 id="哪行代码占用了堆外内存"><a class="header-anchor" href="#哪行代码占用了堆外内存">¶</a>哪行代码占用了堆外内存</h3>
-<p>堆内内存溢出可以直接通过MAT分析堆信息就可以定位到具体的代码，但是对于堆外内存就必须通过<a href="https://kenai.com/projects/btrace/" target="_blank" rel="external">BTrace</a>来解决</p>
-<h4 id="google-perftools-定位类名和方法名"><a class="header-anchor" href="#google-perftools-定位类名和方法名">¶</a>google-perftools 定位类名和方法名</h4>
-<p>如何安装和使用google-perftools见<a href="https://github.com/nereuschen/blog/issues/28" target="_blank" rel="external">这里</a><br>
-由于要启动google-perftools需要重启tomcat，所以重启tomcat后，PID从19911变成了9176</p>
-<p>重启tomcat后，会自动生成heap文件，文件名的命名规范是gperf_pid.xxx.heap，所以我们只需要关注gperf_9176.*即可</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">[xxxx@xxxx   /home/xxx/logs]$ ll *.heap</div><div class="line">…...</div><div class="line">-rw-r--r-- 1 tomcat tomcat    5048 May  6 10:46 gperf_9171.0001.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat    5036 May  6 10:46 gperf_9173.0001.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat    5055 May  6 10:46 gperf_9174.0001.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat    5352 May  6 10:46 gperf_9175.0001.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048563 May  6 10:46 gperf_9176.0001.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048564 May  6 10:46 gperf_9176.0002.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048563 May  6 10:47 gperf_9176.0003.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048565 May  6 10:47 gperf_9176.0004.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048574 May  6 10:49 gperf_9176.0005.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048574 May  6 10:50 gperf_9176.0006.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048568 May  6 10:51 gperf_9176.0007.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048572 May  6 10:53 gperf_9176.0008.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048564 May  6 10:55 gperf_9176.0009.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048560 May  6 10:58 gperf_9176.0010.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048563 May  6 11:00 gperf_9176.0011.heap</div><div class="line">-rw-r--r-- 1 tomcat tomcat 1048564 May  6 11:03 gperf_9176.0012.heap</div><div class="line">…...</div></pre></td></tr></table></figure>
-<p>分析heap文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">/home/google-perftools/bin/pprof  --text  /home/java  /home/logs/gperf_9176.0010.heap</div><div class="line">Using local file /home/java.</div><div class="line">Using local file /home/logs/gperf_9176.0010.heap.</div><div class="line">Total: 186.4 MB</div><div class="line">91.2 48.9% 48.9% 91.2 48.9% updatewindow</div><div class="line">52.5 28.2% 77.1% 52.5 28.2% os::malloc</div><div class="line">38.0 20.4% 97.4% 38.0 20.4% inflateInit2_</div><div class="line">3.0 1.6% 99.0% 3.0 1.6% init</div><div class="line">0.8 0.4% 99.5% 0.8 0.4% ObjectSynchronizer::omAlloc</div><div class="line">0.4 0.2% 99.7% 0.4 0.2% readCEN</div><div class="line">0.3 0.2% 99.9% 38.3 20.5% Java_java_util_zip_Inflater_init</div><div class="line">0.1 0.1% 100.0% 0.1 0.1% _dl_allocate_tls</div><div class="line">0.0 0.0% 100.0% 0.0 0.0% _dl_new_object</div><div class="line">0.0 0.0% 100.0% 1.1 0.6% Thread::Thread</div><div class="line">0.0 0.0% 100.0% 0.0 0.0% CollectedHeap::CollectedHeap</div><div class="line">0.0 0.0% 100.0% 0.0 0.0% Events::init</div><div class="line">0.0 0.0% 100.0% 0.4 0.2% ZIP_Put_In_Cache0</div><div class="line">0.0 0.0% 100.0% 0.0 0.0% read_alias_file</div><div class="line">0.0 0.0% 100.0% 0.0 0.0% _nl_intern_locale_data</div></pre></td></tr></table></figure>
-<p>可以看出是java.util.zip.Inflater的init()占用了比较多的内存</p>
-<h4 id="通过btrace定位代码调用方"><a class="header-anchor" href="#通过btrace定位代码调用方">¶</a>通过BTrace定位代码调用方</h4>
-<p>编写代码BtracerInflater.java对init方法进行拦截</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.sun.btrace.BTraceUtils.*;</div><div class="line"><span class="keyword">import</span> com.sun.btrace.annotations.*;</div><div class="line"></div><div class="line"><span class="keyword">import</span> java.nio.ByteBuffer;</div><div class="line"><span class="keyword">import</span> java.lang.Thread;</div><div class="line"></div><div class="line"><span class="meta">@BTrace</span> <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BtracerInflater</span></span>&#123;</div><div class="line">   <span class="meta">@OnMethod</span>(</div><div class="line">      clazz=<span class="string">"java.util.zip.Inflater"</span>,</div><div class="line">      method=<span class="string">"/.*/"</span></div><div class="line">   )</div><div class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">traceCacheBlock</span><span class="params">()</span></span>&#123;</div><div class="line">      println(<span class="string">"Who call java.util.zip.Inflater's methods :"</span>);</div><div class="line">     jstack();</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>运行BTrace</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">[xxxx@l-xxx.xx.xx /home/xxx/btrace-bin/bin]$ sudo -u tomcat ./btrace -cp ../build 9176 BtracerInflater.java|more</div><div class="line">Who call java.util.zip.Inflater&apos;s methods :</div><div class="line">java.util.zip.Inflater.&lt;init&gt;(Inflater.java:102)</div><div class="line">java.util.zip.GZIPInputStream.&lt;init&gt;(GZIPInputStream.java:76)</div><div class="line">java.util.zip.GZIPInputStream.&lt;init&gt;(GZIPInputStream.java:90)</div><div class="line">com.xxx.OrderDiffUtil.ungzip(OrderDiffUtil.java:54)</div><div class="line">com.xxx.OrderDiffUtil.parse(OrderDiffUtil.java:32)</div><div class="line">com.xxx.FaxOrderEventListener.takeSectionChangedInfo(FaxOrderEventListener.java:87)</div><div class="line">com.xxx.FaxOrderEventListener.onMessage(FaxOrderEventListener.java:46)</div><div class="line">.......</div></pre></td></tr></table></figure>
-<p>可以看出是OrderDiffUtil的ungzip()调用了java.util.zip.Inflater的init()<br>
-看看OrderDiffUtil.ungzip()</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">ungzip</span><span class="params">(String encodeJson)</span> </span>&#123;</div><div class="line">    ByteArrayOutputStream out = <span class="keyword">new</span> ByteArrayOutputStream(encodeJson.length() * <span class="number">5</span>);</div><div class="line">    ByteArrayInputStream in = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        in = <span class="keyword">new</span> ByteArrayInputStream(Base64.decode(encodeJson));</div><div class="line">    &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"&#123;&#125;"</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        GZIPInputStream gunzip = <span class="keyword">new</span> GZIPInputStream(in);</div><div class="line">        <span class="keyword">byte</span> buffer[] = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line">        <span class="keyword">int</span> len = <span class="number">0</span>;</div><div class="line">        <span class="keyword">while</span> ((len = gunzip.read(buffer)) != -<span class="number">1</span>) &#123;</div><div class="line">            out.write(buffer, <span class="number">0</span>, len);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">        <span class="keyword">return</span> <span class="string">"&#123;&#125;"</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        <span class="keyword">return</span> out.toString(<span class="string">"ISO-8859-1"</span>);</div><div class="line">    &#125; <span class="keyword">catch</span> (UnsupportedEncodingException e) &#123;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="string">"&#123;&#125;"</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>可见gunzip未被close<br>
-所以根本原因是未调用GZIPInputStream的close()关闭流导致堆外内存占用</p>
-<h2 id="总结"><a class="header-anchor" href="#总结">¶</a>总结</h2>
-<ul>
-<li>堆外内存的问题使用google-prefile和BTrace定位问题非常方便</li>
-<li>堆外内存主要出现在使用DirectByteBuffer或者gzip不当时出现</li>
-</ul>
-<h2 id="参考资料"><a class="header-anchor" href="#参考资料">¶</a>参考资料</h2>
-<p><a href="http://m.blog.csdn.net/blog/whuoyunshen88/19508075" target="_blank" rel="external">http://m.blog.csdn.net/blog/whuoyunshen88/19508075</a><br>
-<a href="http://itindex.net/detail/11709-perftools-%E5%86%85%E5%AD%98-hbase" target="_blank" rel="external">http://itindex.net/detail/11709-perftools-内存-hbase</a><br>
-<a href="http://outofmemory.cn/code-snippet/1713/Btrace-usage-introduction" target="_blank" rel="external">http://outofmemory.cn/code-snippet/1713/Btrace-usage-introduction</a></p>
-
+        
+          <p class="article-more-link">
+            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj67jykwx0009p8shyyyf5vlz" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj6d6zkmi0001gnsh6hmezx5t" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -1048,47 +406,20 @@ If transactions need to write to the log buffer and it’s either not big enough
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="code-highlighting"><a class="header-anchor" href="#code-highlighting">¶</a>code highlighting</h4>
+        <h4 id="code-highlighting">code highlighting</h4>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'window loaded'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<h4 id="emphasis"><a class="header-anchor" href="#emphasis">¶</a>Emphasis</h4>
+<h4 id="emphasis">Emphasis</h4>
 <p><code>*A*</code> <em>A</em></p>
 <p><code>**A**</code> <strong>A</strong></p>
-<h4 id="task-lists"><a class="header-anchor" href="#task-lists">¶</a>Task Lists</h4>
-<p><code>[x]</code> or <code>[]</code></p>
-<ul>
-<li>[] @mentions, #refs, <a href="">links</a>, <strong>formatting</strong>, and <del>tags</del> supported</li>
-<li>[x] list syntax required (any unordered or ordered list supported)</li>
-<li>[x] this is a complete item</li>
-<li>[ ] this is an incomplete item</li>
-</ul>
-<h3 id="tables"><a class="header-anchor" href="#tables">¶</a>Tables</h3>
-<p><code>-</code>:row   <code>|</code>:column</p>
-<table>
-<thead>
-<tr>
-<th>First Header</th>
-<th>Second Header</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Content from cell 1</td>
-<td>Content from cell 2</td>
-</tr>
-<tr>
-<td>Content in the first column</td>
-<td>Content in the second column</td>
-</tr>
-</tbody>
-</table>
-<h3 id="emoji"><a class="header-anchor" href="#emoji">¶</a>Emoji</h3>
-<p>to see <a href="https://www.webpagefx.com/tools/emoji-cheat-sheet/" target="_blank" rel="external">Emoji Cheat Sheet</a></p>
-<p>😓</p>
-
+        
+          <p class="article-more-link">
+            <a href="/2014/05/18/常用的Markdown用法/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj67jykwn0004p8shrcsua67v" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj6d6zkme0000gnshtid78pxt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
@@ -1110,7 +441,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1120,7 +451,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -1130,7 +461,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -1139,7 +470,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1156,6 +487,10 @@ If transactions need to write to the log buffer and it’s either not big enough
           </li>
         
           <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+          </li>
+        
+          <li>
             <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
@@ -1165,10 +500,6 @@ If transactions need to write to the log buffer and it’s either not big enough
         
           <li>
             <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-          </li>
-        
-          <li>
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
           </li>
         
       </ul>

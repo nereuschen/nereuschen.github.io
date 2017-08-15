@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>深入理解Kafka调优的核心参数 | titlesubtitle</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？ 在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。 本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。  kafka的主要配置参数">
+<meta name="keywords" content="kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入理解Kafka调优的核心参数">
+<meta property="og:url" content="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/index.html">
+<meta property="og:site_name" content="titlesubtitle">
+<meta property="og:description" content="kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？ 在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。 本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。  kafka的主要配置参数">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-08-15T09:41:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入理解Kafka调优的核心参数">
+<meta name="twitter:description" content="kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？ 在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。 本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。  kafka的主要配置参数">
+  
+    <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">titlesubtitle</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">subtitle</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://nereuschen.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-深入理解Kafka调优的核心参数" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/08/深入理解Kafka调优的核心参数/" class="article-date">
+  <time datetime="2016-08-08T11:41:48.000Z" itemprop="datePublished">2016-08-08</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      深入理解Kafka调优的核心参数
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- http://l-kafka1.dba.cn2.qunar.com:2333 -->
+<!--  Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf -->
+<p>kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？</p>
+<p>在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。</p>
+<p>本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。</p>
+<blockquote>
+<p>kafka的<a href="https://kafka.apache.org/documentation/#configuration" target="_blank" rel="external">主要配置参数</a></p>
+</blockquote>
+<a id="more"></a>
+<p>✅ 吞吐量优先</p>
+<p>吞吐量优先意味着需要尽可能提升每秒发送消息的吞吐量</p>
+<p>常见场景：日志收集</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">吞吐量优先</th>
+<th></th>
+<th>配置属性</th>
+<th>默认值</th>
+<th>建议值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">broker</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>分区个数</td>
+<td>num.partitions</td>
+<td>1</td>
+<td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
+<td>分区是并行处理的最小单元。消息的并行发送和接收都是基于分区的。topic的分区越多，并行处理能力越强，吞吐量越大</td>
+</tr>
+<tr>
+<td style="text-align:center">producer</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>批量策略</td>
+<td>batch.size</td>
+<td>16384</td>
+<td>100000 - 200000</td>
+<td>设置批量提交的消息的字节数，一旦待发送的消息的大小超过这个字节数，这些消息将被批量发送出去</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td><a href="http://linger.ms" target="_blank" rel="external">linger.ms</a></td>
+<td>0</td>
+<td>10 - 100</td>
+<td>该参数会影响延时，因为消息不是立即发送的，而是需要等待发送的消息大小超过batch.size或者收集消息的等待时间超过linger.ms才会发送消息</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>compression.type</td>
+<td>none</td>
+<td>lz4</td>
+<td>将待发送的多个消息压缩成一个消息，所以batch.size越大，压缩率越高，吞吐量越大。支持3种压缩类型：lz4、snappy和gzip</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>确认方式</td>
+<td>acks</td>
+<td>1</td>
+<td>1</td>
+<td>acks=1表示leader broker收到消息后就返回ack，而无需等所有的followers都确认收到消息。存在丢失消息的风险</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>队列限制</td>
+<td>buffer.memory</td>
+<td>33554432</td>
+<td></td>
+<td>producer会自动分配内存，用于存储还未发送到broker的消息。如果分区比较多，那么设置的值也需要更大</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td><a href="http://max.block.ms" target="_blank" rel="external">max.block.ms</a></td>
+<td></td>
+<td></td>
+<td>当buffer.memory达到上限时，调用producer的接口再次发送消息时会被阻塞，当阻塞时间操过max.block.ms时，producer将会抛出异常</td>
+</tr>
+<tr>
+<td style="text-align:center">consumer</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>获取策略</td>
+<td>fetch.min.bytes</td>
+<td>1</td>
+<td>100000</td>
+<td>这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但会影响延时</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td><a href="http://fetch.max.wait.ms" target="_blank" rel="external">fetch.max.wait.ms</a></td>
+<td></td>
+<td></td>
+<td>达到fetch.min.bytes或者超过fetch.max.wait.ms时，才会消费消息</td>
+</tr>
+<tr>
+<td style="text-align:center">GC</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>JVM</td>
+<td></td>
+<td></td>
+<td><a href="http://docs.confluent.io/current/kafka/deployment.html#jvm" target="_blank" rel="external">JVM调优</a></td>
+<td>长时间的GC时间会严重影响吞吐量；严重的情况下会导致broker失败，比如导致ZooKeeper session超时，ZooKeeper会认为该broker不可用</td>
+</tr>
+</tbody>
+</table>
+<p>✅ 低延时优先</p>
+<p>低延时意味着每条消息需要尽可能快地完成端对端（从producer到consumer）的传递</p>
+<p>常见场景：近实时数据的传输、聊天、弹幕等应用</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">低延时优先</th>
+<th>分类</th>
+<th>配置属性</th>
+<th>默认值</th>
+<th>建议值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">broker</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>分区个数</td>
+<td></td>
+<td></td>
+<td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
+<td>控制每个broker的分区数量。（1）限制整个集群的分区数量；（2）增加集群的broker数量，从而减少每个broker上的分区数量</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>消息复制线程数</td>
+<td>num.replica.fetchers</td>
+<td>1</td>
+<td></td>
+<td>复制消息的线程复制将消息从leader上复制到每个followers上。当followers无法跟上leader时，可以将该值调大，加快复制消息的速率</td>
+</tr>
+<tr>
+<td style="text-align:center">producer</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>发送时间</td>
+<td><a href="http://linger.ms" target="_blank" rel="external">linger.ms</a></td>
+<td>0</td>
+<td>0</td>
+<td>即时发送，有消息就发送</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>压缩</td>
+<td>compression.type</td>
+<td>none</td>
+<td>none</td>
+<td>压缩会使用CPU、降低网络带宽使用率</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>确认方式</td>
+<td>acks</td>
+<td>1</td>
+<td>0</td>
+<td>异步发送，发送者无需等待broker的ack</td>
+</tr>
+<tr>
+<td style="text-align:center">consumer</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>获取策略</td>
+<td>fetch.min.bytes</td>
+<td>1</td>
+<td>1</td>
+<td>即时消费，有消息就消费</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>✅ 优化durability</p>
+<p>可靠性就是要降低丢失消息的概率。最常见的做法就是通过消息复制实现高可靠。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">可靠性优先</th>
+<th>分类</th>
+<th>配置属性</th>
+<th>默认值</th>
+<th>建议值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">broker</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>复制</td>
+<td>default.replication.factor</td>
+<td>1</td>
+<td>3</td>
+<td>可以保证集群中的3个borker即使出现2个不可用时，消息依旧不会丢失</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>auto.create.topics.enable</td>
+<td>true</td>
+<td>false</td>
+<td>当该值设置为true时，必须将default.replication.factor设置为3，这样topic将会随着复制一同被创建</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>min.insync.replicas</td>
+<td>1</td>
+<td>2</td>
+<td>topic上的属性值可以覆盖该值</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>unclean.leader.election.enable</td>
+<td>true</td>
+<td>false</td>
+<td>只从ISR中选举leader，不允许不在ISR列表中的broker参加leader的选举，否则会导致已经提交但是还未复制的消息的丢失。topic上的属性值可以覆盖该值</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>log.flush.interval.messages</td>
+<td></td>
+<td>1</td>
+<td>同步刷磁盘。topic上的属性值可以覆盖该值</td>
+</tr>
+<tr>
+<td style="text-align:center">producer</td>
+<td>复制个数</td>
+<td>replication.factor</td>
+<td></td>
+<td>3</td>
+<td>在每个topic上配置</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>确认方式</td>
+<td>acks</td>
+<td>1</td>
+<td>-1</td>
+<td>leader等待ISR中的所有分片确认接收到消息后再返回ack</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>重试</td>
+<td>retries</td>
+<td>1</td>
+<td>0</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>max.in.flight.requests.per.connection</td>
+<td>5</td>
+<td>1</td>
+<td>保证消息的有序性</td>
+</tr>
+<tr>
+<td style="text-align:center">consumer</td>
+<td>消息确认</td>
+<td>auto.commit.enable</td>
+<td>true</td>
+<td>false</td>
+<td>通过显式调用commitSync()或者commitAsync()手动确认消息被消费。消费者是通过更新offsets来表明offsets之前的消息已经被消费了；当消费者的poll()执行完时，会自动commit offsets。但是如果poll作为业务事务中的一部分的时候，为了保证可靠性，必须在事务提交之后才能提交offsets，所以需要将auto.commit.enable=false，并且显示地调用commitSync() or commitAsync()</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>retries 自动重试</p>
+<blockquote>
+<p>重试的副作用</p>
+<ol>
+<li>重复消息；集群出现短暂失败时可能会导致重复消息，需要消费者端自己处理重复消息；另外exactly once semantics (EOS) 的功能还在开发中，这种机制可以保证无重复消息。</li>
+<li>导致消息重排；为了保证消息有序并且允许重新发生失败的消息，需要将max.in.flight.requests.per.connection设置为1，从而保证任何时候只有一个消息发送到broker。</li>
+</ol>
+</blockquote>
+<p>✅ 优化availability</p>
+<p>提高可用性，就需要在kafka出现故障时，能够尽快地恢复。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">可用性优先</th>
+<th>分类</th>
+<th>配置属性</th>
+<th>默认值</th>
+<th>建议值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">broker</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>分区个数</td>
+<td>分区个数</td>
+<td></td>
+<td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>unclean.leader.election.enable</td>
+<td>true</td>
+<td>true</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>min.insync.replicas</td>
+<td>1</td>
+<td>1</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td>num.recovery.threads.per.data.dir</td>
+<td>1</td>
+<td></td>
+<td>broker启动的时候会加载日志文件；通过设置该值可以缩短价值日志文件的时间</td>
+</tr>
+<tr>
+<td style="text-align:center">consumer</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td><a href="http://session.timeout.ms" target="_blank" rel="external">session.timeout.ms</a></td>
+<td>10000</td>
+<td></td>
+<td>broker检测consumer是否可用的时间，消费者发生异常时broker会检测到失败并且重新rebalance。GC时间或者poll()处理时间超过该值时，会被认为consumer不可用</td>
+</tr>
+</tbody>
+</table>
+<h3 id="参考资料">参考资料</h3>
+<p><a href="https://kafka.apache.org/documentation/#brokerconfigs" target="_blank" rel="external">https://kafka.apache.org/documentation/#brokerconfigs</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj6dehuqu0000o5shsvgpi3n3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/12/MySQL-CPU-sys飙高/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          system cpu time飙高导致MySQL不可用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/03/17/限流技术的应用场景/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">限流技术的应用场景</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka调优的核心参数</a>
+          </li>
+        
+          <li>
+            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
+          </li>
+        
+          <li>
+            <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Nereus Chen<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
