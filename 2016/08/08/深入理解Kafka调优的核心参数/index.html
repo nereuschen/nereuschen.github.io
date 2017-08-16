@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="titlesubtitle">
 <meta property="og:description" content="kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？ 在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。 本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。  kafka的主要配置参数">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-08-16T02:30:32.000Z">
+<meta property="og:updated_time" content="2017-08-16T07:40:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解Kafka的核心调优参数">
 <meta name="twitter:description" content="kafka的配置参数多达几百个，我们在对kafka进行调优的时候，如何设置对应的参数呢？ 在对kafka调优之前，我们需要根据业务场景进行分析，确定我们的业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高。 本文将分别从吞吐量优先、延时优先、可靠性优先以及可用性优先四个方面逐一分析kafka应该设置哪些核心参数以及设置为多少。  kafka的主要配置参数">
@@ -519,6 +519,37 @@
 <td>10000</td>
 <td></td>
 <td>broker检测consumer是否可用的时间，消费者发生异常时broker会检测到失败并且重新rebalance。GC时间或者poll()处理时间超过该值时，会被认为consumer不可用</td>
+</tr>
+</tbody>
+</table>
+<p><a href="tip.png">acks</a> 不同的acks对吞吐量、延时和可靠性的影响</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">acks</th>
+<th>吞吐量</th>
+<th>延时</th>
+<th>可靠性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0</td>
+<td>high</td>
+<td>low</td>
+<td>no guarantee</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td>medium</td>
+<td>medium</td>
+<td>leader</td>
+</tr>
+<tr>
+<td style="text-align:center">-1</td>
+<td>low</td>
+<td>high</td>
+<td>ISR</td>
 </tr>
 </tbody>
 </table>
