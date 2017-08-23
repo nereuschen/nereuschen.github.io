@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="titlesubtitle">
 <meta property="og:description" content="kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-08-16T10:53:35.000Z">
+<meta property="og:updated_time" content="2017-08-22T14:53:56.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解Kafka的核心调优参数">
 <meta name="twitter:description" content="kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设">
@@ -57,13 +57,13 @@
   <div id="banner"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
+      <h2 id="logo-wrap"  class="animated bounceInLeft">
         <a href="/" id="logo">titlesubtitle</a>
-      </h1>
+      </h2>
       
-        <h2 id="subtitle-wrap">
+        <h3 id="subtitle-wrap"  class="animated bounceInLeft">
           <a href="/" id="subtitle">subtitle</a>
-        </h2>
+        </h3>
       
     </div>
     <div id="header-inner" class="inner">
@@ -123,7 +123,7 @@
 <p>kafka的配置属性到底有多少，看看<a href="https://kafka.apache.org/documentation/#configuration" target="_blank" rel="external">主要配置属性</a>就知道😰💔</p>
 </blockquote>
 <a id="more"></a>
-<p>✅ 吞吐量优先</p>
+<h3 id="吞吐量优先">吞吐量优先</h3>
 <p>吞吐量优先意味着需要尽可能提升每秒发送消息的吞吐量</p>
 <p>常见场景：日志收集</p>
 <table>
@@ -139,7 +139,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">broker</td>
+<td style="text-align:center"><strong>broker</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -151,24 +151,24 @@
 <td>分区个数</td>
 <td>num.partitions</td>
 <td>1</td>
-<td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
+<td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">确定分区个数</a></td>
 <td>分区是并行处理的最小单元。消息的并行发送和接收都是基于分区的。topic的分区越多，并行处理能力越强，吞吐量越大</td>
 </tr>
 <tr>
-<td style="text-align:center">producer</td>
+<td style="text-align:center"><strong>producer</strong></td>
 <td></td>
 <td></td>
 <td></td>
 <td></td>
-<td></td>
+<td>消息是异步发送的，先保存至内存，然后由后台线程(kafka-producer-network-thread$client-id)发送到broker集群</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
 <td>批量策略</td>
 <td>batch.size</td>
-<td>16384</td>
+<td>16384（16K）</td>
 <td>100000 - 200000</td>
-<td>设置批量提交的消息的字节数，一旦待发送的消息的大小超过这个字节数，这些消息将被批量发送出去</td>
+<td>设置每次批量提交消息的最大字节数，一旦待批量发送的消息的大小超过这个字节数，这些消息将被批量发送出去</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -180,11 +180,11 @@
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td></td>
+<td>压缩</td>
 <td>compression.type</td>
 <td>none</td>
 <td>lz4</td>
-<td>将待发送的多个消息压缩成一个消息，所以batch.size越大，压缩率越高，吞吐量越大。支持3种压缩类型：lz4、snappy和gzip</td>
+<td>将待发送的多个消息压缩成一个消息，因此和batch.size一起使用，batch.size越大，压缩率越高，吞吐量越大。支持3种压缩类型：lz4、snappy和gzip。<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">lz4能使吞吐量最优</a></td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -198,20 +198,36 @@
 <td style="text-align:center"></td>
 <td>队列限制</td>
 <td>buffer.memory</td>
-<td>33554432</td>
+<td>33554432（32G）</td>
 <td></td>
-<td>producer会自动分配内存，用于存储还未发送到broker的消息。如果分区比较多，那么设置的值也需要更大</td>
+<td>分配给producer的内存，用于存储还未发送到broker的消息。如果分区比较多，那么设置的值也需要更大</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
 <td></td>
 <td><a href="http://max.block.ms" target="_blank" rel="external">max.block.ms</a></td>
+<td>60000(10s)</td>
 <td></td>
-<td></td>
-<td>当buffer.memory达到上限时，调用producer的接口再次发送消息时会被阻塞，当阻塞时间操过max.block.ms时，producer将会抛出异常</td>
+<td>定义被阻塞的时间；当buffer.memory达到上限时，再次发送消息时会被阻塞。当阻塞时间超过max.block.ms时，producer将会抛出异常</td>
 </tr>
 <tr>
-<td style="text-align:center">consumer</td>
+<td style="text-align:center"></td>
+<td>消息大小</td>
+<td>max.request.size</td>
+<td>1048576（1M）</td>
+<td></td>
+<td>定义每条消息的最大字节数。</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td>消息大小</td>
+<td><a href="http://request.timeout.ms" target="_blank" rel="external">request.timeout.ms</a></td>
+<td>30000（30s）</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>consumer</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -224,7 +240,7 @@
 <td>fetch.min.bytes</td>
 <td>1</td>
 <td>100000</td>
-<td>这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但会影响延时</td>
+<td>定义从broker获取消息的最小字节数。只有大于这个值时，consumer才会拉取到消息，否则会等待到超时。这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但会影响延时</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -235,7 +251,7 @@
 <td>达到fetch.min.bytes或者超过fetch.max.wait.ms时，才会消费消息</td>
 </tr>
 <tr>
-<td style="text-align:center">GC</td>
+<td style="text-align:center"><strong>GC</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -255,7 +271,7 @@
 <blockquote>
 <p>压缩类型为什么选择lz4?因为这种类型的压缩方式下，吞吐量最大。具体可以参考<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">压缩的性能测试</a></p>
 </blockquote>
-<p>✅ 低延时优先</p>
+<h3 id="低延时优先">低延时优先</h3>
 <p>低延时意味着每条消息需要尽可能快地完成端对端（从producer到consumer）的传递</p>
 <p>常见场景：近实时数据的传输、聊天、弹幕等应用</p>
 <table>
@@ -271,7 +287,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">broker</td>
+<td style="text-align:center"><strong>broker</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -295,7 +311,7 @@
 <td>复制消息的线程复制将消息从leader上复制到每个followers上。当followers无法跟上leader时，可以将该值调大，加快复制消息的速率</td>
 </tr>
 <tr>
-<td style="text-align:center">producer</td>
+<td style="text-align:center"><strong>producer</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -327,7 +343,7 @@
 <td>异步发送，发送者无需等待broker的ack</td>
 </tr>
 <tr>
-<td style="text-align:center">consumer</td>
+<td style="text-align:center"><strong>consumer</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -352,7 +368,7 @@
 </tr>
 </tbody>
 </table>
-<p>✅ 优化durability</p>
+<h3 id="优化durability">优化durability</h3>
 <p>可靠性就是要降低丢失消息的概率。最常见的做法就是通过消息复制实现高可靠。</p>
 <table>
 <thead>
@@ -367,7 +383,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">broker</td>
+<td style="text-align:center"><strong>broker</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -415,7 +431,7 @@
 <td>同步刷磁盘。topic上的属性值可以覆盖该值</td>
 </tr>
 <tr>
-<td style="text-align:center">producer</td>
+<td style="text-align:center"><strong>producer</strong></td>
 <td>复制个数</td>
 <td>replication.factor</td>
 <td></td>
@@ -447,7 +463,7 @@
 <td>保证消息的有序性</td>
 </tr>
 <tr>
-<td style="text-align:center">consumer</td>
+<td style="text-align:center"><strong>consumer</strong></td>
 <td>消息确认</td>
 <td>auto.commit.enable</td>
 <td>true</td>
@@ -464,7 +480,9 @@
 </tr>
 </tbody>
 </table>
-<p>retries 自动重试</p>
+<ul>
+<li>retries 自动重试</li>
+</ul>
 <blockquote>
 <p>重试的副作用</p>
 <ol>
@@ -472,7 +490,7 @@
 <li>导致消息重排；为了保证消息有序并且允许重新发生失败的消息，需要将max.in.flight.requests.per.connection设置为1，从而保证任何时候只有一个消息发送到broker。</li>
 </ol>
 </blockquote>
-<p>✅ 优化availability</p>
+<h3 id="优化availability">优化availability</h3>
 <p>提高可用性，就需要在kafka出现故障时，能够尽快地恢复。</p>
 <table>
 <thead>
@@ -487,7 +505,7 @@
 </thead>
 <tbody>
 <tr>
-<td style="text-align:center">broker</td>
+<td style="text-align:center"><strong>broker</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -527,7 +545,7 @@
 <td>broker启动的时候会加载日志文件；通过设置该值可以缩短价值日志文件的时间</td>
 </tr>
 <tr>
-<td style="text-align:center">consumer</td>
+<td style="text-align:center"><strong>consumer</strong></td>
 <td></td>
 <td></td>
 <td></td>
@@ -544,7 +562,9 @@
 </tr>
 </tbody>
 </table>
-<p>⭐️ 不同的acks对吞吐量、延时和可靠性的影响</p>
+<ul>
+<li>不同的acks对吞吐量、延时和可靠性的影响</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -575,15 +595,20 @@
 </tr>
 </tbody>
 </table>
+<h3 id="消息大小tips">消息大小TIPs</h3>
+<p>fetch.message.max.bytes(consumer default:1MB)&gt;message.max.bytes(broker，default:1000000 0.96M)，否则消息过大不能被消费，导致consumer被hang住。<br>
+replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过大导致broker复制消息失败，存在消息丢失的风险</p>
 <h3 id="参考资料">参考资料</h3>
-<p><a href="https://kafka.apache.org/documentation/#brokerconfigs" target="_blank" rel="external">kafka configs</a></p>
-<p><a href="https://community.hortonworks.com/articles/49789/kafka-best-practices.html" target="_blank" rel="external">Kafka 0.9 Configuration Best Practices</a></p>
-<p><a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">Kafka 0.10 Compression Benchmark</a></p>
+<p>1.<a href="https://kafka.apache.org/documentation/#brokerconfigs" target="_blank" rel="external">kafka configs</a><br>
+2.<a href="https://community.hortonworks.com/articles/49789/kafka-best-practices.html" target="_blank" rel="external">Kafka 0.9 Configuration Best Practices</a><br>
+3.<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">Kafka 0.10 Compression Benchmark</a><br>
+4.<a href="http://ingest.tips/2015/07/19/tips-for-improving-performance-of-kafka-producer/" target="_blank" rel="external">tips-for-improving-performance-of-kafka-producer</a><br>
+5.<a href="http://ingest.tips/2015/01/21/handling-large-messages-kafka/" target="_blank" rel="external">http://ingest.tips/2015/01/21/handling-large-messages-kafka/</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj6exnhjy000howshosn4fm5k" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj6ly12k10005s8shekjca0is" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
@@ -651,7 +676,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -662,6 +687,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/08/18/转-Spring-5-新功能：函数式-Web-框架/">[转]Spring 5 新功能：函数式 Web 框架</a>
+          </li>
         
           <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
@@ -677,10 +706,6 @@
         
           <li>
             <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
-          </li>
-        
-          <li>
-            <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
           </li>
         
       </ul>
@@ -717,7 +742,31 @@
   <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
+<script src="//cdn.staticfile.org/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+<script src="//libs.cncdn.cn/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
 <script src="/js/script.js"></script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+<script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.6.0-beta.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 
 <div id="totop" style="position:fixed;bottom:150px;right:10px;cursor: pointer;z-index: 2000;">
   <a title="返回顶部"><img src="/images/scrollup.png"/></a>

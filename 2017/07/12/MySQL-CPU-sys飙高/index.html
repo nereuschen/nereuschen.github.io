@@ -5,13 +5,13 @@
   
   <title>system cpu time飙高导致MySQL不可用 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
+  <meta name="description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的">
 <meta name="keywords" content="MySQL,sysbench">
 <meta property="og:type" content="article">
 <meta property="og:title" content="system cpu time飙高导致MySQL不可用">
 <meta property="og:url" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
+<meta property="og:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu.jpg">
@@ -21,10 +21,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/db-cs-republish.jpg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/spin-lock-info.jpg">
-<meta property="og:updated_time" content="2017-08-14T01:51:49.000Z">
+<meta property="og:updated_time" content="2017-08-18T03:49:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="system cpu time飙高导致MySQL不可用">
-<meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场  当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection">
+<meta name="twitter:description" content="最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。 故障现场 当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/slow-query.jpg">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -66,13 +66,13 @@
   <div id="banner"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
+      <h2 id="logo-wrap"  class="animated bounceInLeft">
         <a href="/" id="logo">titlesubtitle</a>
-      </h1>
+      </h2>
       
-        <h2 id="subtitle-wrap">
+        <h3 id="subtitle-wrap"  class="animated bounceInLeft">
           <a href="/" id="subtitle">subtitle</a>
-        </h2>
+        </h3>
       
     </div>
     <div id="header-inner" class="inner">
@@ -124,13 +124,10 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。</p>
-<h2 id="故障现场">故障现场</h2>
-<hr>
+<h3 id="故障现场">故障现场</h3>
 <p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。当时的主要信息如下。</p>
 <a id="more"></a>
-<ul>
-<li>慢查询</li>
-</ul>
+<h4 id="慢查询">慢查询</h4>
 <p>慢查询主要集中在这个SQL上。极其简单的一个SQL是不是？读取的数量不到6K</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">select</span> </div><div class="line">    <span class="keyword">count</span>(*)</div><div class="line"><span class="keyword">from</span></div><div class="line">    invoice_push_record</div><div class="line"><span class="keyword">where</span></div><div class="line">    create_time &gt;= <span class="string">'2017-07-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> create_time &lt; <span class="string">'2017-08-01 00:00:00'</span></div><div class="line">	<span class="keyword">and</span> invoice_type = <span class="string">'XXX'</span></div></pre></td></tr></table></figure>
 <p>从慢查询日志中看出这个SQL的执行时间是10s，但是平时这个SQL的执行时间都在0.01ms以内</p>
@@ -150,7 +147,6 @@
 <p>业务服务接口的QPS在30左右未发生明显变化，但是响应时间从0.01ms飙高到10s</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/biz-interface-qps-rt.jpg" alt="业务接口的QPS和响应时间"></p>
 <h2 id="临时解决方案">临时解决方案</h2>
-<hr>
 <p>为了快速恢复故障，将影响降到最低，我们采取了以下两个措施</p>
 <ol>
 <li>
@@ -164,7 +160,6 @@
 </ol>
 <p>故障是否由这条SQL导致呢？这个SQL的嫌疑比较大</p>
 <h2 id="故障排查">故障排查</h2>
-<hr>
 <p>变更往往是导致故障的主要原因，所以我们先看看故障发生之前，发生过哪些变更。经过确认</p>
 <blockquote>
 <p>线上代码未做过任何变更</p>
@@ -197,7 +192,6 @@
 <p>考虑到timestamp在其他的业务场景中也被广泛使用到，但未出现过类似问题，所以当时并不能确定是timestamp导致的</p>
 <p>初步结论：尚无定论，有可能是timestamp的time_zone导致，待继续排查</p>
 <h2 id="故障重现">故障重现</h2>
-<hr>
 <p>为了保证再次出现问题时能及时恢复，我们对这个业务接口做了统一的开关。当再次发布上线时，system cpu time立即飙高，故障重现了，所以可以断定是由timestamp的time_zone导致。</p>
 <p>再次上线时，观察到system cpu time飙高，和故障现象一致</p>
 <p><img src="/2017/07/12/MySQL-CPU-sys飙高/cpu-recovery.jpg" alt="再次上线"></p>
@@ -205,7 +199,6 @@
 <p>为什么在定位到具体原因之前就发布上线呢？因为经过评估即使再次出现问题能通过开关来立即恢复，可控；另外，对于业务而言，即使这期间短暂出现问题在业务接受范围之内，可接受。</p>
 </blockquote>
 <h2 id="原因定位">原因定位</h2>
-<hr>
 <p>到底是不是time_zone导致，压测一下便知。在线下借助sysbench对该SQL进行压测（num-threads=30），该问题立即复现。</p>
 <ul>
 <li>sysbench</li>
@@ -238,7 +231,6 @@
 <p>修改time_zone为’+8:00’后再次压测，system cpu time显示正常。</p>
 <p>自此可以确定是time_zone导致</p>
 <h2 id="解决方案">解决方案</h2>
-<hr>
 <p>基本可行的两种解决方案</p>
 <ul>
 <li>修改time_zone</li>
@@ -258,7 +250,6 @@
 <h2 id="触发条件">触发条件</h2>
 <p>为什么之前未出现这类问题，这次突然出现了呢？经过DBA的压测，SQL的数据读取量在1K以下或者num_threads在10以下均不会出现，当然这个数据还需要结合MySQL服务器的硬件配置。所以和数据量以及MySQL当时处理有关，随着这张表的数据量的增长，就触发了这次故障。</p>
 <h2 id="参考资料">参考资料</h2>
-<hr>
 <p><a href="http://mySQL.taobao.org/monthly/2015/05/02/" target="_blank" rel="external">《MySQL数据库SYS CPU高的可能性分析》</a></p>
 <!--
 http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-qtadb4.h.cn8;-;indexType:-:template;-;indexValue:-:?pageNum=1&from=20170707T122328&to=20170707T212328
@@ -269,7 +260,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj6exnhk6000oowshhfh5er4r" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj6ly12kf000cs8shsg0ktqzh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -279,6 +270,15 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   
     
 <nav id="article-nav">
+  
+    <a href="/2017/08/18/转-Spring-5-新功能：函数式-Web-框架/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          [转]Spring 5 新功能：函数式 Web 框架
+        
+      </div>
+    </a>
   
   
     <a href="/2016/08/08/深入理解Kafka调优的核心参数/" id="article-nav-older" class="article-nav-link-wrap">
@@ -328,7 +328,7 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -339,6 +339,10 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/08/18/转-Spring-5-新功能：函数式-Web-框架/">[转]Spring 5 新功能：函数式 Web 框架</a>
+          </li>
         
           <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
@@ -354,10 +358,6 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
         
           <li>
             <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
-          </li>
-        
-          <li>
-            <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
           </li>
         
       </ul>
@@ -394,7 +394,31 @@ http://watcher.corp.qunar.com/#/dash/hosts-db/apptreeNode:-:;-;host:-:l-qtadb4.h
   <script src="/fancybox/jquery.fancybox.pack.js"></script>
 
 
+<script src="//cdn.staticfile.org/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+<script src="//libs.cncdn.cn/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
 <script src="/js/script.js"></script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+<script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.6.0-beta.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 
 <div id="totop" style="position:fixed;bottom:150px;right:10px;cursor: pointer;z-index: 2000;">
   <a title="返回顶部"><img src="/images/scrollup.png"/></a>
