@@ -5,23 +5,23 @@
   
   <title>MySQL的核心监控指标 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
+  <meta name="description" content="监控的重要性 正确理解MySQL的核心监控是准确掌握MySQL的性能的前提。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta name="keywords" content="MySQL,监控">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL的核心监控指标">
 <meta property="og:url" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
+<meta property="og:description" content="监控的重要性 正确理解MySQL的核心监控是准确掌握MySQL的性能的前提。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11439668/f2f99998-9537-11e5-8e25-cd50f8768db0.png">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440362/e5040fda-953c-11e5-92b9-a2ca7f630b44.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/">
 <meta property="og:image" content="https://cloud.githubusercontent.com/assets/864066/11440424/496dd546-953d-11e5-817e-e2d6be4b5dde.png">
-<meta property="og:updated_time" content="2017-08-14T01:53:21.000Z">
+<meta property="og:updated_time" content="2017-08-29T02:01:26.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL的核心监控指标">
-<meta name="twitter:description" content="监控的重要性 要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
+<meta name="twitter:description" content="监控的重要性 正确理解MySQL的核心监控是准确掌握MySQL的性能的前提。本文结合实际的case重点说明Cacti中MySQL的核心监控指标  监控和代码同等重要">
 <meta name="twitter:image" content="https://cloud.githubusercontent.com/assets/864066/11436582/f8ae6ae2-9520-11e5-978b-1b7706df324b.png">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
@@ -121,7 +121,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="监控的重要性">监控的重要性</h2>
-<p>要想通过监控实时了解MySQL的性能，首先需要正确理解MySQL的核心监控。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
+<p>正确理解MySQL的核心监控是准确掌握MySQL的性能的前提。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
 <blockquote>
 <p>监控和代码同等重要</p>
 </blockquote>
@@ -277,11 +277,11 @@ If transactions need to write to the log buffer and it’s either not big enough
 1.通过SHOW SLAVE STATUS去查看Seconds_behind_master信息<br>
 2.通过心跳表去check<br>
 当复制正在工作的时候，绿色区域的大小就是复制延时。当复制停止的时候，也有个红色的区域，其大小也是复制延时；所以通过观察区域的颜色就能知道复制是否被终止了。如果复制没有延时，那么看不到绿色或者红色的区域</p>
-
+<!-- https://www.datadoghq.com/blog/monitoring-mysql-performance-metrics/ -->
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj6ly12js0001s8shb7a3lt0t" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj78ekf3x000c6lshkfiaeg5h" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -320,7 +320,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -330,7 +330,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -340,7 +340,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 10px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 20px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -349,7 +349,7 @@ If transactions need to write to the log buffer and it’s either not big enough
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/08/">八月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -360,10 +360,6 @@ If transactions need to write to the log buffer and it’s either not big enough
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
-        
-          <li>
-            <a href="/2017/08/18/转-Spring-5-新功能：函数式-Web-框架/">[转]Spring 5 新功能：函数式 Web 框架</a>
-          </li>
         
           <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
@@ -379,6 +375,10 @@ If transactions need to write to the log buffer and it’s either not big enough
         
           <li>
             <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
+          </li>
+        
+          <li>
+            <a href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
           </li>
         
       </ul>

@@ -3,18 +3,23 @@
 <head>
   <meta charset="utf-8">
   
-  <title>titlesubtitle</title>
+  <title>解读kafka性能测试报告 | titlesubtitle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Keep it Simple and Stupid">
-<meta property="og:type" content="website">
-<meta property="og:title" content="titlesubtitle">
-<meta property="og:url" content="https://nereuschen.github.io/index.html">
+  <meta name="description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
+<meta name="keywords" content="kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="解读kafka性能测试报告">
+<meta property="og:url" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/index.html">
 <meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="Keep it Simple and Stupid">
+<meta property="og:description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png">
+<meta property="og:updated_time" content="2017-09-05T08:13:11.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="titlesubtitle">
-<meta name="twitter:description" content="Keep it Simple and Stupid">
+<meta name="twitter:title" content="解读kafka性能测试报告">
+<meta name="twitter:description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
+<meta name="twitter:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
   
     <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
   
@@ -86,319 +91,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-MySQL-CPU-sys飙高" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/07/12/MySQL-CPU-sys飙高/" class="article-date">
-  <time datetime="2017-07-12T04:33:01.000Z" itemprop="datePublished">2017-07-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Troubleshooting/">Troubleshooting</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>最近线上应用出现了一个诡异问题，在访问量无明显增长、线上未做任何变更（代码发布和DB操作）的情况下，某个业务子系统突然出现大量的业务接口超时，MySQL性能急剧下降，系统不可用。</p>
-<h3 id="故障现场">故障现场</h3>
-<p>当时观察到的主要异常现象包括MySQL出现大量的慢查询、MySQL服务器的system cpu time飙高、MySQL的性能急剧下降、业务接口响应时间飙高、业务系统大量出现获取不到DB connection的异常日志等现象。当时的主要信息如下。</p>
-        
-          <p class="article-more-link">
-            <a href="/2017/07/12/MySQL-CPU-sys飙高/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj78ekf4d000n6lsh08o5kp4f" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-深入理解Kafka调优的核心参数" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/08/08/深入理解Kafka调优的核心参数/" class="article-date">
-  <time datetime="2016-08-08T11:41:48.000Z" itemprop="datePublished">2016-08-08</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/大数据/">大数据</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka的核心调优参数</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <!-- http://l-kafka1.dba.cn2.qunar.com:2333 -->
-<!--  Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf -->
-<p>kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤</p>
-<p>在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。</p>
-<p>下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设置哪些核心属性以及提供建议值。</p>
-<blockquote>
-<p>kafka的配置属性到底有多少，看看<a href="https://kafka.apache.org/documentation/#configuration" target="_blank" rel="external">主要配置属性</a>就知道😰💔</p>
-</blockquote>
-        
-          <p class="article-more-link">
-            <a href="/2016/08/08/深入理解Kafka调优的核心参数/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj78ekf40000e6lshqkd3mdzp" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-限流技术的应用场景" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/17/限流技术的应用场景/" class="article-date">
-  <time datetime="2016-03-17T10:32:01.000Z" itemprop="datePublished">2016-03-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="业务场景">业务场景</h2>
-<h3 id="淘宝双十一">淘宝双十一</h3>
-<p>如果你在双十一0点0分之后，购物的时候遇到这个页面，那么亲，你被限流了，必须排到等待</p>
-        
-          <p class="article-more-link">
-            <a href="/2016/03/17/限流技术的应用场景/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj78ekf4b000k6lsh1a7k4t8h" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-限流技术的常见算法及其实现" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/06/限流技术的常见算法及其实现/" class="article-date">
-  <time datetime="2016-03-06T12:03:01.000Z" itemprop="datePublished">2016-03-06</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/分布式/">分布式</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="http://photocdn.sohu.com/20151020/mp36707732_1445324181710_2.jpeg" alt="绝境长城the wall"></p>
-<p>通常限流主要是限制并发数以及QPS，从而避免异常流量对系统的冲击；</p>
-<p>并发数和QPS是紧密相关的，可以参考<a href="http://en.wikipedia.org/wiki/Little's_law" target="_blank" rel="external">Little’s Law</a>(律特法则)：L = λW （proven 1961）</p>
-<blockquote>
-<p>一个排队系统在稳定状态下，在系统里面的个体的数量的平均值 L， 等于<br>
-平均个体到达率λ （单位是λ个每单位时间）乘以 个体的平均逗留时间W</p>
-</blockquote>
-<blockquote>
-<p>数学定理（严格的数学推理，非经验公式）<br>
-排队论的理论</p>
-</blockquote>
-        
-          <p class="article-more-link">
-            <a href="/2016/03/06/限流技术的常见算法及其实现/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj78ekf45000g6lsh3quxdsdq" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-MySQL的核心监控指标" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/11/17/MySQL的核心监控指标/" class="article-date">
-  <time datetime="2015-11-17T11:50:21.000Z" itemprop="datePublished">2015-11-17</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/存储/">存储</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/11/17/MySQL的核心监控指标/">MySQL的核心监控指标</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="监控的重要性">监控的重要性</h2>
-<p>正确理解MySQL的核心监控是准确掌握MySQL的性能的前提。本文结合实际的case重点说明Cacti中MySQL的核心监控指标</p>
-<blockquote>
-<p>监控和代码同等重要</p>
-</blockquote>
-        
-          <p class="article-more-link">
-            <a href="/2015/11/17/MySQL的核心监控指标/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj78ekf3x000c6lshkfiaeg5h" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-JAVA使用堆外内存导致swap飙高" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/" class="article-date">
-  <time datetime="2015-05-06T05:10:18.000Z" itemprop="datePublished">2015-05-06</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/Troubleshooting/">Troubleshooting</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>近期遇到一个堆外内存导致swap飙高的问题，这类问题比较少见，因此将整个排查过程记录下来了</p>
-<h2 id="现象描述">现象描述</h2>
-<p>最近1周线上服务器时不时出现swap报警（swap超过内存10%时触发报警，内存是4G，因此swap超过400M会触发报警），每次都是童鞋们通过重启tomcat解决的；<br>
-但导致的根本原因是什么呢？必须找到根本原因才行，总是这么重启就有点low了</p>
-        
-          <p class="article-more-link">
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj78ekf3u000a6lshbi3npqsj" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-解读kafka性能测试报告" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-解读kafka性能测试报告" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2015/03/04/解读kafka性能测试报告/" class="article-date">
   <time datetime="2015-03-04T15:43:18.000Z" itemprop="datePublished">2015-03-04</time>
@@ -415,8 +108,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/04/解读kafka性能测试报告/">解读kafka性能测试报告</a>
+    <h1 class="article-title" itemprop="name">
+      解读kafka性能测试报告
     </h1>
   
 
@@ -854,62 +547,28 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-常用的Markdown用法" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/18/常用的Markdown用法/" class="article-date">
-  <time datetime="2014-05-18T14:15:32.000Z" itemprop="datePublished">2014-05-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/工具/">工具</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+    <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
         
+          JAVA使用堆外内存导致swap飙高
+        
+      </div>
+    </a>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/18/常用的Markdown用法/">常用的Markdown用法</a>
-    </h1>
   
+    <a href="/2014/05/18/常用的Markdown用法/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">常用的Markdown用法</div>
+    </a>
+  
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="code-highlighting">code highlighting</h4>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'window loaded'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<h4 id="emphasis">Emphasis</h4>
-<p><code>*A*</code> <em>A</em></p>
-<p><code>**A**</code> <strong>A</strong></p>
-        
-          <p class="article-more-link">
-            <a href="/2014/05/18/常用的Markdown用法/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj78ekf3k00066lshzoi3lls4" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
-
-    </footer>
-  </div>
   
 </article>
-
-
-  
-
 
 </section>
         
