@@ -3,25 +3,26 @@
 <head>
   <meta charset="utf-8">
   
-  <title>解读kafka性能测试报告 | titlesubtitle</title>
+  <title>解读Kafka基准测试报告 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
+  <meta name="description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
 <meta name="keywords" content="kafka">
 <meta property="og:type" content="article">
-<meta property="og:title" content="解读kafka性能测试报告">
+<meta property="og:title" content="解读Kafka基准测试报告">
 <meta property="og:url" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/index.html">
-<meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
+<meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
+<meta property="og:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png">
-<meta property="og:updated_time" content="2017-09-05T08:13:11.000Z">
+<meta property="og:updated_time" content="2017-09-13T01:25:23.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="解读kafka性能测试报告">
-<meta name="twitter:description" content="磁盘的哪些事 http://tech.meituan.com/about-desk-io.html 从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍. 硬件配置  6台服务器 硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200">
-<meta name="twitter:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
+<meta name="twitter:title" content="解读Kafka基准测试报告">
+<meta name="twitter:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
+<meta name="twitter:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png">
   
-    <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -61,12 +62,8 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h2 id="logo-wrap"  class="animated bounceInLeft">
-        <a href="/" id="logo">titlesubtitle</a>
+        <a href="/" id="logo">Applied Research. Big Data. Distributed Systems. Open Source.</a>
       </h2>
-      
-        <h3 id="subtitle-wrap"  class="animated bounceInLeft">
-          <a href="/" id="subtitle">subtitle</a>
-        </h3>
       
     </div>
     <div id="header-inner" class="inner">
@@ -109,7 +106,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      解读kafka性能测试报告
+      解读Kafka基准测试报告
     </h1>
   
 
@@ -117,12 +114,9 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>磁盘的哪些事<br>
-<a href="http://tech.meituan.com/about-desk-io.html" target="_blank" rel="external">http://tech.meituan.com/about-desk-io.html</a></p>
-<p>从LinkedIn发布的[kafka benchmark][0]来看，在3台普通的服务器上就能够做到写入的QPS高达每秒200万,kafka的性能相当彪悍.</p>
+        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">0.8.1</a>)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
 <h3 id="硬件配置">硬件配置</h3>
 <ul>
-<li>6台服务器</li>
 <li>硬件配置
 <ul>
 <li>Intel Xeon 2.5 GHz processor with six cores</li>
@@ -133,413 +127,160 @@
 </li>
 </ul>
 <blockquote>
-<p>磁盘采用的是JBOD方式，而不是RAID阵列</p>
+<p>磁盘采用的是JBOD方式，而不是RAID阵列。如果采用RAID，Kafka性能会更出色。</p>
 </blockquote>
 <h3 id="部署结构">部署结构</h3>
-<p>3台部署broker，另外3台部署zk和压测脚本</p>
-<h4 id="测试场景">测试场景</h4>
-<ul>
-<li>broker的配置</li>
-</ul>
-<p>For this first test I create a topic with six partitions and no replication. Then I produce 50 million small (100 byte) records as quickly as possible from a single thread.</p>
+<p>一共6台机器，3台部署broker，另外3台部署zk和压测脚本</p>
+<h3 id="压测结果汇总">压测结果汇总</h3>
 <ul>
 <li>
-<p>producer的性能</p>
+<p>压测脚本</p>
 <ul>
-<li>case1: Single producer thread, no replication</li>
+<li>消息大小：100byte ，消息数量：50 million，分区数：6个</li>
+<li><a href="https://gist.github.com/jkreps/c7ddb4041ef62a900e6c" target="_blank" rel="external">相关脚本</a></li>
+</ul>
+<blockquote>
+<p>该脚本只适用于0.8.x；如果想自己压测最新版本，可以参考<a href="https://gist.github.com/dongjinleekr/d24e3d0c7f92ac0f80c87218f1f5a02b" target="_blank" rel="external">这个脚本</a></p>
+</blockquote>
+</li>
+<li>
+<p>压测结果</p>
+<ul>
+<li>常规场景</li>
 </ul>
 </li>
 </ul>
-<p>821,557 records/sec<br>
-(78.3 MB/sec)</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">压测场景</th>
+<th style="text-align:left">部署</th>
+<th style="text-align:left">线程数</th>
+<th style="text-align:left">复制</th>
+<th style="text-align:right">QPS</th>
+<th style="text-align:right">吞吐量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Case1</td>
+<td style="text-align:left">Producer</td>
+<td style="text-align:left">Single thread</td>
+<td style="text-align:left">no replication</td>
+<td style="text-align:right">821,557 records/sec</td>
+<td style="text-align:right">78.3 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case2</td>
+<td style="text-align:left">Producer</td>
+<td style="text-align:left">Single thread</td>
+<td style="text-align:left">async 3x replication</td>
+<td style="text-align:right">786,980 records/sec</td>
+<td style="text-align:right">75.1 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case3</td>
+<td style="text-align:left">Producer</td>
+<td style="text-align:left">Single thread</td>
+<td style="text-align:left">sync 3x replication</td>
+<td style="text-align:right">421,823 records/sec</td>
+<td style="text-align:right">40.2 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case4</td>
+<td style="text-align:left">Producer</td>
+<td style="text-align:left">Three producers</td>
+<td style="text-align:left">async 3x replication</td>
+<td style="text-align:right">2,024,032 records/sec</td>
+<td style="text-align:right">193.0 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case5</td>
+<td style="text-align:left">Consumer</td>
+<td style="text-align:left">Single Consumer</td>
+<td style="text-align:left">3x replication</td>
+<td style="text-align:right">940,521 records/sec</td>
+<td style="text-align:right">89.7 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case6</td>
+<td style="text-align:left">Consumer</td>
+<td style="text-align:left">Three Consumers</td>
+<td style="text-align:left">3x replication</td>
+<td style="text-align:right">2,615,968 records/sec</td>
+<td style="text-align:right">249.5 MB/sec</td>
+</tr>
+<tr>
+<td style="text-align:left">Case7</td>
+<td style="text-align:left">Producer &amp; Consumer</td>
+<td style="text-align:left">Single Producer &amp; Consumer</td>
+<td style="text-align:left">async 3x replication</td>
+<td style="text-align:right">795,064 records/sec</td>
+<td style="text-align:right">75.8 MB/sec</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p>压测分析</p>
+<ul>
+<li>同步/异步和replication-factor对生产者QPS的影响</li>
+</ul>
+<p>消息的写入次数直接影响生产者的QPS，写入次数和确认方式（同步/异步）、replication-factor（0.8.2版本后minimum ISR）有关。</p>
+<p>同步（acks=-1）意味着消息在成功写入leader后，还需要成功写入ISR列表中剩下的follower，消息才算发送成功，因此同步意味着消息需要成功写入replication-factor=N次才算成功；<br>
+异步（acks=1）意味着消息在成功写入leader后，消息就算发送成功，因此异步意味着消息只需成功写入1次就算成功，和replication-factor=N无关。</p>
+<p>replication-factor=1,同步和异步都意味着只要消息成功写入leader就算成功<br>
+replication-factor&gt;1,同步意味着要消息成功写入replication-factor次才算成功，异步意味着消息只用成功写入leader就算成功</p>
+<p>Case1和Case2都只需要消息成功写入1次后就算发送成功，所以Case1和Case2的QPS差别不大，而Case3需要消息成功写入3次才算成功，所以Case3和Case1，Case2的QPS相差较大。</p>
+<p>因此当replication-factor &gt; 1时，同步（acks=-1）对生产者的QPS影响非常大；当replication-factor &gt; 1时，同步和异步对生产者的QPS影响不大。</p>
 <blockquote>
-<p>测试结果中的MB/sec，是根据发送的消息体计算的，不包括每个kafka消息的消息头的属性，以及最终发送出去的请求的请求头信息。因此这个和NIC的上限很难对得上。<br>
-带宽 1Gb/sec=1024Mb/sec=128MB/sec</p>
+<p>关于min.insync.replicas：<br>
+0.8.2版本引入了min.insync.replicas，同步（acks=-1）时消息只用成功写入min.insync.replicas次就表示成功，无需全部写入replication-factor次。通常情况下min.insync.replicas&lt;replication-factor。<br>
+所以在0.8.2之后的版本，准确的说生产者的QPS和min.insync.replicas相关，而不是replication-factor。</p>
 </blockquote>
 <ul>
-<li>case2: Single producer thread, 3x asynchronous replication</li>
+<li>Consumer个数对吞吐量的影响</li>
 </ul>
-<p>786,980 records/sec<br>
-(75.1 MB/sec)</p>
+<p>Case5和Case6的数据说明了Consumer的吞吐量几乎是和Consumer的个数成线性增长的，完全符合预期。因为Kafka的Consumer Scale的设计思路是同一个group里面的Consumer只能消费一个partition（leader），所以增加Consumer的个数可以快速提升消息消费的吞吐量。但是如果Consumer超过partitions的个数时，多余的Consumer会一直收不到消息。</p>
 <blockquote>
-<p>异步复制：<br>
-3：意味着消息需要写入3次，首先是发送到leader，然后由2个follower作为消费者从leader上复制消息写到follower中。从压测结果上看，异步复制对producer的性能影响不大。</p>
+<p>建议：Consumer的个数=partitions的个数</p>
 </blockquote>
+</li>
+<li>
+<p>其他压测场景</p>
 <ul>
-<li>case3: Single producer thread, 3x synchronous replication</li>
+<li>Case8 Broker消息积压对生产者QPS的影响</li>
 </ul>
-<p>421,823 records/sec<br>
-(40.2 MB/sec)</p>
+<p>很多消息中间件的Broker在出现消息积压时，客户端的QP会显著下降，尤其是在积压到GB级别的时候。<br>
+然而，Kafka并不会受到影响，这个和Kafka的设计密切相关。<br>
+下图展示了随着消息从1GB积压到1TB的过程中，生产者QPS的变化情况。从中可以看出生产者的QPS并未出现急剧下降，只是出现了毛刺，而这些毛刺是由于Linux的I/O周期性地批量地将数据刷到磁盘对生产者的QPS产生一定的影响导致的。<br>
+<img src="/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png" alt=""></p>
+<ul>
+<li>Case9  消息大小对生产者吞吐量的影响</li>
+</ul>
+<p>消息大小在100字节以下时，生产者的QPS是最高的，可以到60W/sec，但是吞吐量较低，只能到60MB/sec；<br>
+消息大小超过1K时，生产者的QPS会急剧下降到18W/sec，而吞吐量非常高，高达80M/sec。<br>
+<img src="/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png" alt=""><br>
+<img src="/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png" alt=""></p>
+<ul>
+<li>Case10 端到端的延时</li>
+</ul>
+<p>端到端是指从生产者发送消息开始到消息被消费者消费掉的整个时间。<br>
+以下是生产者同步发送5000条消息的端到端的延时</p>
+<p>2 ms (均值)<br>
+3 ms (99%)<br>
+14 ms (99.9%)</p>
+</li>
+</ul>
 <blockquote>
-<p>同步复制：所有的follower都复制完消息后，再给producer返回ack。</p>
+<p>端到端的代码<br>
+<a href="https://apache.googlesource.com/kafka/+/0.8.0/core/src/test/scala/other/kafka/TestEndToEndLatency.scala" target="_blank" rel="external">代码实现</a></p>
 </blockquote>
-<ul>
-<li>case4: Three producers, 3x async replication</li>
-</ul>
-<p>2,024,032 records/sec<br>
-(193.0 MB/sec)</p>
-<p>![throughput_vs_size.png](throughput vs size)</p>
-<ul>
-<li>Consumer吞吐量</li>
-</ul>
-<p>Single Consumer<br>
-940,521 records/sec<br>
-(89.7 MB/sec)<br>
-For the first test, we will consume 50 million messages in a single thread from our 6 partition 3x replicated topic.</p>
-<p>Three Consumers<br>
-2,615,968 records/sec<br>
-(249.5 MB/sec)</p>
-<p>几乎是线性扩展</p>
-<p>Producer and Consumer<br>
-795,064 records/sec<br>
-(75.8 MB/sec)</p>
-<p>All the same, let’s run the test. For this test we’ll run one producer and one consumer on a six partition 3x replicated topic that begins empty. The producer is again using async replication. The throughput reported is the consumer throughput (which is, obviously, an upper bound on the producer throughput).</p>
-<p>Effect of Message Size</p>
-<p><img src="/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png" alt="size_vs_record_throughput.png"></p>
-<p><img src="/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png" alt="size_vs_mb_throughput.png"></p>
-<p>End-to-end Latency<br>
-2 ms (median)<br>
-3 ms (99th percentile)<br>
-14 ms (99.9th percentile)</p>
-<p>Note that, Kafka only gives out messages to consumers when they are acknowledged by the full in-sync set of replicas. So this test will give the same results regardless of whether we use sync or async replication, as that setting only affects the acknowledgement to the producer.</p>
-<p>硬件配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">[yi.chen@l-bqtabasep1.h.cn8 ~]$ lscpu</div><div class="line">Architecture:          x86_64</div><div class="line">CPU op-mode(s):        32-bit, 64-bit</div><div class="line">Byte Order:            Little Endian</div><div class="line">CPU(s):                4</div><div class="line">On-line CPU(s) list:   0-3</div><div class="line">Thread(s) per core:    1</div><div class="line">Core(s) per socket:    1</div><div class="line">Socket(s):             4</div><div class="line">NUMA node(s):          1</div><div class="line">Vendor ID:             GenuineIntel</div><div class="line">CPU family:            6</div><div class="line">Model:                 42</div><div class="line">Stepping:              1</div><div class="line">CPU MHz:               2294.248</div><div class="line">BogoMIPS:              4588.49</div><div class="line">Hypervisor vendor:     KVM</div><div class="line">Virtualization type:   full</div><div class="line">L1d cache:             32K</div><div class="line">L1i cache:             32K</div><div class="line">L2 cache:              4096K</div><div class="line">NUMA node0 CPU(s):     0-3</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">[yi.chen@l-bqtabasep1.h.cn8 ~]$ free</div><div class="line">             total       used       free     shared    buffers     cached</div><div class="line">Mem:       5991168    4193120    1798048          0     443032    3420440</div><div class="line">-/+ buffers/cache:     329648    5661520</div><div class="line">Swap:      4194296          0    4194296</div></pre></td></tr></table></figure>
-<p>Kafka page cache<br>
-Most host-level metrics identified in part 1 can be collected with standard system utilities. Page cache, however, requires more. Linux kernels earlier than 3.13 may require compile-time flags to expose this metric. Also you’ll need to download a utility from Brendan Gregg:</p>
-<p>Start by downloading the cachestat script: wget <a href="https://raw.githubusercontent.com/brendangregg/perf-tools/master/fs/cachestat" target="_blank" rel="external">https://raw.githubusercontent.com/brendangregg/perf-tools/master/fs/cachestat</a> and make it executable chmod +x cachestat. Then, execute it like so ./cachestat <collection interval="" in="" seconds="">:</collection></p>
-<p>As we are aiming for guaranteed message delivery, both when using plain Kafka and kmq, the Kafka broker was configured to guarantee that no messages can be lost when sending:<br>
-the topics were created with a replication-factor of 3<br>
-Kafka was configured with min.insync.replicas=2<br>
-the producer used for sending messages was created with acks set to all (-1)</p>
-<p>zk:l-bqtarcp2.h.cn8 (192.168.49.9)  异常挂掉？      monitor:l-bqtarcp1.h.cn8</p>
-<p>broker: l-bqtabasep1.h.cn8 (192.168.48.94),l-bqtabasep2.h.cn8 (192.168.49.3), <a href="http://l-bqtabaseq1.h.cn8.qunar.com" target="_blank" rel="external">l-bqtabaseq1.h.cn8.qunar.com</a> (192.168.48.92)<br>
-producer:l-bqtapricep1.h.cn8<br>
-consumer:l-bqtapricep2.h.cn8</p>
-<p>sudo mkdir /home/q/kafka &amp;&amp; sudo tar zxvf kafka_2.11-0.11.0.0.tgz  -C /home/q/kafka</p>
-<p>压测脚本 参考<br>
-<a href="https://gist.github.com/dongjinleekr/d24e3d0c7f92ac0f80c87218f1f5a02b" target="_blank" rel="external">https://gist.github.com/dongjinleekr/d24e3d0c7f92ac0f80c87218f1f5a02b</a><br>
-<a href="http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449" target="_blank" rel="external">http://wiki.corp.qunar.com/confluence/pages/viewpage.action?pageId=96640449</a></p>
-<p>start zk<br>
-sudo ./zookeeper-server-start.sh  …/config/zookeeper.properties</p>
-<p>sudo env JMX_PORT=9999 ./zookeeper-server-start.sh  …/config/zookeeper.properties 失败</p>
-<p>broker config</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">broker.id=300</div><div class="line"></div><div class="line">default.replication.factor=3</div><div class="line">auto.create.topics.enable=false</div><div class="line">min.insync.replicas=2</div><div class="line">unclean.leader.election.enable=false</div><div class="line">log.flush.interval.messages=1</div><div class="line">---</div><div class="line">num.io.threads=8 --》10</div><div class="line">num.network.threads=3  --》8</div><div class="line">num.replica.fetchers=1 --》10</div><div class="line">---</div><div class="line">zookeeper.connect=192.168.49.9:2181</div></pre></td></tr></table></figure>
-<ul>
-<li>start broker</li>
-</ul>
-<p>sudo ./kafka-server-start.sh  …/config/server.properties<br>
-sudo env JMX_PORT=9999  …/bin/kafka-server-start.sh  …/config/server.properties</p>
-<ul>
-<li>create topic</li>
-</ul>
-<p>./kafka-topics.sh --create --zookeeper 192.168.49.9:2181  --replication-factor 3  --partitions 3 --topic topicA</p>
-<p>./kafka-topics.sh --list --zookeeper  192.168.49.9:2181</p>
-<ul>
-<li>start producer</li>
-</ul>
-<p>查看消息<br>
-./kafka-topics.sh --describe --zookeeper 192.168.49.9:2181 --topic topicA</p>
-<p>遇到的问题：<br>
-org.apache.kafka.common.errors.TimeoutException: Expiring 1 record(s) for topicA-1: 31453 ms has passed since last append</p>
-<p><a href="http://request.timeout.ms" target="_blank" rel="external">request.timeout.ms</a> 默认30秒  等待broker响应的时间。应该比 replica.lag.time.max.ms大<br>
-超过这个时间后会重试，重试过后如果还未成功，消息发送失败</p>
-<ul>
-<li>start consumer</li>
-</ul>
-<ul>
-<li>jconsole</li>
-</ul>
-<p>mac:<br>
-/usr/libexec/java_home -V</p>
-<p>/Library/Java/JavaVirtualMachines/jdk1.7.0_67.jdk/Contents/Home</p>
-<p>参考<br>
-<a href="https://www.slideshare.net/miguno/apache-kafka-08-basic-training-verisign" target="_blank" rel="external">https://www.slideshare.net/miguno/apache-kafka-08-basic-training-verisign</a></p>
-<p><a href="https://www.confluent.io/blog/optimizing-apache-kafka-deployment/" target="_blank" rel="external">https://www.confluent.io/blog/optimizing-apache-kafka-deployment/</a></p>
-<p>调优文档pdf</p>
-<p><a href="http://www.rabbitmq.com/blog/2012/04/25/rabbitmq-performance-measurements-part-2/" target="_blank" rel="external">http://www.rabbitmq.com/blog/2012/04/25/rabbitmq-performance-measurements-part-2/</a><br>
-<a href="https://gist.github.com/jkreps/c7ddb4041ef62a900e6c" target="_blank" rel="external">https://gist.github.com/jkreps/c7ddb4041ef62a900e6c</a></p>
-<p><a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" target="_blank" rel="external">0</a></p>
-<p><a href="http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-bqtabasep1.h.cn8;-;indexType:-:template;-;indexValue:-:?from=20170829T094931&amp;to=20170830T024134" target="_blank" rel="external">http://watcher.corp.qunar.com/#/dash/hosts/apptreeNode:-:;-;host:-:l-bqtabasep1.h.cn8;-;indexType:-:template;-;indexValue:-:?from=20170829T094931&amp;to=20170830T024134</a></p>
-<p>sysbench 压测  8月29日</p>
-<p>case1: 1个并发</p>
-<p>14：16–14：22</p>
-<p>cpu:  22%(wait 18%)<br>
-load: 1<br>
-io-util: 92%<br>
-io-thoughput: W 106<br>
-io-qps: 7K</p>
-<p>sudo sysbench --test=fileio --num-threads=1  --time=300 --max-requests=0 --file-num=1 --file-total-size=1G  --file-io-mode=sync --file-extra-flags=direct  --file-test-mode=seqwr run</p>
-<p>File operations:<br>
-reads/s:                      0.00<br>
-writes/s:                     6922.24<br>
-fsyncs/s:                     69.22</p>
-<p>Throughput:<br>
-read, MiB/s:                  0.00<br>
-written, MiB/s:               108.16</p>
-<p>General statistics:<br>
-total time:                          300.0002s<br>
-total number of events:              2097456</p>
-<p>Latency (ms):<br>
-min:                                  0.08<br>
-avg:                                  0.14<br>
-max:                                 33.67<br>
-95th percentile:                      0.16<br>
-sum:                             297325.91</p>
-<p>Threads fairness:<br>
-events (avg/stddev):           2097456.0000/0.00<br>
-execution time (avg/stddev):   297.3259/0.00</p>
-<p>iostat -x 1</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7209.00     0.00 225648.00    31.30     0.92    0.13   0.13  91.10</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.78    0.00    2.85   19.43    0.00   76.94</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7148.00     0.00 223696.00    31.29     0.95    0.13   0.13  94.30</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.51    0.00    3.60   19.28    0.00   76.61</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6987.00     0.00 218760.00    31.31     0.94    0.13   0.13  92.60</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.00    0.00    2.08   19.79    0.00   78.12</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6998.00     0.00 219040.00    31.30     0.95    0.14   0.13  93.70</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    2.33   19.69    0.00   77.72</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6939.00     0.00 217152.00    31.29     0.96    0.14   0.14  94.90</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.00    0.00    2.34   19.53    0.00   78.12</p>
-<p>case2: 5个并发</p>
-<p>14：16–14：22</p>
-<p>cpu:  22%(wait 18%)<br>
-load: 5<br>
-io-util: 92%<br>
-io-thoughput: W 106<br>
-io-qps: 7K</p>
-<p>sudo sysbench --test=fileio --num-threads=1  --time=300 --max-requests=0 --file-num=1 --file-total-size=1G  --file-io-mode=sync --file-extra-flags=direct  --file-test-mode=seqwr run</p>
-<p>File operations:<br>
-reads/s:                      0.00<br>
-writes/s:                     6785.92<br>
-fsyncs/s:                     67.86</p>
-<p>Throughput:<br>
-read, MiB/s:                  0.00<br>
-written, MiB/s:               106.03</p>
-<p>General statistics:<br>
-total time:                          300.0008s<br>
-total number of events:              2056153</p>
-<p>Latency (ms):<br>
-min:                                  0.07<br>
-avg:                                  0.73<br>
-max:                                245.02<br>
-95th percentile:                      0.17<br>
-sum:                            1497304.63</p>
-<p>Threads fairness:<br>
-events (avg/stddev):           411230.6000/2035.96<br>
-execution time (avg/stddev):   299.4609/0.00</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6962.00     0.00 217888.00    31.30     0.94    0.14   0.13  93.40</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    2.85   19.17    0.00   77.72</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6963.37     0.00 217980.20    31.30     0.94    0.13   0.13  92.48</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.12   18.96    0.00   77.66</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     5.00    0.00 7027.00     0.00 219864.00    31.29     0.93    0.13   0.13  92.30</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.52    0.00    3.61   18.81    0.00   77.06</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7087.00     0.00 221816.00    31.30     0.94    0.13   0.13  93.30</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.00    0.00    3.36   19.12    0.00   77.52</p>
-<p>case3: 8个并发</p>
-<p>14：52–14：58</p>
-<p>cpu:  22%(wait 18%)<br>
-load: 16<br>
-io-util: 92%<br>
-io-thoughput: W 106<br>
-io-qps: 7K</p>
-<p>sudo sysbench --test=fileio --num-threads=8  --time=300 --max-requests=0 --file-num=1 --file-total-size=1G  --file-io-mode=sync --file-extra-flags=direct  --file-test-mode=seqwr run</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7048.00     0.00 220640.00    31.31     0.95    0.13   0.13  93.40</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.63   18.65    0.00   77.46</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     5.00    0.00 7072.00     0.00 221304.00    31.29     0.94    0.13   0.13  92.80</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.12   18.96    0.00   77.66</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7033.00     0.00 220232.00    31.31     0.95    0.13   0.13  93.90</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.00    0.00    3.12   18.96    0.00   77.92</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6943.00     0.00 217280.00    31.29     0.94    0.14   0.13  92.60</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.11   18.91    0.26   77.46</p>
-<p>File operations:<br>
-reads/s:                      0.00<br>
-writes/s:                     6933.75<br>
-fsyncs/s:                     69.34</p>
-<p>Throughput:<br>
-read, MiB/s:                  0.00<br>
-written, MiB/s:               108.34</p>
-<p>General statistics:<br>
-total time:                          300.0012s<br>
-total number of events:              2100949</p>
-<p>Latency (ms):<br>
-min:                                  0.07<br>
-avg:                                  1.14<br>
-max:                                575.45<br>
-95th percentile:                      0.17<br>
-sum:                            2397133.72</p>
-<p>Threads fairness:<br>
-events (avg/stddev):           262618.6250/2522.49<br>
-execution time (avg/stddev):   299.6417/0.01</p>
-<p>case4: 16个并发</p>
-<p>14：52–14：58</p>
-<p>cpu:  22%(wait 18%)<br>
-load: 16<br>
-io-util: 92%<br>
-io-thoughput: W 106<br>
-io-qps: 7K</p>
-<p>sudo sysbench --test=fileio --num-threads=1  --time=300 --max-requests=0 --file-num=1 --file-total-size=1G  --file-io-mode=sync --file-extra-flags=direct  --file-test-mode=seqwr run</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7206.00     0.00 225552.00    31.30     0.93    0.13   0.13  92.70</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.52    0.00    3.09   19.07    0.00   77.32</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6968.00     0.00 218080.00    31.30     0.93    0.13   0.13  92.00</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.62   19.12    0.00   77.00</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7002.00     0.00 219168.00    31.30     0.94    0.13   0.13  93.40</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    2.61   19.06    0.00   78.07</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 6967.00     0.00 218120.00    31.31     0.94    0.14   0.13  93.00</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.26    0.00    3.59   18.97    0.26   76.92</p>
-<p>Device:         rrqm/s   wrqm/s     r/s     w/s   rsec/s   wsec/s avgrq-sz avgqu-sz   await  svctm  %util<br>
-vda               0.00     0.00    0.00 7030.00     0.00 220136.00    31.31     0.92    0.13   0.13  91.60</p>
-<p>avg-cpu:  %user   %nice %system %iowait  %steal   %idle<br>
-0.52    0.00    3.36   19.12    0.00   77.00</p>
-<p>File operations:<br>
-reads/s:                      0.00<br>
-writes/s:                     6975.39<br>
-fsyncs/s:                     69.75</p>
-<p>Throughput:<br>
-read, MiB/s:                  0.00<br>
-written, MiB/s:               108.99</p>
-<p>General statistics:<br>
-total time:                          300.0025s<br>
-total number of events:              2113575</p>
-<p>Latency (ms):<br>
-min:                                  0.07<br>
-avg:                                  2.27<br>
-max:                                399.88<br>
-95th percentile:                      0.17<br>
-sum:                            4797059.44</p>
-<p>Threads fairness:<br>
-events (avg/stddev):           132098.4375/1535.55<br>
-execution time (avg/stddev):   299.8162/0.00</p>
-<p>8月29日</p>
-<p>zookeeper.connect=192.168.49.9:2181</p>
-<p>zk:l-bqtarcp2.h.cn8 (192.168.49.9)  异常挂掉？      monitor:l-bqtarcp1.h.cn8</p>
-<p>broker: l-bqtabasep1.h.cn8 (192.168.48.94),l-bqtabasep2.h.cn8 (192.168.49.3), <a href="http://l-bqtabaseq1.h.cn8.qunar.com" target="_blank" rel="external">l-bqtabaseq1.h.cn8.qunar.com</a> (192.168.48.92)<br>
-producer:l-bqtapricep1.h.cn8  l-bqtapricep2.h.cn8  l-bqtarcp2.h.cn8<br>
-consumer:l-bqtarcp1.h.cn8</p>
-<p>./kafka-topics.sh --create --zookeeper 192.168.49.9:2181  --replication-factor 3  --partitions 3 --topic topicA</p>
-<p>sudo ./kafka-topics.sh --delete --topic topicA --zookeeper  192.168.49.9:2181 并未彻底删除干净</p>
-<p>case1:</p>
-<p>server 默认配置<br>
-压出IO极限</p>
-<p>default.replication.factor=1<br>
-auto.create.topics.enable=true<br>
-min.insync.replicas=1<br>
-unclean.leader.election.enable=false<br>
-log.flush.interval.messages=9223372036854775807</p>
-<p>case2:  acks=1  leader写入成功即可<br>
-8.29  17：40–17：48<br>
-server 默认配置</p>
-<p>broker监控情况：</p>
-<p>producer监控情况：<br>
-producer:单个消息发生  4个 每个qps 6k<br>
-网卡 60Mib<br>
-磁盘 30%<br>
-load: 3<br>
-CPU:83%(sys 20%,user 52%)</p>
-<p>case3:  acks=-1  所有备份写入成功即可<br>
-8.29  17：53–17：56<br>
-server 默认配置<br>
-broker监控情况：<br>
-CPU 33% (SYS 13%)<br>
-LOAD 0.1<br>
-网卡 20Mib</p>
-<p>producer监控情况：<br>
-producer:单个消息发生  4个 每个qps 1.5k<br>
-网卡 20Mib<br>
-磁盘 20%<br>
-load: 2.5<br>
-CPU:30%(sys 22%,user 8%)</p>
-<p>case4: acks=-1   机器不宕机不丢失消息</p>
-<p>18：22–18：28<br>
-server 配置<br>
-default.replication.factor=3<br>
-min.insync.replicas=2</p>
-<p>auto.create.topics.enable=true 默认值<br>
-unclean.leader.election.enable=false 默认值<br>
-log.flush.interval.messages=9223372036854775807 默认值</p>
-<p>broker监控情况：<br>
-CPU 33% (SYS 13%)<br>
-LOAD 0.1<br>
-网卡 20Mib</p>
-<p>producer监控情况：<br>
-producer:单个消息发生  4个 每个qps 1.5k</p>
-<p>case4: acks=-1   机器宕机丢失1秒之内的消息</p>
-<p>18：35–18：40<br>
-server 配置<br>
-default.replication.factor=3<br>
-min.insync.replicas=2<br>
-log.flush.interval.ms=1000</p>
-<p>auto.create.topics.enable=true 默认值<br>
-unclean.leader.election.enable=false 默认值<br>
-log.flush.interval.messages=9223372036854775807 默认值</p>
-<p>broker监控情况：<br>
-CPU 36% (SYS 14%)<br>
-LOAD 0.1<br>
-网卡 20Mib</p>
-<p>producer监控情况：<br>
-producer:单个消息发生  4个 每个qps 1.4k<br>
-网卡 20Mib<br>
-磁盘 14%<br>
-load: 2.5<br>
-CPU:56%(sys 10%,user 25%，wait18%)</p>
-<p>case5: acks=-1   机器宕机不丢失消息</p>
-<p>19：16–19：24<br>
-server 配置<br>
-default.replication.factor=3<br>
-min.insync.replicas=2<br>
-log.flush.interval.messages=1</p>
-<p>auto.create.topics.enable=true 默认值<br>
-unclean.leader.election.enable=false 默认值</p>
-<p>broker监控情况：<br>
-CPU 26% (SYS 9% user 7% wait 9%)<br>
-LOAD 3<br>
-网卡 10Mib<br>
-IO 60%<br>
-IO-QPS 8K</p>
-<p>producer监控情况：<br>
-producer:单个消息发生  20个 每个qps 150<br>
-网卡 20Mib<br>
-磁盘 14%<br>
-load: 14<br>
-CPU:100%(sys 10%,user 25%，wait18%)</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj78ekf3q00076lsh2c8gnm39" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7fvr8de0004oqsh7psije68" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
@@ -578,7 +319,7 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -588,7 +329,7 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -598,7 +339,7 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 20px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 20px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -607,7 +348,7 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -651,7 +392,7 @@ CPU:100%(sys 10%,user 25%，wait18%)</p>
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 Nereus Chen<br>
+      &copy; 2017 陈义<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

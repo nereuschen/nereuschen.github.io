@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8">
   
-  <title>深入理解Kafka的核心调优参数 | titlesubtitle</title>
+  <title>深入理解Kafka的核心调优参数 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设">
+  <meta name="description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
 <meta name="keywords" content="kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解Kafka的核心调优参数">
 <meta property="og:url" content="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/index.html">
-<meta property="og:site_name" content="titlesubtitle">
-<meta property="og:description" content="kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设">
+<meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
+<meta property="og:description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-08-23T06:59:35.000Z">
+<meta property="og:updated_time" content="2017-09-12T10:13:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解Kafka的核心调优参数">
-<meta name="twitter:description" content="kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设">
+<meta name="twitter:description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
   
-    <link rel="alternate" href="/atom.xml" title="titlesubtitle" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -58,12 +58,8 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h2 id="logo-wrap"  class="animated bounceInLeft">
-        <a href="/" id="logo">titlesubtitle</a>
+        <a href="/" id="logo">Applied Research. Big Data. Distributed Systems. Open Source.</a>
       </h2>
-      
-        <h3 id="subtitle-wrap"  class="animated bounceInLeft">
-          <a href="/" id="subtitle">subtitle</a>
-        </h3>
       
     </div>
     <div id="header-inner" class="inner">
@@ -116,6 +112,7 @@
       
         <!-- http://l-kafka1.dba.cn2.qunar.com:2333 -->
 <!--  Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf -->
+<p>update:更新到0.11.0</p>
 <p>kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤</p>
 <p>在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。</p>
 <p>下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设置哪些核心属性以及提供建议值。</p>
@@ -269,7 +266,12 @@
 </tbody>
 </table>
 <blockquote>
-<p>压缩类型为什么选择lz4?因为这种类型的压缩方式下，吞吐量最大。具体可以参考<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">压缩的性能测试</a></p>
+<p>压缩类型为什么选择lz4?因为这种类型的压缩方式下，吞吐量最大。具体可以参考<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">压缩的性能测试</a><br>
+<a href="https://kafka.apache.org/documentation/#compaction" target="_blank" rel="external">日志压缩机制</a></p>
+</blockquote>
+<p>吞吐量优先时，会占用大量的网络带宽，如果不希望影响整个网络，可以设置配额</p>
+<blockquote>
+<p><a href="https://kafka.apache.org/documentation/#design_quotas" target="_blank" rel="external">配额的设置</a></p>
 </blockquote>
 <h3 id="低延时优先">低延时优先</h3>
 <p>低延是指producer开始发送消息到consumer接收到消息的时间差。低延时优先意味着每条消息需要尽可能快地完成端对端（从producer到consumer）的传递</p>
@@ -396,7 +398,7 @@
 <td>default.replication.factor</td>
 <td>1</td>
 <td>3</td>
-<td>指定分区复制的个数。设置为3，可以保证集群中的3个borker即使出现2个不可用时，消息依旧不会丢失</td>
+<td>指定分区副本的个数。设置为3，可以保证集群中的3个borker即使出现2个不可用时，消息依旧不会丢失</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -480,6 +482,20 @@
 </tr>
 </tbody>
 </table>
+<ul>
+<li>default.replication.factor和min.insync.replicas的区别<br>
+default.replication.factor是指分区的总的副本个数，min.insync.replicas是指ISR列表中最少的在线副本的个数（含leader）,当在线的副本个数小于min.insync.replicas时，生产者发送消息会失败。<br>
+default.replication.factor=3，min.insync.replicas=2表示消息总共有3个副本，当在线的副本大于或者等于2时，生产者可以继续发送消息，能够容忍1个备份不可用，否则不能发送消息。</li>
+</ul>
+<blockquote>
+<p>可靠性的解决方案<br>
+<a href="https://kafka.apache.org/documentation/#replication" target="_blank" rel="external">复制机制</a></p>
+</blockquote>
+<blockquote>
+<p>平衡可靠性和可用性<br>
+<a href="https://kafka.apache.org/documentation/#design_ha" target="_blank" rel="external">min.insync.replicas</a></p>
+</blockquote>
+<p>推荐配置：每个分区一个物理存储磁盘，每个分区一个consumer</p>
 <ul>
 <li>retries 自动重试</li>
 </ul>
@@ -608,7 +624,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj78ekf40000e6lshqkd3mdzp" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7fvr8ds000eoqshrbkiamns" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
@@ -647,7 +663,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -657,7 +673,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kafka/">kafka</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -667,7 +683,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 20px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 10px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 20px;">MySQL</a> <a href="/tags/kafka/" style="font-size: 20px;">kafka</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 20px;">限流</a>
     </div>
   </div>
 
@@ -676,7 +692,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -720,7 +736,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 Nereus Chen<br>
+      &copy; 2017 陈义<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
