@@ -13,12 +13,12 @@
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
 <meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached">
-<meta property="og:updated_time" content="2017-09-15T10:56:20.000Z">
+<meta property="og:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached.png">
+<meta property="og:updated_time" content="2017-09-15T10:58:22.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka Best Practices">
 <meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货。">
-<meta name="twitter:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached">
+<meta name="twitter:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -155,9 +155,9 @@
 <ul>
 <li>内存<br>
 Kafka会将有读写操作的segment存放在<a href="pagecache">Page Cache</a>，所以会占用大量内存。<br>
-<img src="/2015/09/12/Kafka-Best-Practices/memory-cached" alt="memory-cached"></li>
+<img src="/2015/09/12/Kafka-Best-Practices/memory-cached.png" alt=""></li>
 <li>less swapping<br>
-尽可能使用物理磁盘。设置vm.swappiness=0</li>
+尽可能使用物理内存。设置vm.swappiness=0</li>
 <li>文件描述符<br>
 100k+<br>
 Kafka的log segments和connection都会使用到文件描述符。</li>

@@ -414,9 +414,9 @@
 <ul>
 <li>内存<br>
 Kafka会将有读写操作的segment存放在<a href="pagecache">Page Cache</a>，所以会占用大量内存。<br>
-<img src="/2015/09/12/Kafka-Best-Practices/memory-cached" alt="memory-cached"></li>
+<img src="/2015/09/12/Kafka-Best-Practices/memory-cached.png" alt=""></li>
 <li>less swapping<br>
-尽可能使用物理磁盘。设置vm.swappiness=0</li>
+尽可能使用物理内存。设置vm.swappiness=0</li>
 <li>文件描述符<br>
 100k+<br>
 Kafka的log segments和connection都会使用到文件描述符。</li>
