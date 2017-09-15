@@ -5,19 +5,19 @@
   
   <title>Kafka Best Practices | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafka部分关键属性的默认值会在最新版本中发生变化或者不再使用，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上">
+  <meta name="description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货。">
 <meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kafka Best Practices">
 <meta property="og:url" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafka部分关键属性的默认值会在最新版本中发生变化或者不再使用，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上">
+<meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货。">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached">
-<meta property="og:updated_time" content="2017-09-15T10:40:17.000Z">
+<meta property="og:updated_time" content="2017-09-15T10:56:05.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka Best Practices">
-<meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafka部分关键属性的默认值会在最新版本中发生变化或者不再使用，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上">
+<meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容不够详实。 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。  Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。 本文内容已整合了2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货。">
 <meta name="twitter:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -115,7 +115,7 @@
         <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容不够详实。<br>
 所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。</p>
 <ul>
-<li>Kafka部分关键属性的默认值会在最新版本中发生变化或者不再使用，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。</li>
+<li>Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。</li>
 <li>本文内容已整合了2017年Hortonworks公司在<a href="http://www.dataworkssummit.com" target="_blank" rel="external">DataWorks Summit/Hadoop Summit</a>上分享的<a href="HadoopSummit">干货</a>。</li>
 </ul>
 <h3 id="硬件">硬件</h3>
