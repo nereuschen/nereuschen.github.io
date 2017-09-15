@@ -650,6 +650,7 @@ a.article-title:hover {
   margin-right: 0.2em;
   letter-spacing: 0em;
   font-size: 1.6em;
+  color: #e32d40;
 }
 .article-entry a {
   color: #e32d40;
@@ -671,7 +672,7 @@ a.article-title:hover {
 }
 .article-entry ul li:before {
   list-style: none;
-  content: '\f006';
+  content: '\f005';
   font-family: 'FontAwesome';
   float: left;
   margin-left: -1.5em;

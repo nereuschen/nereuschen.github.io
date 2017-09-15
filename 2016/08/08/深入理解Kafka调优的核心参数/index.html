@@ -5,18 +5,18 @@
   
   <title>深入理解Kafka的核心调优参数 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
+  <meta name="description" content="update:更新到0.11.0.0 kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤 调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面">
 <meta name="keywords" content="kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="深入理解Kafka的核心调优参数">
 <meta property="og:url" content="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
+<meta property="og:description" content="update:更新到0.11.0.0 kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤 调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-09-12T10:13:01.000Z">
+<meta property="og:updated_time" content="2017-09-14T11:10:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解Kafka的核心调优参数">
-<meta name="twitter:description" content="update:更新到0.11.0 kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤 在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及">
+<meta name="twitter:description" content="update:更新到0.11.0.0 kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤 调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -112,10 +112,10 @@
       
         <!-- http://l-kafka1.dba.cn2.qunar.com:2333 -->
 <!--  Optimizing-Your-Apache-Kafka-Deployment-1-性能优化手册.pdf -->
-<p>update:更新到0.11.0</p>
-<p>kafka的配置属性多达几百个😓，在对生产环境中的kafka进行调优时，该如何设置对应的属性值呢？😤</p>
-<p>在对kafka调优之前，首先需要根据业务场景进行分析，确定业务是吞吐量优先，还是对延时比较敏感，是对可靠性要求比较高，还是对可用性要求比较高，然后根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。</p>
-<p>下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先逐一分析kafka应该设置哪些核心属性以及提供建议值。</p>
+<p>update:更新到0.11.0.0</p>
+<p>kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤</p>
+<p>调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。</p>
+<p>下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面，逐一分析kafka应该设置哪些核心属性以及提供建议值。</p>
 <blockquote>
 <p>kafka的配置属性到底有多少，看看<a href="https://kafka.apache.org/documentation/#configuration" target="_blank" rel="external">主要配置属性</a>就知道😰💔</p>
 </blockquote>
@@ -127,8 +127,8 @@
 <thead>
 <tr>
 <th style="text-align:center">吞吐量优先</th>
-<th></th>
-<th>配置属性</th>
+<th style="text-align:left"></th>
+<th style="text-align:left">配置属性</th>
 <th>默认值</th>
 <th>建议值</th>
 <th>说明</th>
@@ -137,128 +137,128 @@
 <tbody>
 <tr>
 <td style="text-align:center"><strong>broker</strong></td>
-<td></td>
-<td></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>分区个数</td>
-<td>num.partitions</td>
+<td style="text-align:left">分区个数</td>
+<td style="text-align:left">num.partitions</td>
 <td>1</td>
 <td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">确定分区个数</a></td>
 <td>分区是并行处理的最小单元。消息的并行发送和接收都是基于分区的。topic的分区越多，并行处理能力越强，吞吐量越大</td>
 </tr>
 <tr>
 <td style="text-align:center"><strong>producer</strong></td>
-<td></td>
-<td></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
 <td></td>
 <td></td>
 <td>消息是异步发送的，先保存至内存，然后由后台线程(kafka-producer-network-thread$client-id)发送到broker集群</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>批量策略</td>
-<td>batch.size</td>
+<td style="text-align:left">批量策略</td>
+<td style="text-align:left">batch.size</td>
 <td>16384（16K）</td>
 <td>100000 - 200000</td>
 <td>设置每次批量提交消息的最大字节数，一旦待批量发送的消息的大小超过这个字节数，这些消息将被批量发送出去</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td></td>
-<td><a href="http://linger.ms" target="_blank" rel="external">linger.ms</a></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="http://linger.ms" target="_blank" rel="external">linger.ms</a></td>
 <td>0</td>
 <td>10 - 100</td>
 <td>该参数会影响延时，因为消息不是立即发送的，而是需要等待发送的消息大小超过batch.size或者收集消息的等待时间超过linger.ms才会发送消息</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>压缩</td>
-<td>compression.type</td>
+<td style="text-align:left">压缩</td>
+<td style="text-align:left">compression.type</td>
 <td>none</td>
 <td>lz4</td>
 <td>将待发送的多个消息压缩成一个消息，因此和batch.size一起使用，batch.size越大，压缩率越高，吞吐量越大。支持3种压缩类型：lz4、snappy和gzip。<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">lz4能使吞吐量最优</a></td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>确认方式</td>
-<td>acks</td>
+<td style="text-align:left">确认方式</td>
+<td style="text-align:left">acks</td>
 <td>1</td>
 <td>1</td>
 <td>acks=1表示leader broker收到消息后就返回ack，而无需等所有的followers都确认收到消息。存在丢失消息的风险</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>队列限制</td>
-<td>buffer.memory</td>
+<td style="text-align:left">队列限制</td>
+<td style="text-align:left">buffer.memory</td>
 <td>33554432（32G）</td>
 <td></td>
 <td>分配给producer的内存，用于存储还未发送到broker的消息。如果分区比较多，那么设置的值也需要更大</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td></td>
-<td><a href="http://max.block.ms" target="_blank" rel="external">max.block.ms</a></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="http://max.block.ms" target="_blank" rel="external">max.block.ms</a></td>
 <td>60000(10s)</td>
 <td></td>
 <td>定义被阻塞的时间；当buffer.memory达到上限时，再次发送消息时会被阻塞。当阻塞时间超过max.block.ms时，producer将会抛出异常</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>消息大小</td>
-<td>max.request.size</td>
+<td style="text-align:left">消息大小</td>
+<td style="text-align:left">max.request.size</td>
 <td>1048576（1M）</td>
 <td></td>
 <td>定义每条消息的最大字节数。</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>消息大小</td>
-<td><a href="http://request.timeout.ms" target="_blank" rel="external">request.timeout.ms</a></td>
+<td style="text-align:left">请求超时时间</td>
+<td style="text-align:left"><a href="http://request.timeout.ms" target="_blank" rel="external">request.timeout.ms</a></td>
 <td>30000（30s）</td>
 <td></td>
-<td></td>
+<td>客户端等待请求的最大响应时间；如果设置了重试次数，超过这个时间，客户端将会重试。</td>
 </tr>
 <tr>
 <td style="text-align:center"><strong>consumer</strong></td>
-<td></td>
-<td></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>获取策略</td>
-<td>fetch.min.bytes</td>
+<td style="text-align:left">获取策略</td>
+<td style="text-align:left">fetch.min.bytes</td>
 <td>1</td>
 <td>100000</td>
 <td>定义从broker获取消息的最小字节数。只有大于这个值时，consumer才会拉取到消息，否则会等待到超时。这个值越大，从broker获取消息的次数越少，会减轻broker的CPU压力；但会影响延时</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td></td>
-<td><a href="http://fetch.max.wait.ms" target="_blank" rel="external">fetch.max.wait.ms</a></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"><a href="http://fetch.max.wait.ms" target="_blank" rel="external">fetch.max.wait.ms</a></td>
 <td></td>
 <td></td>
 <td>达到fetch.min.bytes或者超过fetch.max.wait.ms时，才会消费消息</td>
 </tr>
 <tr>
 <td style="text-align:center"><strong>GC</strong></td>
-<td></td>
-<td></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
 <td></td>
 <td></td>
 <td></td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
-<td>JVM</td>
-<td></td>
+<td style="text-align:left">JVM</td>
+<td style="text-align:left"></td>
 <td></td>
 <td><a href="http://docs.confluent.io/current/kafka/deployment.html#jvm" target="_blank" rel="external">JVM调优</a></td>
 <td>长时间的GC时间会严重影响吞吐量；严重的情况下会导致broker失败，比如导致ZooKeeper session超时，ZooKeeper会认为该broker不可用</td>
@@ -266,12 +266,13 @@
 </tbody>
 </table>
 <blockquote>
-<p>压缩类型为什么选择lz4?因为这种类型的压缩方式下，吞吐量最大。具体可以参考<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">压缩的性能测试</a><br>
-<a href="https://kafka.apache.org/documentation/#compaction" target="_blank" rel="external">日志压缩机制</a></p>
+<p>压缩类型为什么选择lz4?<br>
+因为这种类型的压缩方式下，吞吐量最大。<br>
+具体可以参考<a href="http://blog.yaorenjie.com/2017/01/03/Kafka-0-10-Compression-Benchmark/" target="_blank" rel="external">压缩的性能测试</a>以及<a href="https://kafka.apache.org/documentation/#compaction" target="_blank" rel="external">日志压缩机制</a></p>
 </blockquote>
-<p>吞吐量优先时，会占用大量的网络带宽，如果不希望影响整个网络，可以设置配额</p>
+<p>吞吐量优先时，会占用大量的网络带宽，如果不希望影响整个网络，可以设置配额。</p>
 <blockquote>
-<p><a href="https://kafka.apache.org/documentation/#design_quotas" target="_blank" rel="external">配额的设置</a></p>
+<p><a href="https://kafka.apache.org/documentation/#design_quotas" target="_blank" rel="external">如何设置配额</a></p>
 </blockquote>
 <h3 id="低延时优先">低延时优先</h3>
 <p>低延是指producer开始发送消息到consumer接收到消息的时间差。低延时优先意味着每条消息需要尽可能快地完成端对端（从producer到consumer）的传递</p>
@@ -299,7 +300,7 @@
 <tr>
 <td style="text-align:center"></td>
 <td>分区个数</td>
-<td></td>
+<td>num.partitions</td>
 <td></td>
 <td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
 <td>控制每个broker的分区数量。（1）限制整个集群的分区数量；（2）增加集群的broker数量，从而减少每个broker上的分区数量</td>
@@ -482,6 +483,10 @@
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>必须调用close()方法，该方法会一直block，直到之前发送的消息全部发送成功<br>
+retries&gt;0 &amp; max.in.flight.requests.per.connection&gt;1 会产生消息reordering</p>
+</blockquote>
 <ul>
 <li>default.replication.factor和min.insync.replicas的区别<br>
 default.replication.factor是指分区的总的副本个数，min.insync.replicas是指ISR列表中最少的在线副本的个数（含leader）,当在线的副本个数小于min.insync.replicas时，生产者发送消息会失败。<br>
@@ -531,7 +536,7 @@ default.replication.factor=3，min.insync.replicas=2表示消息总共有3个副
 <tr>
 <td style="text-align:center"></td>
 <td>分区个数</td>
-<td>分区个数</td>
+<td>num.partitions</td>
 <td></td>
 <td><a href="https://www.confluent.io/blog/how-to-choose-the-number-of-topicspartitions-in-a-kafka-cluster/" target="_blank" rel="external">如何确定分区个数</a></td>
 <td></td>
@@ -579,7 +584,7 @@ default.replication.factor=3，min.insync.replicas=2表示消息总共有3个副
 </tbody>
 </table>
 <ul>
-<li>不同的acks对吞吐量、延时和可靠性的影响</li>
+<li>acks对吞吐量、延时和可靠性的影响</li>
 </ul>
 <table>
 <thead>
@@ -624,7 +629,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7iwbb8u000gbtsh2of2r8lx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7lrnvwq0005yrshwpnp8xg1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>

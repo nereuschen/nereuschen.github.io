@@ -16,7 +16,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png">
-<meta property="og:updated_time" content="2017-09-13T01:25:23.000Z">
+<meta property="og:updated_time" content="2017-09-14T02:06:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解读Kafka基准测试报告">
 <meta name="twitter:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
@@ -127,8 +127,9 @@
 </li>
 </ul>
 <blockquote>
-<p>磁盘采用的是JBOD方式，而不是RAID阵列。如果采用RAID，Kafka性能会更出色。</p>
+<p>磁盘采用的是JBOD方式，而不是RAID阵列，RAID具备更强的读写性能。<a href="4">二者的区别</a>。</p>
 </blockquote>
+<a id="more"></a>
 <h3 id="部署结构">部署结构</h3>
 <p>一共6台机器，3台部署broker，另外3台部署zk和压测脚本</p>
 <h3 id="压测结果汇总">压测结果汇总</h3>
@@ -280,7 +281,7 @@ replication-factor&gt;1,同步意味着要消息成功写入replication-factor�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7iwbb7y0005btsh2i01l8qk" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7lrnvwk0004yrsh0ot19vle" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
