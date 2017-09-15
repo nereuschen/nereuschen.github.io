@@ -371,10 +371,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容不够详实。<br>
-所以我整理了各大公司Kafka最佳实践的最新资料，为大家使用Kafka提供参考。</p>
+        <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容还不够详实。<br>
+所以我整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。</p>
 <ul>
-<li>Kafkad的部分属性的默认值会在最新版本中发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）重新整理过。</li>
+<li>在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。</li>
 <li>本文内容已整合了2017年Hortonworks公司在<a href="http://www.dataworkssummit.com" target="_blank" rel="external">DataWorks Summit/Hadoop Summit</a>上分享的<a href="HadoopSummit">干货</a>。</li>
 </ul>
 <h3 id="硬件">硬件</h3>
@@ -395,7 +395,7 @@
 <td>3台+</td>
 <td>24G（小规模），64G（大规模）</td>
 <td>12核+，开启超程</td>
-<td>6+（盘位） 1TB的专属磁盘（JBOD或者RAID）</td>
+<td>6+（盘位）1TB的专属磁盘（JBOD或者RAID）</td>
 </tr>
 <tr>
 <td style="text-align:center"><strong>ZK</strong></td>
@@ -413,7 +413,8 @@
 <h4 id="os">OS</h4>
 <ul>
 <li>内存<br>
-Kafka会将有读写操作的segment存放在<a href="pagecache">Page Cache</a>，所以会占用大量内存。<br>
+24G以上<br>
+Kafka会将有读写操作的segment都存放在<a href="pagecache">Page Cache</a>，所以会占用大量内存。<br>
 <img src="/2015/09/12/Kafka-Best-Practices/memory-cached.png" alt=""></li>
 <li>less swapping<br>
 尽可能使用物理内存。设置vm.swappiness=0</li>
@@ -426,17 +427,17 @@ Kafka的log segments和connection都会使用到文件描述符。</li>
 </blockquote>
 <ul>
 <li>socket缓冲区<br>
-更大socket缓冲区大小可以提升数据传输的性能</li>
+增大socket缓冲区大小可以提升数据传输性能</li>
 </ul>
 <h4 id="磁盘">磁盘</h4>
-<p>通常情况下，Kafka的性能受限于磁盘的吞吐量。一般环境使用JBOD（Just a Bunch of Disks）就可以了。</p>
+<p>通常情况下，Kafka的性能受限于磁盘的吞吐量。一般场景下使用JBOD（Just a Bunch of Disks）就可以了。</p>
 <ul>
 <li>使用多块专属磁盘<br>
-Kafka在对消息分区存储时是采用轮询的方式选择log.dirs中的目录路径，所以推荐在log.dirs中配置多目录，每个目录挂在不同的多块专属磁盘上，分散磁盘的读写。</li>
+Kafka在对消息分区时会以轮询的方式选择log.dirs中的目录路径，所以推荐在log.dirs中配置多目录，每个目录挂在不同的多块专属磁盘上，均衡磁盘的读写。</li>
 </ul>
 <blockquote>
 <p>磁盘监控非常有必要，因为分区数据不均衡时会发生数据倾斜，会出现某个目录先被写满，从而导致整个Kafka不可用。<br>
-Kafka使用MemoryMapped文件存储offset索引，因此不能使用挂靠的共享磁盘或者任何网络磁盘。</p>
+Kafka使用MemoryMapped文件存储offset索引，因此不能使用挂靠的共享磁盘或者网络磁盘。</p>
 </blockquote>
 <ul>
 <li>JBOD vs RAID<br>
@@ -453,7 +454,7 @@ JBOD比RAID0快30%（结论来源于<a href="https://tobert.github.io/post/2014-
 <h4 id="网络">网络</h4>
 <ul>
 <li>网卡<br>
-万兆网络是标配；如果公司数据量不够大的话，千兆网络足矣。</li>
+万兆网络是标配；如果公司数据量不够大的话，千兆网络也行。</li>
 <li>网络延时<br>
 集群同机房部署，避免因物理距离导致网络延时，影响消息同步复制；<br>
 如果有多个DC(数据中心)，可以采用MirrorMaker在Kafka集群间同步数据。</li>
@@ -474,7 +475,7 @@ JBOD比RAID0快30%（结论来源于<a href="https://tobert.github.io/post/2014-
 </blockquote>
 <ul>
 <li>堆内存：6-8G（可以设置更小一些）<br>
-可以参考LinkedIn的JVM调优配置：90% GC停顿时间在21ms左右，young GC频率低于每秒1次</li>
+可以参考LinkedIn经过调优的JVM配置：90% GC停顿时间在21ms左右，young GC频率低于每秒1次</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">-Xmx6g -Xms6g -XX:MetaspaceSize=96m -XX:+UseG1GC</div><div class="line">-XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:G1HeapRegionSize=16M</div><div class="line">-XX:MinMetaspaceFreeRatio=50 -XX:MaxMetaspaceFreeRatio=80</div></pre></td></tr></table></figure>
 <blockquote>
@@ -484,7 +485,7 @@ pagecache是linux内核的低优先级缓存，在内存空间富裕的情况下
 </blockquote>
 <h4 id="刷盘">刷盘</h4>
 <p>刷盘就是将消息从pagecache内存中持久化到文件，为消息的可靠性提供保障。<br>
-能够触发刷盘操作的是：producer（调用flush()，不推荐）、OS和Broker</p>
+能够触发刷盘操作的是：producer（调用flush()，不推荐）、OS和Broker。</p>
 <ul>
 <li>OS刷盘<br>
 官方推荐使用默认的刷盘配置，也就是依赖OS刷盘。<br>
