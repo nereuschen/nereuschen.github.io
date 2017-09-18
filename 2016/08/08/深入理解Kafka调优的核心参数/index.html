@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
 <meta property="og:description" content="update:更新到0.11.0.0 kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤 调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面，逐">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2017-09-18T01:11:21.000Z">
+<meta property="og:updated_time" content="2017-09-18T05:51:45.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="深入理解Kafka的核心调优参数">
 <meta name="twitter:description" content="update:更新到0.11.0.0 kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤 调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。 下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面，逐">
@@ -435,9 +435,9 @@
 <td style="text-align:center"><strong>producer</strong></td>
 <td>复制个数</td>
 <td>replication.factor</td>
-<td></td>
+<td>1</td>
 <td>3</td>
-<td>在每个topic上配置</td>
+<td>可以在每个topic上配置</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -445,15 +445,15 @@
 <td>acks</td>
 <td>1</td>
 <td>-1</td>
-<td>leader等待ISR中的所有分片确认接收到消息后再返回ack</td>
+<td>leader等待ISR中的所有follower确认接收到消息后再返回ack</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
 <td>重试</td>
 <td>retries</td>
-<td>1</td>
 <td>0</td>
-<td></td>
+<td>3</td>
+<td>重试后依据失败的，需要在producer根据业务场景做对应的处理，比如，在callback里面记录发生失败</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
@@ -482,7 +482,7 @@
 </tbody>
 </table>
 <blockquote>
-<p>必须调用close()方法，该方法会一直block，直到之前发送的消息全部发送成功<br>
+<p>必须调用producer的close()方法，该方法会一直block，直到之前发送的消息全部发送成功<br>
 retries&gt;0 &amp; max.in.flight.requests.per.connection&gt;1 会产生消息reordering</p>
 </blockquote>
 <ul>
@@ -627,7 +627,7 @@ replica.fetch.max.bytes(broker)&gt;message.max.bytes(broker)，否则消息过�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7pimqsu000qkushw4jptf7v" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7pxggur000658sh5fm13xnn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>

@@ -5,21 +5,21 @@
   
   <title>解读Kafka基准测试报告 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
+  <meta name="description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（基准测试使用的版本是0.8.1)）的性能相当彪悍。 在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb">
 <meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="解读Kafka基准测试报告">
 <meta property="og:url" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
+<meta property="og:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（基准测试使用的版本是0.8.1)）的性能相当彪悍。 在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png">
 <meta property="og:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png">
-<meta property="og:updated_time" content="2017-09-18T01:10:13.000Z">
+<meta property="og:updated_time" content="2017-09-18T05:15:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="解读Kafka基准测试报告">
-<meta name="twitter:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（0.8.1)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb Ethernet">
+<meta name="twitter:description" content="从LinkedIn发布的Kafka benchmark来看，Kafka（基准测试使用的版本是0.8.1)）的性能相当彪悍。 在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。 硬件配置  硬件配置  Intel Xeon 2.5 GHz processor with six cores Six 7200 RPM SATA drives 32GB of RAM 1Gb">
 <meta name="twitter:image" content="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -114,7 +114,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">0.8.1</a>)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
+        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">基准测试使用的版本是0.8.1</a>)）的性能相当彪悍。<br>
+在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
 <h3 id="硬件配置">硬件配置</h3>
 <ul>
 <li>硬件配置
@@ -227,47 +228,47 @@
 <ul>
 <li>同步/异步和replication-factor对生产者QPS的影响</li>
 </ul>
-<p>消息的写入次数直接影响生产者的QPS，写入次数和确认方式（同步/异步）、replication-factor（0.8.2版本后minimum ISR）有关。</p>
-<p>同步（acks=-1）意味着消息在成功写入leader后，还需要成功写入ISR列表中剩下的follower，消息才算发送成功，因此同步意味着消息需要成功写入replication-factor=N次才算成功；<br>
+<p>消息的写入次数直接影响生产者的QPS。写入次数和消息复制方式（同步/异步）、replication-factor有关。<br>
+同步（acks=-1）意味着消息在成功写入leader后，还需要成功写入ISR列表中剩下的follower，消息才算发送成功，因此同步意味着消息需要成功写入replication-factor=N次才算成功；<br>
 异步（acks=1）意味着消息在成功写入leader后，消息就算发送成功，因此异步意味着消息只需成功写入1次就算成功，和replication-factor=N无关。</p>
 <p>replication-factor=1,同步和异步都意味着只要消息成功写入leader就算成功<br>
 replication-factor&gt;1,同步意味着要消息成功写入replication-factor次才算成功，异步意味着消息只用成功写入leader就算成功</p>
 <p>Case1和Case2都只需要消息成功写入1次后就算发送成功，所以Case1和Case2的QPS差别不大，而Case3需要消息成功写入3次才算成功，所以Case3和Case1，Case2的QPS相差较大。</p>
 <p>因此当replication-factor &gt; 1时，同步（acks=-1）对生产者的QPS影响非常大；当replication-factor &gt; 1时，同步和异步对生产者的QPS影响不大。</p>
-<blockquote>
-<p>关于min.insync.replicas：<br>
-0.8.2版本引入了min.insync.replicas，同步（acks=-1）时消息只用成功写入min.insync.replicas次就表示成功，无需全部写入replication-factor次。通常情况下min.insync.replicas&lt;replication-factor。<br>
-所以在0.8.2之后的版本，准确的说生产者的QPS和min.insync.replicas相关，而不是replication-factor。</p>
-</blockquote>
 <ul>
-<li>Consumer个数对吞吐量的影响</li>
+<li>Consumer个数对吞吐量的影响<br>
+Case5和Case6的数据说明了Consumer的吞吐量几乎是和Consumer的个数成线性增长的，完全符合预期。因为Kafka的Consumer Scale的设计思路是同一个group里面的Consumer只能消费一个partition（leader），所以增加Consumer的个数可以快速提升消息消费的吞吐量。但是如果Consumer超过partitions的个数时，多余的Consumer会一直收不到消息。</li>
 </ul>
-<p>Case5和Case6的数据说明了Consumer的吞吐量几乎是和Consumer的个数成线性增长的，完全符合预期。因为Kafka的Consumer Scale的设计思路是同一个group里面的Consumer只能消费一个partition（leader），所以增加Consumer的个数可以快速提升消息消费的吞吐量。但是如果Consumer超过partitions的个数时，多余的Consumer会一直收不到消息。</p>
 <blockquote>
-<p>建议：Consumer的个数=partitions的个数</p>
+<p>建议：Consumer的个数&gt;=partitions的个数</p>
 </blockquote>
 </li>
 <li>
 <p>其他压测场景</p>
 <ul>
-<li>Case8 Broker消息积压对生产者QPS的影响</li>
-</ul>
-<p>很多消息中间件的Broker在出现消息积压时，客户端的QP会显著下降，尤其是在积压到GB级别的时候。<br>
+<li>
+<p>Case8 Broker消息积压对生产者QPS的影响<br>
+很多消息中间件的Broker在出现消息积压时，客户端的QP会显著下降，尤其是在积压到GB级别的时候。<br>
 然而，Kafka并不会受到影响，这个和Kafka的设计密切相关。<br>
 下图展示了随着消息从1GB积压到1TB的过程中，生产者QPS的变化情况。从中可以看出生产者的QPS并未出现急剧下降，只是出现了毛刺，而这些毛刺是由于Linux的I/O周期性地批量地将数据刷到磁盘对生产者的QPS产生一定的影响导致的。<br>
 <img src="/2015/03/04/解读kafka性能测试报告/throughput_vs_size.png" alt=""></p>
+</li>
+<li>
+<p>Case9  消息大小对生产者吞吐量的影响</p>
 <ul>
-<li>Case9  消息大小对生产者吞吐量的影响</li>
-</ul>
-<p>消息大小在100字节以下时，生产者的QPS是最高的，可以到60W/sec，但是吞吐量较低，只能到60MB/sec；<br>
-消息大小超过1K时，生产者的QPS会急剧下降到18W/sec，而吞吐量非常高，高达80M/sec。<br>
+<li>10字节时QPS最高，高达90+W/S</li>
+<li>消息大小在100字节以下时，生产者的QPS是最高的，可以到60W/sec，但是吞吐量较低，只能到60MB/sec；</li>
+<li>消息大小超过1K时，生产者的QPS会急剧下降到18W/sec，而吞吐量非常高，高达80M/sec。<br>
 <img src="/2015/03/04/解读kafka性能测试报告/size_vs_record_throughput.png" alt=""><br>
-<img src="/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png" alt=""></p>
-<ul>
-<li>Case10 端到端的延时</li>
+<img src="/2015/03/04/解读kafka性能测试报告/size_vs_mb_throughput.png" alt=""></li>
 </ul>
-<p>端到端是指从生产者发送消息开始到消息被消费者消费掉的整个时间。<br>
+</li>
+<li>
+<p>Case10 端到端的延时<br>
+端到端是指从生产者发送消息开始到消息被消费者消费掉的整个时间。<br>
 以下是生产者同步发送5000条消息的端到端的延时</p>
+</li>
+</ul>
 <p>2 ms (均值)<br>
 3 ms (99%)<br>
 14 ms (99.9%)</p>
@@ -281,7 +282,7 @@ replication-factor&gt;1,同步意味着要消息成功写入replication-factor�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7pimqr80000kush306uphr6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7pxggu7000158shgqrwqkig" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>

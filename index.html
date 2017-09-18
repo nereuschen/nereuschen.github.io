@@ -110,11 +110,97 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        
+        <p>大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？<br>
+本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。<br>
+受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
+<blockquote>
+<p>本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠<br>
+在线压测时，需要OPS同时在线，共同关注虚拟机带宽资源、线上网络带宽资源的占用情况，避免对同一宿主机上的其他应用产生影响</p>
+</blockquote>
+<h4 id="相关配置">相关配置</h4>
+<p>Kafka提供了高可用、高可靠、高吞吐量和低延时的特征，这些特征取决于client和broker端如何配置对应的属性。<br>
+本文压测所使用的高可靠配置属性是直接参考之前的一篇文章，这篇文章中的<a href="https://nereuschen.github.io/2016/08/08/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Kafka%E8%B0%83%E4%BC%98%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0/">优化durability</a>都涵盖了具体的属性，不再作具体说明。</p>
+<blockquote>
+<p>Kafka官网推荐使用默认的异步刷盘（OS 30秒刷盘一次）来平衡高可靠和高性能<br>
+默认的异步刷盘只能保证在broker不发生宕机的情况下，保证消息100%高可靠，基于此，而追求性能的最大化<br>
+但是本文采同步刷盘，牺牲一定的性能，满足在任何情况下确保消息100%可靠</p>
+</blockquote>
+<h4 id="性能测试">性能测试</h4>
+<ul>
+<li>
+<p>服务器<br>
+压测所使用的服务器均是日常使用的服务器。虚拟机部署应用(Kafka的producer)，实体机部署存储系统(Kafka的broker)。</p>
+<ul>
+<li>6台虚拟机，其中5台部署producer，1台部署zookeeper</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">内存 6G</div></pre></td></tr></table></figure>
+<ul>
+<li>3台实体机，部署broker集群</li>
+</ul>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">内存64G</div><div class="line">硬盘1T</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<blockquote>
+<p>为什么没有压测consumer？<br>
+因为业务场景中，consumer的处理逻辑会相对较重，通常是consumer的消息处理速度会比较慢。</p>
+</blockquote>
+<ul>
+<li>压测脚本<br>
+直接使用kafka_2.11-0.11.0.0的压测脚本kafka-producer-perf-test.sh进行压测<br>
+压测脚本：<a href="http://perf-test-producer.sh" target="_blank" rel="external">perf-test-producer.sh</a></li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">export</span> KAFKA_HEAP_OPTS=<span class="string">"-Xmx512M"</span></div><div class="line"></div><div class="line">topic=<span class="string">"topic-r3-p30"</span></div><div class="line">numRecords=<span class="string">"1000000000"</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"Running producer perf testing"</span></div><div class="line">/home/q/kafka/kafka_2.11-0.11.0.0/bin/kafka-producer-perf-test.sh \</div><div class="line">--topic <span class="variable">$&#123;topic&#125;</span> \</div><div class="line">--num-records <span class="variable">$&#123;numRecords&#125;</span> \</div><div class="line">--record-size 100 \</div><div class="line">--throughput 1000000000 \</div><div class="line">--producer-props \</div><div class="line">acks=-1 \</div><div class="line">bootstrap.servers=192.168.121.46:9092,192.168.121.48:9092,192.168.121.50:9092 \</div><div class="line">compression.type=none \</div><div class="line">batch.size=1 \</div><div class="line">linger.ms=0 \</div><div class="line">request.timeout.ms=3000000</div></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：不同版本的kafka自带的压测脚本参数有可能不一样</p>
+</blockquote>
+<ul>
+<li>压测场景<br>
+消息大小=100字节，topic的分区个数=16</li>
+</ul>
+<blockquote>
+<p>partitions为什么是16？<br>
+因为压测过partitions=3、6的场景（不开启batch），broker的IO使用率分别是40%、60%，producer的QPS只能到1.6W<br>
+每台虚拟机上启动16个producer进程（nohup ./perf-test-producer.sh &amp;）</p>
+</blockquote>
+<ul>
+<li>不开启batch，producer的QPS可以达到3.4W/S<br>
+大多数业务场景是不存在需要将消息积压到一定量之后再批量发送给broker，而更多的是实时发送，即有消息产生就及时发到broker
+<ul>
+<li>I/O<br>
+增加partitions会提升I/O使用率<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO.png" alt=""></li>
+<li>NetWork<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/NetWork.png" alt=""></li>
+<li>CPU<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png" alt=""></li>
+<li>Load<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load.png" alt=""></li>
+<li>GC<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC.png" alt=""></li>
+</ul>
+</li>
+<li>开启batch，producer的QPS可以达到22W/S<br>
+batch.size=1000
+<ul>
+<li>I/O<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png" alt=""></li>
+<li>NetWork<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/NetWork-batch.png" alt=""></li>
+<li>CPU<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png" alt=""></li>
+<li>Load<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png" alt=""></li>
+<li>GC<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<h4 id="结论">结论</h4>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7pimqsa000gkush7eiiowvv" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7pxggve000h58shh7lpxmx3" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -163,7 +249,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7pimqse000ikushvg75qd7l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7pxggvl000l58shfvxl034f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -216,7 +302,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7pimqsu000qkushw4jptf7v" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7pxggur000658sh5fm13xnn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -265,7 +351,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7pimqs5000dkushkyajd4uu" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7pxgguy000a58shdf4c04oi" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -322,7 +408,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7pimqs1000bkush53tv8hgy" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7pxggv4000c58shz1n3mb46" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -373,7 +459,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7pimqrw0007kushjibzfqp3" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7pxggvc000f58sh5bc9u4xa" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -425,7 +511,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7pimqrm0005kushgl6ue3gw" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7pxgguj000458shg65f9tqu" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -475,7 +561,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7pimqru0006kushlm2rmanm" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7pxggup000558shh6dr14uz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -513,7 +599,8 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">0.8.1</a>)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
+        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">基准测试使用的版本是0.8.1</a>)）的性能相当彪悍。<br>
+在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
 <h3 id="硬件配置">硬件配置</h3>
 <ul>
 <li>硬件配置
@@ -536,7 +623,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7pimqr80000kush306uphr6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7pxggu7000158shgqrwqkig" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -587,7 +674,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7pimqrg0002kushfwr5vh1x" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7pxggu2000058shdm4s0vwz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
