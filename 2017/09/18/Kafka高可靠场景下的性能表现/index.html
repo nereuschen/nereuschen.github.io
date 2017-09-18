@@ -5,28 +5,30 @@
   
   <title>Kafka高可靠场景下的性能表现 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。 受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。  本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠 在线压测时，需要OPS同时在">
+  <meta name="description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size  受压测环境限制（虚拟机CPU100%；在线压测占">
 <meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kafka高可靠场景下的性能表现">
 <meta property="og:url" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。 受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。  本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠 在线压测时，需要OPS同时在">
+<meta property="og:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size  受压测环境限制（虚拟机CPU100%；在线压测占">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/network.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/memory.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/memory-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png">
-<meta property="og:updated_time" content="2017-09-18T08:49:34.000Z">
+<meta property="og:updated_time" content="2017-09-18T11:12:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka高可靠场景下的性能表现">
-<meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。 受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。  本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠 在线压测时，需要OPS同时在">
+<meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size  受压测环境限制（虚拟机CPU100%；在线压测占">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -122,8 +124,11 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？<br>
-本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。<br>
-受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
+本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。</p>
+<blockquote>
+<p>压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
+</blockquote>
+<p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
 <blockquote>
 <p>本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠<br>
 在线压测时，需要OPS同时在线，共同关注虚拟机带宽资源、线上网络带宽资源的占用情况，避免对同一宿主机上的其他应用产生影响</p>
@@ -144,11 +149,11 @@
 <ul>
 <li>6台虚拟机，其中5台部署producer，1台部署zookeeper</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">内存 6G</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">CPU: x86_64 Intel Xeon E312xx (Sandy Bridge) @ 2.10GHz 4CPU</div><div class="line">Memory: 5GB</div><div class="line">Network: 1GB Ethernet</div><div class="line">Disk: 60GB</div></pre></td></tr></table></figure>
 <ul>
 <li>3台实体机，部署broker集群</li>
 </ul>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">内存64G</div><div class="line">硬盘1T</div></pre></td></tr></table></figure>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">CPU: x86_64 Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz  6核 开启超程</div><div class="line">Memory: 30GB</div><div class="line">Network: 10GB Ethernet</div><div class="line">Disk: 1T PERC H710P</div></pre></td></tr></table></figure>
 </li>
 </ul>
 <blockquote>
@@ -158,7 +163,7 @@
 <ul>
 <li>压测脚本<br>
 直接使用kafka_2.11-0.11.0.0的压测脚本kafka-producer-perf-test.sh进行压测<br>
-压测脚本：<a href="http://perf-test-producer.sh" target="_blank" rel="external">perf-test-producer.sh</a></li>
+压测脚本：perf-test-producer. sh</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">export</span> KAFKA_HEAP_OPTS=<span class="string">"-Xmx512M"</span></div><div class="line"></div><div class="line">topic=<span class="string">"topic-r3-p30"</span></div><div class="line">numRecords=<span class="string">"1000000000"</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"Running producer perf testing"</span></div><div class="line">/home/q/kafka/kafka_2.11-0.11.0.0/bin/kafka-producer-perf-test.sh \</div><div class="line">--topic <span class="variable">$&#123;topic&#125;</span> \</div><div class="line">--num-records <span class="variable">$&#123;numRecords&#125;</span> \</div><div class="line">--record-size 100 \</div><div class="line">--throughput 1000000000 \</div><div class="line">--producer-props \</div><div class="line">acks=-1 \</div><div class="line">bootstrap.servers=192.168.121.46:9092,192.168.121.48:9092,192.168.121.50:9092 \</div><div class="line">compression.type=none \</div><div class="line">batch.size=1 \</div><div class="line">linger.ms=0 \</div><div class="line">request.timeout.ms=3000000</div></pre></td></tr></table></figure>
 <blockquote>
@@ -174,39 +179,81 @@
 每台虚拟机上启动16个producer进程（nohup ./perf-test-producer.sh &amp;）</p>
 </blockquote>
 <ul>
-<li>不开启batch，producer的QPS可以达到3.4W/S<br>
-大多数业务场景是不存在需要将消息积压到一定量之后再批量发送给broker，而更多的是实时发送，即有消息产生就及时发到broker
+<li>
+<p>不开启batch，producer的QPS可以达到3.6W/S<br>
+实际的业务场景不存在需要将消息积压到一定量之后再批量发送给broker，而更多的是一旦消息产生就及时发到broker<br>
+压测时间：11:02–11:16</p>
 <ul>
 <li>I/O<br>
-增加partitions会提升I/O使用率<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO.png" alt=""><br>
+不增加partition，IO使用率一直压不上去。<br>
+当partition从6增加到16后，IO使用率从40%增大到80%</li>
 <li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network.png" alt=""><br>
+不增加partitions，网络流量保持在20Mbit/S（partitions=6），网络流量压不上去。<br>
+当增大partitions到16后，网络流量增大到50Mbit/S</li>
+<li>Memory<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/memory.png" alt=""><br>
+cached增长缓慢</li>
 <li>CPU<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png" alt=""><br>
+CPU在35%左右，CPU并不高</li>
 <li>Load<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load.png" alt=""><br>
+load在8左右，也不高，服务器上是12核，开启超程</li>
 <li>GC<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC.png" alt=""></li>
 </ul>
 </li>
-<li>开启batch，producer的QPS可以达到22W/S<br>
-batch.size=1000
+<li>
+<p>开启batch，producer的QPS可以达到24.8W/S<br>
+batch.size=1000<br>
+压测时间：11:52–11:55</p>
 <ul>
 <li>I/O<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png" alt=""><br>
+一直保持在80%</li>
 <li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png" alt=""><br>
+开启batch后，网络流量从50Mbit/S迅速飙到240Mbit/S</li>
+<li>Memory<br>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/memory-batch.png" alt=""><br>
+开启batch后，短短3分钟内cached从10G涨到20G</li>
 <li>CPU<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png" alt=""><br>
+保持在40%，变化不大</li>
 <li>Load<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png" alt=""><br>
+保持在9左右，变化不大</li>
 <li>GC<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png" alt=""></li>
 </ul>
 </li>
+<li>
+<p>QPS数据<br>
+在压测的过程中，所有producer进程的QPS信息会记录到nohup.out，记录的是单个producer的QPS<br>
+5台虚拟机部署producer，每台虚拟机上开启16个producer进程</p>
+<ul>
+<li>不开启batch</li>
 </ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">2308 records sent, 459.9 records/sec (0.04 MB/sec), 398272.1 ms avg latency, 420320.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398268.9 ms avg latency, 420102.0 max latency.</div><div class="line">2314 records sent, 462.3 records/sec (0.04 MB/sec), 398757.2 ms avg latency, 418233.0 max latency.</div><div class="line">2323 records sent, 464.0 records/sec (0.04 MB/sec), 396975.2 ms avg latency, 415960.0 max latency.</div><div class="line">2309 records sent, 461.2 records/sec (0.04 MB/sec), 399178.9 ms avg latency, 419073.0 max latency.</div><div class="line">2298 records sent, 457.5 records/sec (0.04 MB/sec), 399280.0 ms avg latency, 426313.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398136.1 ms avg latency, 416454.0 max latency.</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>总的QPS=450*5*16=3.6W/S
+
+* 开启batch
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">15904 records sent, 3170.0 records/sec (0.30 MB/sec), 85798.8 ms avg latency, 90976.0 max latency.</div><div class="line">15776 records sent, 3153.9 records/sec (0.30 MB/sec), 85600.0 ms avg latency, 91577.0 max latency.</div><div class="line">15936 records sent, 3187.2 records/sec (0.30 MB/sec), 85383.0 ms avg latency, 91503.0 max latency.</div><div class="line">15904 records sent, 3178.3 records/sec (0.30 MB/sec), 85640.2 ms avg latency, 91587.0 max latency.</div><div class="line">15776 records sent, 3149.5 records/sec (0.30 MB/sec), 85972.8 ms avg latency, 92308.0 max latency.</div><div class="line">16024 records sent, 3189.5 records/sec (0.30 MB/sec), 85473.7 ms avg latency, 91592.0 max latency.</div><div class="line">15896 records sent, 3174.8 records/sec (0.30 MB/sec), 85727.8 ms avg latency, 91356.0 max latency.</div></pre></td></tr></table></figure>
+</code></pre>
+<p>总的QPS=3100<em>5</em>16=24.8W/S</p>
 <h4 id="结论">结论</h4>
+<ul>
+<li>partition是最小的并发单元<br>
+增加partition，可以明显提升IO使用率</li>
+<li>batch直接影响吞吐量<br>
+开启batch，可以显著提升网络流量</li>
+<li>100% no data lose,close batch<br>
+message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满足业务场景</li>
+</ul>
 
       
     </div>
