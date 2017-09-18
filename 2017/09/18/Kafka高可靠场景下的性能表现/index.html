@@ -14,16 +14,16 @@
 <meta property="og:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。 受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。  本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠 在线压测时，需要OPS同时在">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO.png">
-<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/NetWork.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/network.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png">
-<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/NetWork-batch.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png">
-<meta property="og:updated_time" content="2017-09-18T08:46:57.000Z">
+<meta property="og:updated_time" content="2017-09-18T08:49:34.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka高可靠场景下的性能表现">
 <meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.5W和22W。 受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。  本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠 在线压测时，需要OPS同时在">
@@ -181,7 +181,7 @@
 增加partitions会提升I/O使用率<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO.png" alt=""></li>
 <li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/NetWork.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network.png" alt=""></li>
 <li>CPU<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png" alt=""></li>
 <li>Load<br>
@@ -196,7 +196,7 @@ batch.size=1000
 <li>I/O<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png" alt=""></li>
 <li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/NetWork-batch.png" alt=""></li>
+<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png" alt=""></li>
 <li>CPU<br>
 <img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png" alt=""></li>
 <li>Load<br>
