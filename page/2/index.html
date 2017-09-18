@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   
-  <title>归档: 2016/3 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
+  <title>Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Keep it Simple and Stupid">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:url" content="https://nereuschen.github.io/archives/2016/03/index.html">
+<meta property="og:url" content="https://nereuschen.github.io/page/2/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
 <meta property="og:description" content="Keep it Simple and Stupid">
 <meta property="og:locale" content="zh-CN">
@@ -84,57 +84,123 @@
       <div class="outer">
         <section id="main">
   
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2016" class="archive-year">2016</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2016/03/17/限流技术的应用场景/" class="archive-article-date">
-  <time datetime="2016-03-17T10:32:01.000Z" itemprop="datePublished">3月 17</time>
+    <article id="post-解读kafka性能测试报告" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/03/04/解读kafka性能测试报告/" class="article-date">
+  <time datetime="2015-03-04T15:43:18.000Z" itemprop="datePublished">2015-03-04</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
     <h1 itemprop="name">
-      <a class="archive-article-title" href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
+      <a class="article-title" href="/2015/03/04/解读kafka性能测试报告/">解读Kafka基准测试报告</a>
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
+      </header>
     
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2016/03/06/限流技术的常见算法及其实现/" class="archive-article-date">
-  <time datetime="2016-03-06T12:03:01.000Z" itemprop="datePublished">3月 6</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
       
+        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">0.8.1</a>)）的性能相当彪悍，在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
+<h3 id="硬件配置">硬件配置</h3>
+<ul>
+<li>硬件配置
+<ul>
+<li>Intel Xeon 2.5 GHz processor with six cores</li>
+<li>Six 7200 RPM SATA drives</li>
+<li>32GB of RAM</li>
+<li>1Gb Ethernet</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>磁盘采用的是JBOD方式，而不是RAID阵列，RAID具备更强的读写性能。<a href="4">二者的区别</a>。</p>
+</blockquote>
+        
+          <p class="article-more-link">
+            <a href="/2015/03/04/解读kafka性能测试报告/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7pga3280000b3shopn37a1k" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/kafka/">kafka</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-常用的Markdown用法" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/05/18/常用的Markdown用法/" class="article-date">
+  <time datetime="2014-05-18T14:15:32.000Z" itemprop="datePublished">2014-05-18</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/工具/">工具</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
     <h1 itemprop="name">
-      <a class="archive-article-title" href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
+      <a class="article-title" href="/2014/05/18/常用的Markdown用法/">常用的Markdown用法</a>
     </h1>
   
 
-    </header>
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="code-highlighting">code highlighting</h4>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'window loaded'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<h4 id="emphasis">Emphasis</h4>
+<p><code>*A*</code> <em>A</em></p>
+<p><code>**A**</code> <strong>A</strong></p>
+        
+          <p class="article-more-link">
+            <a href="/2014/05/18/常用的Markdown用法/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7pga32e0002b3shx3qeucen" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
+
+    </footer>
   </div>
+  
 </article>
-  
-  
-    </div></section>
+
+
   
 
+
+  <nav id="page-nav">
+    <a class="extend prev" rel="prev" href="/">&laquo; __('prev')</a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
 
 </section>
         
