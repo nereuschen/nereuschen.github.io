@@ -113,7 +113,8 @@
         <p>大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？<br>
 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。</p>
 <blockquote>
-<p>压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
+<p>压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size<br>
+在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>是：消息大小为10字节、开启和不开启batch,producer的QPS分别是180W/S和9W/S</p>
 </blockquote>
 <p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
 <blockquote>
@@ -224,14 +225,14 @@ batch.size=1000<br>
 <li>不开启batch</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">2308 records sent, 459.9 records/sec (0.04 MB/sec), 398272.1 ms avg latency, 420320.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398268.9 ms avg latency, 420102.0 max latency.</div><div class="line">2314 records sent, 462.3 records/sec (0.04 MB/sec), 398757.2 ms avg latency, 418233.0 max latency.</div><div class="line">2323 records sent, 464.0 records/sec (0.04 MB/sec), 396975.2 ms avg latency, 415960.0 max latency.</div><div class="line">2309 records sent, 461.2 records/sec (0.04 MB/sec), 399178.9 ms avg latency, 419073.0 max latency.</div><div class="line">2298 records sent, 457.5 records/sec (0.04 MB/sec), 399280.0 ms avg latency, 426313.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398136.1 ms avg latency, 416454.0 max latency.</div></pre></td></tr></table></figure>
+<p>总的QPS=450<em>5</em>16=3.6W/S</p>
+<ul>
+<li>开启batch</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">15904 records sent, 3170.0 records/sec (0.30 MB/sec), 85798.8 ms avg latency, 90976.0 max latency.</div><div class="line">15776 records sent, 3153.9 records/sec (0.30 MB/sec), 85600.0 ms avg latency, 91577.0 max latency.</div><div class="line">15936 records sent, 3187.2 records/sec (0.30 MB/sec), 85383.0 ms avg latency, 91503.0 max latency.</div><div class="line">15904 records sent, 3178.3 records/sec (0.30 MB/sec), 85640.2 ms avg latency, 91587.0 max latency.</div><div class="line">15776 records sent, 3149.5 records/sec (0.30 MB/sec), 85972.8 ms avg latency, 92308.0 max latency.</div><div class="line">16024 records sent, 3189.5 records/sec (0.30 MB/sec), 85473.7 ms avg latency, 91592.0 max latency.</div><div class="line">15896 records sent, 3174.8 records/sec (0.30 MB/sec), 85727.8 ms avg latency, 91356.0 max latency.</div></pre></td></tr></table></figure>
+<p>总的QPS=3100<em>5</em>16=24.8W/S</p>
 </li>
 </ul>
-<pre><code>总的QPS=450*5*16=3.6W/S
-
-* 开启batch
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">15904 records sent, 3170.0 records/sec (0.30 MB/sec), 85798.8 ms avg latency, 90976.0 max latency.</div><div class="line">15776 records sent, 3153.9 records/sec (0.30 MB/sec), 85600.0 ms avg latency, 91577.0 max latency.</div><div class="line">15936 records sent, 3187.2 records/sec (0.30 MB/sec), 85383.0 ms avg latency, 91503.0 max latency.</div><div class="line">15904 records sent, 3178.3 records/sec (0.30 MB/sec), 85640.2 ms avg latency, 91587.0 max latency.</div><div class="line">15776 records sent, 3149.5 records/sec (0.30 MB/sec), 85972.8 ms avg latency, 92308.0 max latency.</div><div class="line">16024 records sent, 3189.5 records/sec (0.30 MB/sec), 85473.7 ms avg latency, 91592.0 max latency.</div><div class="line">15896 records sent, 3174.8 records/sec (0.30 MB/sec), 85727.8 ms avg latency, 91356.0 max latency.</div></pre></td></tr></table></figure>
-</code></pre>
-<p>总的QPS=3100<em>5</em>16=24.8W/S</p>
 <h4 id="结论">结论</h4>
 <ul>
 <li>partition是最小的并发单元<br>
@@ -245,7 +246,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7q2p07n0011a6shobzd2pg6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7qwt4nt000uhysh1erdhsfz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -294,7 +295,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7q2p07o0015a6sh0ob83tu9" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7qwt4ny000vhysh4e5lm20l" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -347,7 +348,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7q2p07f000sa6shm3ni9g9t" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7qwt4nh000mhysh3rwrwk3v" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -396,7 +397,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7q2p07l000ya6shn5zs19ud" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7qwt4nk000ohyshi9lpd7bb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -453,7 +454,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7q2p07i000ua6sh6c6ochi7" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7qwt4o9000xhysh8pb4kfjh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -504,7 +505,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7q2p070000oa6shje4skiss" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7qwt4nm000qhysh88z9ylp6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -556,7 +557,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7q2p06x000ma6shmbe0awrr" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7qwt4ly0005hyshmf169rvq" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -606,7 +607,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7q2p06s000ja6shbsotz62w" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7qwt4lq0001hysh3f0nvrb9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -668,7 +669,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7q2p06q000ha6shnac8sr38" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7qwt4lv0004hysh2nu5kd7t" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -719,7 +720,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7q2p06n000fa6shcljru34c" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7qwt4lm0000hysh3kdj7f8s" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
