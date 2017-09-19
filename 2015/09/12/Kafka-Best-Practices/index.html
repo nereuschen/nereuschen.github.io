@@ -14,7 +14,7 @@
 <meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货内容">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached.png">
-<meta property="og:updated_time" content="2017-09-18T01:24:32.000Z">
+<meta property="og:updated_time" content="2017-09-19T01:33:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka Best Practices">
 <meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货内容">
@@ -557,6 +557,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
 </li>
 </ul>
 <h4 id="zookeeper">Zookeeper</h4>
+<p>ZK负责维护consumer的offsets以及topic列表，leader选举和一些状态信息。</p>
 <ul>
 <li>和Kafka集群单独部署</li>
 <li>隔离ZK集群。Kafka使用单独的ZK集群，不和其他应用的ZK集群</li>
@@ -567,7 +568,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7qwt4ly0005hyshmf169rvq" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7r0jyz70001nssh720ylt9o" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>

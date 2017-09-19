@@ -113,8 +113,8 @@
         <p>大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？<br>
 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。</p>
 <blockquote>
-<p>压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size<br>
-在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>是：消息大小为10字节、开启和不开启batch,producer的QPS分别是180W/S和9W/S</p>
+<p>在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S<br>
+压测结果用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
 </blockquote>
 <p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
 <blockquote>
@@ -246,7 +246,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7qwt4nt000uhysh1erdhsfz" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7r0jyzx000hnsshcw5mhjtw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -295,7 +295,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7qwt4ny000vhysh4e5lm20l" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7r0jyzl000ansshy9oha663" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -348,7 +348,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7qwt4nh000mhysh3rwrwk3v" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7r0jyzt000fnsshgfy8d1al" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -397,7 +397,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7qwt4nk000ohyshi9lpd7bb" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7r0jyzz000mnssha3elbh72" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -454,7 +454,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7qwt4o9000xhysh8pb4kfjh" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7r0jyzo000cnssheqlpopwg" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -505,7 +505,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7qwt4nm000qhysh88z9ylp6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7r0jyzc0004nsshjvivs43s" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -557,7 +557,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7qwt4ly0005hyshmf169rvq" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7r0jyz70001nssh720ylt9o" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -607,7 +607,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7qwt4lq0001hysh3f0nvrb9" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7r0jyzf0005nsshmx3v13ud" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -669,7 +669,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7qwt4lv0004hysh2nu5kd7t" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7r0jyzj0006nsshhpawgluk" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -720,7 +720,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7qwt4lm0000hysh3kdj7f8s" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7r0jyz30000nsshe7ynv42s" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>

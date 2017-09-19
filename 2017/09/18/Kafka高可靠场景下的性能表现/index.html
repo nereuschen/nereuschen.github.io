@@ -5,13 +5,13 @@
   
   <title>Kafka高可靠场景下的性能表现 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size 在高可靠场景下，微信开源PhxQueue vs K">
+  <meta name="description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  在高可靠场景下，微信开源PhxQueue vs Kafka的性能：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S 压测结果用于评">
 <meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kafka高可靠场景下的性能表现">
 <meta property="og:url" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size 在高可靠场景下，微信开源PhxQueue vs K">
+<meta property="og:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  在高可靠场景下，微信开源PhxQueue vs Kafka的性能：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S 压测结果用于评">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/network.png">
@@ -25,10 +25,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png">
-<meta property="og:updated_time" content="2017-09-19T01:15:05.000Z">
+<meta property="og:updated_time" content="2017-09-19T02:57:28.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka高可靠场景下的性能表现">
-<meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size 在高可靠场景下，微信开源PhxQueue vs K">
+<meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  在高可靠场景下，微信开源PhxQueue vs Kafka的性能：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S 压测结果用于评">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/IO.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -126,8 +126,8 @@
         <p>大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？<br>
 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。</p>
 <blockquote>
-<p>压测用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size<br>
-在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>是：消息大小为10字节、开启和不开启batch,producer的QPS分别是180W/S和9W/S</p>
+<p>在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S<br>
+压测结果用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
 </blockquote>
 <p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
 <blockquote>
@@ -259,7 +259,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7qwt4nt000uhysh1erdhsfz" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7r0jyzx000hnsshcw5mhjtw" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
