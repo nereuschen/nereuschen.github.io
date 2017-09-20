@@ -121,132 +121,15 @@
 <p>本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠<br>
 在线压测时，需要OPS同时在线，共同关注虚拟机带宽资源、线上网络带宽资源的占用情况，避免对同一宿主机上的其他应用产生影响</p>
 </blockquote>
-<h4 id="相关配置">相关配置</h4>
-<p>Kafka提供了高可用、高可靠、高吞吐量和低延时的特征，这些特征取决于client和broker端如何配置对应的属性。<br>
-本文压测所使用的高可靠配置属性是直接参考之前的一篇文章，这篇文章中的<a href="https://nereuschen.github.io/2016/08/08/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Kafka%E8%B0%83%E4%BC%98%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0/">优化durability</a>都涵盖了具体的属性，不再作具体说明。</p>
-<blockquote>
-<p>Kafka官网推荐使用默认的异步刷盘（OS 30秒刷盘一次）来平衡高可靠和高性能<br>
-默认的异步刷盘只能保证在broker不发生宕机的情况下，保证消息100%高可靠，基于此，而追求性能的最大化<br>
-但是本文采同步刷盘，牺牲一定的性能，满足在任何情况下确保消息100%可靠</p>
-</blockquote>
-<h4 id="性能测试">性能测试</h4>
-<ul>
-<li>
-<p>服务器<br>
-压测所使用的服务器均是日常使用的服务器。虚拟机部署应用(Kafka的producer)，实体机部署存储系统(Kafka的broker)。</p>
-<ul>
-<li>6台虚拟机，其中5台部署producer，1台部署zookeeper</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">CPU: x86_64 Intel Xeon E312xx (Sandy Bridge) @ 2.10GHz 4CPU</div><div class="line">Memory: 5GB</div><div class="line">Network: 1GB Ethernet</div><div class="line">Disk: 60GB</div></pre></td></tr></table></figure>
-<ul>
-<li>3台实体机，部署broker集群</li>
-</ul>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">CPU: x86_64 Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz  6核 开启超程</div><div class="line">Memory: 30GB</div><div class="line">Network: 10GB Ethernet</div><div class="line">Disk: 1T PERC H710P</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<blockquote>
-<p>为什么没有压测consumer？<br>
-因为业务场景中，consumer的处理逻辑会相对较重，通常是consumer的消息处理速度会比较慢。</p>
-</blockquote>
-<ul>
-<li>压测脚本<br>
-直接使用kafka_2.11-0.11.0.0的压测脚本kafka-producer-perf-test.sh进行压测<br>
-压测脚本：perf-test-producer. sh</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="meta">#!/bin/bash</span></div><div class="line"><span class="built_in">export</span> KAFKA_HEAP_OPTS=<span class="string">"-Xmx512M"</span></div><div class="line"></div><div class="line">topic=<span class="string">"topic-r3-p30"</span></div><div class="line">numRecords=<span class="string">"1000000000"</span></div><div class="line"></div><div class="line"><span class="built_in">echo</span> <span class="string">"Running producer perf testing"</span></div><div class="line">/home/q/kafka/kafka_2.11-0.11.0.0/bin/kafka-producer-perf-test.sh \</div><div class="line">--topic <span class="variable">$&#123;topic&#125;</span> \</div><div class="line">--num-records <span class="variable">$&#123;numRecords&#125;</span> \</div><div class="line">--record-size 100 \</div><div class="line">--throughput 1000000000 \</div><div class="line">--producer-props \</div><div class="line">acks=-1 \</div><div class="line">bootstrap.servers=192.168.121.46:9092,192.168.121.48:9092,192.168.121.50:9092 \</div><div class="line">compression.type=none \</div><div class="line">batch.size=1 \</div><div class="line">linger.ms=0 \</div><div class="line">request.timeout.ms=3000000</div></pre></td></tr></table></figure>
-<blockquote>
-<p>注意：不同版本的kafka自带的压测脚本参数有可能不一样</p>
-</blockquote>
-<ul>
-<li>压测场景<br>
-消息大小=100字节，topic的分区个数=16</li>
-</ul>
-<blockquote>
-<p>partitions为什么是16？<br>
-因为压测过partitions=3、6的场景（不开启batch），broker的IO使用率分别是40%、60%，producer的QPS只能到1.6W<br>
-每台虚拟机上启动16个producer进程（nohup ./perf-test-producer.sh &amp;）</p>
-</blockquote>
-<ul>
-<li>
-<p>不开启batch，producer的QPS可以达到3.6W/S<br>
-实际的业务场景不存在需要将消息积压到一定量之后再批量发送给broker，而更多的是一旦消息产生就及时发到broker<br>
-压测时间：11:02–11:16</p>
-<ul>
-<li>I/O<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO.png" alt=""><br>
-不增加partition，IO使用率一直压不上去。<br>
-当partition从6增加到16后，IO使用率从40%增大到80%</li>
-<li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network.png" alt=""><br>
-不增加partitions，网络流量保持在20Mbit/S（partitions=6），网络流量压不上去。<br>
-当增大partitions到16后，网络流量增大到50Mbit/S</li>
-<li>Memory<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/memory.png" alt=""><br>
-cached增长缓慢</li>
-<li>CPU<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu.png" alt=""><br>
-CPU在35%左右，CPU并不高</li>
-<li>Load<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load.png" alt=""><br>
-load在8左右，也不高，服务器上是12核，开启超程</li>
-<li>GC<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC.png" alt=""></li>
-</ul>
-</li>
-<li>
-<p>开启batch，producer的QPS可以达到24.8W/S<br>
-batch.size=1000<br>
-压测时间：11:52–11:55</p>
-<ul>
-<li>I/O<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/IO-batch.png" alt=""><br>
-一直保持在80%</li>
-<li>NetWork<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/network-batch.png" alt=""><br>
-开启batch后，网络流量从50Mbit/S迅速飙到240Mbit/S</li>
-<li>Memory<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/memory-batch.png" alt=""><br>
-开启batch后，短短3分钟内cached从10G涨到20G</li>
-<li>CPU<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png" alt=""><br>
-保持在40%，变化不大</li>
-<li>Load<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png" alt=""><br>
-保持在9左右，变化不大</li>
-<li>GC<br>
-<img src="/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png" alt=""></li>
-</ul>
-</li>
-<li>
-<p>QPS数据<br>
-在压测的过程中，所有producer进程的QPS信息会记录到nohup.out，记录的是单个producer的QPS<br>
-5台虚拟机部署producer，每台虚拟机上开启16个producer进程</p>
-<ul>
-<li>不开启batch</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">2308 records sent, 459.9 records/sec (0.04 MB/sec), 398272.1 ms avg latency, 420320.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398268.9 ms avg latency, 420102.0 max latency.</div><div class="line">2314 records sent, 462.3 records/sec (0.04 MB/sec), 398757.2 ms avg latency, 418233.0 max latency.</div><div class="line">2323 records sent, 464.0 records/sec (0.04 MB/sec), 396975.2 ms avg latency, 415960.0 max latency.</div><div class="line">2309 records sent, 461.2 records/sec (0.04 MB/sec), 399178.9 ms avg latency, 419073.0 max latency.</div><div class="line">2298 records sent, 457.5 records/sec (0.04 MB/sec), 399280.0 ms avg latency, 426313.0 max latency.</div><div class="line">2303 records sent, 460.0 records/sec (0.04 MB/sec), 398136.1 ms avg latency, 416454.0 max latency.</div></pre></td></tr></table></figure>
-<p>总的QPS=450<em>5</em>16=3.6W/S</p>
-<ul>
-<li>开启batch</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">15904 records sent, 3170.0 records/sec (0.30 MB/sec), 85798.8 ms avg latency, 90976.0 max latency.</div><div class="line">15776 records sent, 3153.9 records/sec (0.30 MB/sec), 85600.0 ms avg latency, 91577.0 max latency.</div><div class="line">15936 records sent, 3187.2 records/sec (0.30 MB/sec), 85383.0 ms avg latency, 91503.0 max latency.</div><div class="line">15904 records sent, 3178.3 records/sec (0.30 MB/sec), 85640.2 ms avg latency, 91587.0 max latency.</div><div class="line">15776 records sent, 3149.5 records/sec (0.30 MB/sec), 85972.8 ms avg latency, 92308.0 max latency.</div><div class="line">16024 records sent, 3189.5 records/sec (0.30 MB/sec), 85473.7 ms avg latency, 91592.0 max latency.</div><div class="line">15896 records sent, 3174.8 records/sec (0.30 MB/sec), 85727.8 ms avg latency, 91356.0 max latency.</div></pre></td></tr></table></figure>
-<p>总的QPS=3100<em>5</em>16=24.8W/S</p>
-</li>
-</ul>
-<h4 id="结论">结论</h4>
-<ul>
-<li>partition是最小的并发单元<br>
-增加partition，可以明显提升IO使用率</li>
-<li>batch直接影响吞吐量<br>
-开启batch，可以显著提升网络流量</li>
-<li>100% no data lose,close batch<br>
-message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满足业务场景</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/2017/09/18/Kafka高可靠场景下的性能表现/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7r0jyzx000hnsshcw5mhjtw" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7subyo5000r2ush6l3gpp5x" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -295,7 +178,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7r0jyzl000ansshy9oha663" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7subynw000i2ushsm55sd09" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -333,7 +216,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>update:更新到0.11.0.0</p>
+        <p><strong>UPDATE</strong>:配置属性已更新到2.11-0.11.0.0</p>
 <p>kafka的配置属性多达几百个😓，在生产环境中对kafka进行调优时，该如何设置这些属性值呢？😤</p>
 <p>调优之前，首先需要对业务场景进行分析，确定业务是吞吐量优先，还是对延时优先，是对可靠性要求比较高，还是对可用性要求比较高，然后再根据分析的结果，在吞吐量、延时、可靠性和可用性4个方面做权衡。</p>
 <p>下面分别从吞吐量优先、延时优先、可靠性优先以及可用性优先4个方面，逐一分析kafka应该设置哪些核心属性以及提供建议值。</p>
@@ -348,7 +231,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7r0jyzt000fnsshgfy8d1al" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7subynn000a2ushblgurrfa" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -397,7 +280,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7r0jyzz000mnssha3elbh72" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7subynz000l2ushazjd6say" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -454,7 +337,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7r0jyzo000cnssheqlpopwg" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7subyo4000p2ushfa9y166g" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -505,10 +388,137 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7r0jyzc0004nsshjvivs43s" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7subynq000d2ushyn6m52c2" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ElasticSearch内存使用分析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/09/16/ElasticSearch内存使用分析/" class="article-date">
+  <time datetime="2015-09-16T12:09:32.000Z" itemprop="datePublished">2015-09-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/09/16/ElasticSearch内存使用分析/">Elasticsearch内存使用分析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>UPATE</strong>: 内容已更新到Elasticsearch v5.6</p>
+<p>内存对Elasticsearch而言，非常重要，因为它为了提升性能使用了大量的in-memory数据结构。</p>
+<blockquote>
+<p>官网推荐给Elasticsearch<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html" target="_blank" rel="external">分配的内存不能超过32GB</a>(小于32GB时会启用compressed oops，节省很多内存)<br>
+并且还必须是小于物理内存的50%，以便为Lucene利用Cached Memory提供更多的剩余内存。</p>
+</blockquote>
+<p>Elasticsearch内部是如何使用这些内存的呢？下面这张图说明了Elasticsearch和Lucene对内存的使用情况。</p>
+<p><img src="/2015/09/16/ElasticSearch内存使用分析/es-cache.png" alt=""></p>
+<ul>
+<li>Lucene对内存的使用<br>
+Elasticsearch是基于Lucene实现。Lucene的segments（包括用于全文检索的inverted index以及用于聚合的doc values）都存储在单个文件中，这些文件都是不可变的，被经常访问的segments会常驻在OS的内存中，从而提升Lucene的性能。</li>
+</ul>
+<blockquote>
+<p>Lucene使用off heap，官方建议至少预留50%的物理内存给Luncene。</p>
+</blockquote>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-cache.html" target="_blank" rel="external">Node Query Cache</a><br>
+每个节点都有一个Node Query Cache，被所有shards共享。它负责缓存使用了filter的query结果，因为filter query的结果要么是yes要么是no，不涉及到scores的计算，非常使用于Cache的场景。</li>
+</ul>
+<blockquote>
+<p>集群中的每个data节点必须配置<br>
+默认10%，也可以设置为绝对值，比如512mb</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Node Query Cache的默认大小：</div><div class="line">indices.queries.cache.size:10% </div><div class="line">index.queries.cache.enabled:true</div></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indexing-buffer.html" target="_blank" rel="external">Indexing Buffer</a><br>
+用于存储最近被索引的文档，所有shards共享。当该buffer满了之后，buffer里面的文档会被写入一个segment。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Indexing Buffer的默认大小：</div><div class="line">indices.memory.index_buffer_size:10%</div><div class="line">indices.memory.min_index_buffer_size:48mb</div><div class="line">indices.memory.max_index_buffer_size:unbounded</div></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-request-cache.html#_cache_invalidation" target="_blank" rel="external">Shard Request Cache</a><br>
+只有reqeust size是0的才会被cache，比如aggregations、counts和suggestions。</li>
+</ul>
+<blockquote>
+<p>不建议将它用于更新频繁的index，因为shard被更新时，该缓存会自动失效</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Shard Request Cache的默认大小：</div><div class="line">indices.requests.cache.size:1%</div></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-fielddata.html#fielddata-monitoring" target="_blank" rel="external">Field Data Cache</a><br>
+在analyzed字符串上对field进行聚合计算时，Elastisearch会加载该field的所有值到内存中，这些值缓存在Field Data Cache里面。<br>
+所以Fielddata是懒加载，并且是在query过程中生成的。<br>
+indices.fielddata.cache.size控制了分配给fielddata的heap大小。它的默认值是unbounded，这么设计的原因是fielddata不是临时性的cache，它能够极大地提升性能，而且构建fielddata又比较耗时的操作，所以需要一直cache。<br>
+如果没有足够的内存保存fielddata时，Elastisearch会不断地从磁盘加载数据到内存，并剔除掉旧的内存数据。剔除操作会造成严重的磁盘I/O，并且引发大量的GC，会严重影响Elastisearch的性能。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Field Data Cache的默认大小：</div><div class="line">indices.fielddata.cache.size:unbounded</div></pre></td></tr></table></figure>
+<p>如果不在analyzed string fields上使用聚合，就不会产生Field Data Cache，也就不会使用大量的内存，所以可以考虑分配较小的heap给Elasticsearch。因为heap越小意味着Elasticsearch的GC会比较快，并且预留给Lucene的内存也会比较大。</p>
+<ul>
+<li>
+<p>查看内存使用情况</p>
+<ul>
+<li>
+<p>查看segments使用的内存<br>
+通过查看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-segments.html#cat-segments" target="_blank" rel="external">cat segments</a>查看index的segments使用内存的情况</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GET /_cat/segments?v</div></pre></td></tr></table></figure>
+</li>
+<li>
+<p>查看Node Query Cache、Indexing Buffer和Field Data Cache使用的内存<br>
+通过<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-nodes.html" target="_blank" rel="external">cat nodes</a>可以查看他们使用内存的情况</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">GET /_cat/nodes?v&amp;h=id,ip,port,v,master,name,heap.current,heap.percent,heap.max,</div><div class="line">ram.current,ram.percent,ram.max,</div><div class="line">fielddata.memory_size,fielddata.evictions,query_cache.memory_size,query_cache.evictions, </div><div class="line">request_cache.memory_size,request_cache.evictions,request_cache.hit_count,request_cache.miss_count</div></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p>谨慎对待unbounded的内存<br>
+unbounded内存是不可控的，会占用大量的heap(Field Data Cache)或者off heap(segments)，从而会导致Elasticsearch OOM<br>
+或者因segments占用大量内存导致swap。<br>
+segments和Field Data Cache都属于这类unbounded。</p>
+<ul>
+<li>
+<p>segments<br>
+segments会长期占用内存，其初衷就是利用OS的cache提升性能。只有在Merge之后，才会释放掉标记为Delete的segments，释放部分内存。</p>
+</li>
+<li>
+<p>Field Data Cache<br>
+默认情况下Fielddata会不断占用内存，直到它触发了<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/_limiting_memory_usage.html#circuit-breaker" target="_blank" rel="external">fielddata circuit breaker</a>。<br>
+<strong>fielddata circuit breaker</strong>会根据查询条件评估这次查询会使用多少内存，从而计算加载这部分内存之后，Field Data Cache所占用的内存是否会超过indices.breaker.fielddata.limit。如果超过这个值，就会触发fielddata circuit breaker，abort这次查询并且抛出异常，防止OOM。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">indices.breaker.fielddata.limit:60% (默认heap的60%)</div></pre></td></tr></table></figure>
+<p>如果设置了indices.fielddata.cache.size，当达到size时，cache会剔除旧的fielddata。</p>
+</li>
+</ul>
+<blockquote>
+<p>indices.breaker.fielddata.limit <strong>必须大于</strong> indices.fielddata.cache.size，否则只会触发fielddata circuit breaker，而不会剔除旧的fielddata。</p>
+</blockquote>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7subynd00042usha2j963t8" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>
 
     </footer>
   </div>
@@ -545,6 +555,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
         <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容还不够详实。<br>
 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。</p>
+<p><strong>UPDATE</strong>:内容更新如下</p>
 <ul>
 <li>在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。</li>
 <li>本文已整合2017年Hortonworks公司在<a href="http://www.dataworkssummit.com" target="_blank" rel="external">DataWorks Summit/Hadoop Summit</a>上分享的<a href="HadoopSummit">干货内容</a>。</li>
@@ -557,7 +568,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7r0jyz70001nssh720ylt9o" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7subynk00062ushes1hr5k0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -607,7 +618,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7r0jyzf0005nsshmx3v13ud" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7subyng00052ush59h9xgca" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -669,7 +680,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7r0jyzj0006nsshhpawgluk" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7subyn200002ushmwmv1xqi" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -681,58 +692,11 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
 
 
   
-    <article id="post-常用的Markdown用法" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2014/05/18/常用的Markdown用法/" class="article-date">
-  <time datetime="2014-05-18T14:15:32.000Z" itemprop="datePublished">2014-05-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/工具/">工具</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2014/05/18/常用的Markdown用法/">常用的Markdown用法</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h4 id="code-highlighting">code highlighting</h4>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</div><div class="line">  <span class="built_in">console</span>.log(<span class="string">'window loaded'</span>);</div><div class="line">&#125;);</div></pre></td></tr></table></figure>
-<h4 id="emphasis">Emphasis</h4>
-<p><code>*A*</code> <em>A</em></p>
-<p><code>**A**</code> <strong>A</strong></p>
-        
-          <p class="article-more-link">
-            <a href="/2014/05/18/常用的Markdown用法/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2014/05/18/常用的Markdown用法/" data-id="cj7r0jyz30000nsshe7ynv42s" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Markdown/">Markdown</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
 
 
-  
-
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
+  </nav>
 
 </section>
         
@@ -742,7 +706,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -752,7 +716,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -762,7 +726,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/Elasticsearch/" style="font-size: 10px;">Elasticsearch</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
     </div>
   </div>
 
@@ -771,7 +735,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 

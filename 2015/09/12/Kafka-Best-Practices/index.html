@@ -5,19 +5,19 @@
   
   <title>Kafka Best Practices | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货内容">
+  <meta name="description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。 UPDATE:内容更新如下  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop">
 <meta name="keywords" content="Kafka">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Kafka Best Practices">
 <meta property="og:url" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货内容">
+<meta property="og:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。 UPDATE:内容更新如下  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached.png">
-<meta property="og:updated_time" content="2017-09-19T01:33:57.000Z">
+<meta property="og:updated_time" content="2017-09-19T03:50:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka Best Practices">
-<meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop Summit上分享的干货内容">
+<meta name="twitter:description" content="Kafka官网给我们提供了一些很好的最佳实践，但是内容还不够详实。 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。 UPDATE:内容更新如下  在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。 本文已整合2017年Hortonworks公司在DataWorks Summit/Hadoop">
 <meta name="twitter:image" content="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/memory-cached.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -114,6 +114,7 @@
       
         <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容还不够详实。<br>
 所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。</p>
+<p><strong>UPDATE</strong>:内容更新如下</p>
 <ul>
 <li>在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。</li>
 <li>本文已整合2017年Hortonworks公司在<a href="http://www.dataworkssummit.com" target="_blank" rel="external">DataWorks Summit/Hadoop Summit</a>上分享的<a href="HadoopSummit">干货内容</a>。</li>
@@ -568,7 +569,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7r0jyz70001nssh720ylt9o" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7subynk00062ushes1hr5k0" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -579,11 +580,11 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
     
 <nav id="article-nav">
   
-    <a href="/2015/11/17/MySQL的核心监控指标/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2015/09/16/ElasticSearch内存使用分析/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          MySQL的核心监控指标
+          Elasticsearch内存使用分析
         
       </div>
     </a>
@@ -607,7 +608,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -617,7 +618,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -627,7 +628,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/Elasticsearch/" style="font-size: 10px;">Elasticsearch</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
     </div>
   </div>
 
@@ -636,7 +637,7 @@ kafka.server:type=KafkaRequestHandlerPool,name=RequestHandlerAvgIdlePercent<br>
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
