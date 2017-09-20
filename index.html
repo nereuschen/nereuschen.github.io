@@ -116,11 +116,6 @@
 <p>在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S<br>
 压测结果用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
 </blockquote>
-<p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
-<blockquote>
-<p>本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠<br>
-在线压测时，需要OPS同时在线，共同关注虚拟机带宽资源、线上网络带宽资源的占用情况，避免对同一宿主机上的其他应用产生影响</p>
-</blockquote>
         
           <p class="article-more-link">
             <a href="/2017/09/18/Kafka高可靠场景下的性能表现/#more">Read More</a>
@@ -129,7 +124,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7subyo5000r2ush6l3gpp5x" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7sur6j9001a4msh4oliyrwt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -178,7 +173,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7subynw000i2ushsm55sd09" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7sur6j700184mshbqamtb4p" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -231,7 +226,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7subynn000a2ushblgurrfa" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7sur6ix000x4mshhusb910f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -280,7 +275,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7subynz000l2ushazjd6say" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7sur6j300144msholvsszim" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -337,7 +332,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7subyo4000p2ushfa9y166g" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7sur6j000114mshteprsaax" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -388,7 +383,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7subynq000d2ushyn6m52c2" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7sur6it000v4mshtnqrcxas" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -434,88 +429,15 @@
 </blockquote>
 <p>Elasticsearch内部是如何使用这些内存的呢？下面这张图说明了Elasticsearch和Lucene对内存的使用情况。</p>
 <p><img src="/2015/09/16/ElasticSearch内存使用分析/es-cache.png" alt=""></p>
-<ul>
-<li>Lucene对内存的使用<br>
-Elasticsearch是基于Lucene实现。Lucene的segments（包括用于全文检索的inverted index以及用于聚合的doc values）都存储在单个文件中，这些文件都是不可变的，被经常访问的segments会常驻在OS的内存中，从而提升Lucene的性能。</li>
-</ul>
-<blockquote>
-<p>Lucene使用off heap，官方建议至少预留50%的物理内存给Luncene。</p>
-</blockquote>
-<ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/query-cache.html" target="_blank" rel="external">Node Query Cache</a><br>
-每个节点都有一个Node Query Cache，被所有shards共享。它负责缓存使用了filter的query结果，因为filter query的结果要么是yes要么是no，不涉及到scores的计算，非常使用于Cache的场景。</li>
-</ul>
-<blockquote>
-<p>集群中的每个data节点必须配置<br>
-默认10%，也可以设置为绝对值，比如512mb</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Node Query Cache的默认大小：</div><div class="line">indices.queries.cache.size:10% </div><div class="line">index.queries.cache.enabled:true</div></pre></td></tr></table></figure>
-<ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/indexing-buffer.html" target="_blank" rel="external">Indexing Buffer</a><br>
-用于存储最近被索引的文档，所有shards共享。当该buffer满了之后，buffer里面的文档会被写入一个segment。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Indexing Buffer的默认大小：</div><div class="line">indices.memory.index_buffer_size:10%</div><div class="line">indices.memory.min_index_buffer_size:48mb</div><div class="line">indices.memory.max_index_buffer_size:unbounded</div></pre></td></tr></table></figure>
-<ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-request-cache.html#_cache_invalidation" target="_blank" rel="external">Shard Request Cache</a><br>
-只有reqeust size是0的才会被cache，比如aggregations、counts和suggestions。</li>
-</ul>
-<blockquote>
-<p>不建议将它用于更新频繁的index，因为shard被更新时，该缓存会自动失效</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Shard Request Cache的默认大小：</div><div class="line">indices.requests.cache.size:1%</div></pre></td></tr></table></figure>
-<ul>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-fielddata.html#fielddata-monitoring" target="_blank" rel="external">Field Data Cache</a><br>
-在analyzed字符串上对field进行聚合计算时，Elastisearch会加载该field的所有值到内存中，这些值缓存在Field Data Cache里面。<br>
-所以Fielddata是懒加载，并且是在query过程中生成的。<br>
-indices.fielddata.cache.size控制了分配给fielddata的heap大小。它的默认值是unbounded，这么设计的原因是fielddata不是临时性的cache，它能够极大地提升性能，而且构建fielddata又比较耗时的操作，所以需要一直cache。<br>
-如果没有足够的内存保存fielddata时，Elastisearch会不断地从磁盘加载数据到内存，并剔除掉旧的内存数据。剔除操作会造成严重的磁盘I/O，并且引发大量的GC，会严重影响Elastisearch的性能。</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Field Data Cache的默认大小：</div><div class="line">indices.fielddata.cache.size:unbounded</div></pre></td></tr></table></figure>
-<p>如果不在analyzed string fields上使用聚合，就不会产生Field Data Cache，也就不会使用大量的内存，所以可以考虑分配较小的heap给Elasticsearch。因为heap越小意味着Elasticsearch的GC会比较快，并且预留给Lucene的内存也会比较大。</p>
-<ul>
-<li>
-<p>查看内存使用情况</p>
-<ul>
-<li>
-<p>查看segments使用的内存<br>
-通过查看<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-segments.html#cat-segments" target="_blank" rel="external">cat segments</a>查看index的segments使用内存的情况</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">GET /_cat/segments?v</div></pre></td></tr></table></figure>
-</li>
-<li>
-<p>查看Node Query Cache、Indexing Buffer和Field Data Cache使用的内存<br>
-通过<a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-nodes.html" target="_blank" rel="external">cat nodes</a>可以查看他们使用内存的情况</p>
- <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">GET /_cat/nodes?v&amp;h=id,ip,port,v,master,name,heap.current,heap.percent,heap.max,</div><div class="line">ram.current,ram.percent,ram.max,</div><div class="line">fielddata.memory_size,fielddata.evictions,query_cache.memory_size,query_cache.evictions, </div><div class="line">request_cache.memory_size,request_cache.evictions,request_cache.hit_count,request_cache.miss_count</div></pre></td></tr></table></figure>
-</li>
-</ul>
-</li>
-<li>
-<p>谨慎对待unbounded的内存<br>
-unbounded内存是不可控的，会占用大量的heap(Field Data Cache)或者off heap(segments)，从而会导致Elasticsearch OOM<br>
-或者因segments占用大量内存导致swap。<br>
-segments和Field Data Cache都属于这类unbounded。</p>
-<ul>
-<li>
-<p>segments<br>
-segments会长期占用内存，其初衷就是利用OS的cache提升性能。只有在Merge之后，才会释放掉标记为Delete的segments，释放部分内存。</p>
-</li>
-<li>
-<p>Field Data Cache<br>
-默认情况下Fielddata会不断占用内存，直到它触发了<a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/_limiting_memory_usage.html#circuit-breaker" target="_blank" rel="external">fielddata circuit breaker</a>。<br>
-<strong>fielddata circuit breaker</strong>会根据查询条件评估这次查询会使用多少内存，从而计算加载这部分内存之后，Field Data Cache所占用的内存是否会超过indices.breaker.fielddata.limit。如果超过这个值，就会触发fielddata circuit breaker，abort这次查询并且抛出异常，防止OOM。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">indices.breaker.fielddata.limit:60% (默认heap的60%)</div></pre></td></tr></table></figure>
-<p>如果设置了indices.fielddata.cache.size，当达到size时，cache会剔除旧的fielddata。</p>
-</li>
-</ul>
-<blockquote>
-<p>indices.breaker.fielddata.limit <strong>必须大于</strong> indices.fielddata.cache.size，否则只会触发fielddata circuit breaker，而不会剔除旧的fielddata。</p>
-</blockquote>
-</li>
-</ul>
-
+        
+          <p class="article-more-link">
+            <a href="/2015/09/16/ElasticSearch内存使用分析/#more">Read More</a>
+          </p>
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7subynd00042usha2j963t8" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7sur6if000p4mshbdblo6jb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>
@@ -568,7 +490,7 @@ segments会长期占用内存，其初衷就是利用OS的cache提升性能。�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7subynk00062ushes1hr5k0" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7sur6im000r4mshz8nxyjck" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -618,7 +540,7 @@ segments会长期占用内存，其初衷就是利用OS的cache提升性能。�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7subyng00052ush59h9xgca" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7sur6ia000o4msh9c0voidp" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
@@ -680,7 +602,7 @@ segments会长期占用内存，其初衷就是利用OS的cache提升性能。�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7subyn200002ushmwmv1xqi" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7sur6i7000l4msh265yyszn" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>

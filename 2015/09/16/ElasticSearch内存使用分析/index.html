@@ -14,7 +14,7 @@
 <meta property="og:description" content="UPATE: 内容已更新到Elasticsearch v5.6 内存对Elasticsearch而言，非常重要，因为它为了提升性能使用了大量的in-memory数据结构。  官网推荐给Elasticsearch分配的内存不能超过32GB(小于32GB时会启用compressed oops，节省很多内存) 并且还必须是小于物理内存的50%，以便为Lucene利用Cached Memory提供更多的剩">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/es-cache.png">
-<meta property="og:updated_time" content="2017-09-20T09:42:50.000Z">
+<meta property="og:updated_time" content="2017-09-20T09:54:35.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Elasticsearch内存使用分析">
 <meta name="twitter:description" content="UPATE: 内容已更新到Elasticsearch v5.6 内存对Elasticsearch而言，非常重要，因为它为了提升性能使用了大量的in-memory数据结构。  官网推荐给Elasticsearch分配的内存不能超过32GB(小于32GB时会启用compressed oops，节省很多内存) 并且还必须是小于物理内存的50%，以便为Lucene利用Cached Memory提供更多的剩">
@@ -120,6 +120,7 @@
 </blockquote>
 <p>Elasticsearch内部是如何使用这些内存的呢？下面这张图说明了Elasticsearch和Lucene对内存的使用情况。</p>
 <p><img src="/2015/09/16/ElasticSearch内存使用分析/es-cache.png" alt=""></p>
+<a id="more"></a>
 <ul>
 <li>Lucene对内存的使用<br>
 Elasticsearch是基于Lucene实现。Lucene的segments（包括用于全文检索的inverted index以及用于聚合的doc values）都存储在单个文件中，这些文件都是不可变的，被经常访问的segments会常驻在OS的内存中，从而提升Lucene的性能。</li>
@@ -201,7 +202,7 @@ segments会长期占用内存，其初衷就是利用OS的cache提升性能。�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7subynd00042usha2j963t8" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7sur6if000p4mshbdblo6jb" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>

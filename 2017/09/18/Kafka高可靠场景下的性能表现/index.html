@@ -25,7 +25,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/cpu-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/load-batch.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/GC-batch.png">
-<meta property="og:updated_time" content="2017-09-19T03:04:32.000Z">
+<meta property="og:updated_time" content="2017-09-20T09:53:56.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Kafka高可靠场景下的性能表现">
 <meta name="twitter:description" content="大多数业务场景需要使用可靠性消息，Kafka在高可靠场景下的性能表现到底如何呢？ 本文的压测结果是消息大小100字节、开启和不开启batch，producer的QPS分别可以达到3.6W和24.8W。  在高可靠场景下，微信开源PhxQueue vs Kafka的性能：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S 压测结果用于评">
@@ -129,12 +129,12 @@
 <p>在高可靠场景下，<a href="https://mp.weixin.qq.com/s?__biz=MjM5MDE0Mjc4MA==&amp;mid=2650997820&amp;idx=1&amp;sn=c21021580f5474e6f570d1a1eada22bd" target="_blank" rel="external">微信开源PhxQueue vs Kafka的性能</a>：消息大小为10字节、开启和不开启batch，Kafka的producer的QPS分别可以达到180W/S和9W/S<br>
 压测结果用于评估是否可以用于实际的业务场景，所以压测场景并未穷举多种message.size、batch.size以及partitions.size</p>
 </blockquote>
+<a id="more"></a>
 <p>受压测环境限制（虚拟机CPU100%；在线压测占用网络带宽，影响线上应用）还未压测到broker的I/O极限。</p>
 <blockquote>
 <p>本文描述的高可靠场景是指无数据丢失的场景、消息100%可靠<br>
 在线压测时，需要OPS同时在线，共同关注虚拟机带宽资源、线上网络带宽资源的占用情况，避免对同一宿主机上的其他应用产生影响</p>
 </blockquote>
-<a id="more"></a>
 <h4 id="相关配置">相关配置</h4>
 <p>Kafka提供了高可用、高可靠、高吞吐量和低延时的特征，这些特征取决于client和broker端如何配置对应的属性。<br>
 本文压测所使用的高可靠配置属性是直接参考之前的一篇文章，这篇文章中的<a href="https://nereuschen.github.io/2016/08/08/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3Kafka%E8%B0%83%E4%BC%98%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0/">优化durability</a>都涵盖了具体的属性，不再作具体说明。</p>
@@ -260,7 +260,7 @@ message.size=100byte，producer的QPS高达3.6W，IO使用率在80%左右，满�
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7subyo5000r2ush6l3gpp5x" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7sur6j9001a4msh4oliyrwt" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
