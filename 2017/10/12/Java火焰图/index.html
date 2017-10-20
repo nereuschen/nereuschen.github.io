@@ -5,13 +5,13 @@
   
   <title>Java混合模型火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
+  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模型火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
+<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
@@ -20,10 +20,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:23:47.000Z">
+<meta property="og:updated_time" content="2017-10-20T10:26:24.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
-<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
+<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -119,13 +119,12 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
-<p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。<br>
-火焰图有不同的类型：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
+<p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
 <p>下图就是一个CPU的火焰图</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
-<p>对CPU火焰图的解读</p>
-<p><img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
+<p>对CPU火焰图的解读<br>
+<img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
 <li>小方块<br>
 每个小方块代表一个方法（就是一个stack frame），<strong>每小方块的宽度表示该方法在采样期间出现的频率，宽度越宽表示该方法出现的频率越高</strong></li>
@@ -142,55 +141,53 @@
 <p>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap<br>
 Solaris, illumos, FreeBSD: DTrace<br>
 Mac OS X: DTrace and Instruments<br>
-Windows: Xperf.exe</p>
+Windows: Xperf.exe<br>
+生成火焰图只需要两步操作：先采集stack traces数据，然后使用FlameGraph的脚本生成火焰图</p>
 </blockquote>
-<p>生成火焰图只需要两步操作：先采集stack traces数据，然后使用FlameGraph的脚本生成火焰图</p>
 <ul>
-<li>采集stack traces数据</li>
+<li>采集stack traces数据<br>
+使用<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>工具采集stacks数据，会在当前目录下生成perf.data文件</li>
 </ul>
-<p>使用<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>工具采集stacks数据，会在当前目录下生成perf.data文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
 <p>如果Linux系统未安装perf，可参考以下命令安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
 <p>更多perf的使用示例可参考<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">这里</a></p>
 <ul>
-<li>生成火焰图</li>
+<li>生成火焰图<br>
+通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤<br>
+<img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
+生成perf.data文件后，再使用<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本(<a href="http://stackcollapse-perf.xn--plflamegraph-zl2u.pl" target="_blank" rel="external">stackcollapse-perf.pl和flamegraph.pl</a>)便可以生成火焰图</li>
 </ul>
-<p>通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤</p>
-<p><img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""></p>
-<p>生成perf.data文件后，再使用<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本(<a href="http://stackcollapse-perf.xn--plflamegraph-zl2u.pl" target="_blank" rel="external">stackcollapse-perf.pl和flamegraph.pl</a>)便可以生成火焰图</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
-<p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，想详细了解的可以看官网示例</p>
-<p><strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
+<p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，想详细了解的可以看官网示例<br>
+<strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
 <strong><a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:</strong> 将多行形式的stacks折叠成一行记录<br>
 <strong><a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:</strong> 根据折叠之后的stacks信息生成svg格式的火焰图</p>
 <p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
-<p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。</p>
-<p>为了解决这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种Java混合模型火焰图</p>
-<p>###Java混合模型火焰图</p>
-<p>什么原因导致无法显示method以及完整的stack呢？</p>
+<p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。<br>
+为了解决这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种Java混合模型火焰图<br>
+###Java混合模型火焰图<br>
+什么原因导致无法显示method以及完整的stack呢？</p>
 <ul>
-<li>为什么不显示method</li>
+<li>为什么不显示method<br>
+原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method</li>
+<li>为什么statck不完整<br>
+原因在于在x86 (RBP on x86–64)上，JVM使用frame指针寄存器作为通用的寄存器，这种寄存器打破了传统的stack的运行方式，导致stack不完整</li>
 </ul>
-<p>原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method</p>
-<ul>
-<li>为什么statck不完整</li>
-</ul>
-<p>原因在于在x86 (RBP on x86–64)上，JVM使用frame指针寄存器作为通用的寄存器，这种寄存器打破了传统的stack的运行方式，导致stack不完整</p>
 <h4 id="如何解决显示method名称的问题">如何解决显示method名称的问题</h4>
 <p>要想解决显示method名称这个问题，首先要能够收集到symbols信息，然后再从这些信息中识别出method名称</p>
 <ul>
-<li>如何收集symbols信息</li>
+<li>如何收集symbols信息<br>
+2014年Johannes Rudolph写了一个名为<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a>的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</li>
 </ul>
-<p>2014年Johannes Rudolph写了一个名为<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a>的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</p>
 <blockquote>
 <p>perf-map-agent是一个开源的Java代理，它包括一个用C写的Java代理以及一个可以将这个代理attach到Java进程的简易Java代码</p>
 </blockquote>
 <ul>
-<li>如何从symbols中识别method</li>
+<li>如何从symbols中识别method<br>
+2009年，perf已经支持了<a href="https://lkml.org/lkml/2009/6/8/499" target="_blank" rel="external">JIT symbol</a>，通过这个特征perf会默认地查找/tmp/perf-$PID.map文件，从该文件中解析出function symbol的信息，从而识别出method名称。</li>
 </ul>
-<p>2009年，perf已经支持了<a href="https://lkml.org/lkml/2009/6/8/499" target="_blank" rel="external">JIT symbol</a>，通过这个特征perf会默认地查找/tmp/perf-$PID.map文件，从该文件中解析出function symbol的信息，从而识别出method名称。</p>
 <blockquote>
 <p>如果找不到function symbol信息，当前版本的perf脚本的处理方式是采用library的名字或者perf-$PID.map文件名作为method的名字</p>
 </blockquote>
