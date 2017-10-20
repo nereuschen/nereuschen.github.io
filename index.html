@@ -161,8 +161,8 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
 <p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。<br>
 为了解决这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种Java混合模型火焰图</p>
-<p>###Java混合模型火焰图<br>
-什么原因导致无法显示method以及完整的stack呢？</p>
+<h3 id="java混合模型火焰图">Java混合模型火焰图</h3>
+<p>什么原因导致无法显示method以及完整的stack呢？</p>
 <ul>
 <li>为什么不显示method<br>
 原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method</li>
