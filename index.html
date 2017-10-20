@@ -153,9 +153,9 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
 <p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，可以参考官网示例</p>
 <blockquote>
-<p>perf script:读取perf.data的文件内容，并以多行的形式生成stacks<br>
-<a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:将多行形式的stacks折叠成一行记录<br>
-<a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:根据折叠之后的stacks信息生成svg格式的火焰图</p>
+<p>perf script: 读取perf.data的文件内容，并以多行的形式生成stacks<br>
+<a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>: 将多行形式的stacks折叠成一行记录<br>
+<a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>: 根据折叠之后的stacks信息生成svg格式的火焰图</p>
 </blockquote>
 <p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
@@ -193,7 +193,7 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <p><img src="/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png" alt=""></p>
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
 <p>多年前为了优化编译器，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
-<p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型控制是否显示完整的stack，那么这个问题就解决。</p>
+<p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型来控制是否显示完整的stack，那么这个问题就解决。</p>
 <p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
 <p>于是乎这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
 <p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
