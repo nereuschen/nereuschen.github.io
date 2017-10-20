@@ -165,9 +165,9 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <p>什么原因导致无法显示method以及完整的stack呢？</p>
 <ul>
 <li>为什么不显示method<br>
-原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method</li>
+原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method。</li>
 <li>为什么statck不完整<br>
-原因在于在x86 (RBP on x86–64)上，JVM使用frame指针寄存器作为通用的寄存器，这种寄存器打破了传统的stack的运行方式，导致stack不完整</li>
+原因在于在x86 (RBP on x86–64)上，JVM使用frame指针寄存器作为通用的寄存器，这种寄存器打破了传统的stack的运行方式，导致stack不完整。</li>
 </ul>
 <h4 id="如何解决显示method名称的问题">如何解决显示method名称的问题</h4>
 <p>要想解决显示method名称这个问题，首先要能够收集到symbols信息，然后再从这些信息中识别出method名称</p>
@@ -192,10 +192,10 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <p><img src="/2017/10/12/Java火焰图/flame-graph-without-symbols.png" alt=""></p>
 <p><img src="/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png" alt=""></p>
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
-<p>多年前为了优化编译器，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
+<p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
 <p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型来控制是否显示完整的stack，那么这个问题就解决。</p>
 <p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
-<p>于是乎这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
+<p>hotspot-compiler-dev社区这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
 <p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 <ul>
 <li>stack是否完整的火焰图对比</li>
