@@ -5,25 +5,26 @@
   
   <title>Java混合模型火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
+  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模型火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
+<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-without-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:13:33.000Z">
+<meta property="og:updated_time" content="2017-10-20T10:16:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
-<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
-<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
+<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -120,8 +121,9 @@
         <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
 <p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。<br>
 火焰图有不同的类型：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
+<p>下图就是一个CPU的火焰图</p>
+<p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
-<p>下图就是CPU的火焰图</p>
 <p>对CPU火焰图的解读</p>
 <p><img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
@@ -136,12 +138,12 @@
 </ul>
 <h4 id="如何生成火焰图">如何生成火焰图</h4>
 <p>任何包含stack traces的profile数据都可以生成火焰图，以下profiling工具可以生成的profile数据</p>
-<ul>
-<li>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap</li>
-<li>Solaris, illumos, FreeBSD: DTrace</li>
-<li>Mac OS X: DTrace and Instruments</li>
-<li>Windows: Xperf.exe</li>
-</ul>
+<blockquote>
+<p>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap<br>
+Solaris, illumos, FreeBSD: DTrace<br>
+Mac OS X: DTrace and Instruments<br>
+Windows: Xperf.exe</p>
+</blockquote>
 <p>生成火焰图只需要两步：采集stack traces数据、使用FlameGraph的脚本生成火焰图</p>
 <ul>
 <li>采集stack traces数据</li>

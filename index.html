@@ -113,8 +113,9 @@
         <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
 <p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。<br>
 火焰图有不同的类型：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
+<p>下图就是一个CPU的火焰图</p>
+<p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
-<p>下图就是CPU的火焰图</p>
 <p>对CPU火焰图的解读</p>
 <p><img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
@@ -129,12 +130,12 @@
 </ul>
 <h4 id="如何生成火焰图">如何生成火焰图</h4>
 <p>任何包含stack traces的profile数据都可以生成火焰图，以下profiling工具可以生成的profile数据</p>
-<ul>
-<li>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap</li>
-<li>Solaris, illumos, FreeBSD: DTrace</li>
-<li>Mac OS X: DTrace and Instruments</li>
-<li>Windows: Xperf.exe</li>
-</ul>
+<blockquote>
+<p>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap<br>
+Solaris, illumos, FreeBSD: DTrace<br>
+Mac OS X: DTrace and Instruments<br>
+Windows: Xperf.exe</p>
+</blockquote>
 <p>生成火焰图只需要两步：采集stack traces数据、使用FlameGraph的脚本生成火焰图</p>
 <ul>
 <li>采集stack traces数据</li>
