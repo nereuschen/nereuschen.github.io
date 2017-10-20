@@ -84,6 +84,155 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Java火焰图" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/10/12/Java火焰图/" class="article-date">
+  <time datetime="2017-10-12T07:30:15.000Z" itemprop="datePublished">2017-10-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/10/12/Java火焰图/">Java混合模型火焰图</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
+<p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。<br>
+火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
+<h4 id="理解火焰图">理解火焰图</h4>
+<p>下图就是CPU的火焰图</p>
+<p>对CPU火焰图的解读</p>
+<ul>
+<li>小方块<br>
+每个小方块代表一个方法（就是一个stack frame），<strong>每小方块的宽度表示该方法在采样期间出现的频率，宽度越宽表示该方法出现的频率越高</strong></li>
+<li>Y轴<br>
+表示调用堆栈，体现出了stack深度，<strong>每个顶端的小方块代表正在使用CPU（on-CPU）的方法，这类方法正是需要密切关注的</strong></li>
+<li>X轴<br>
+标示采样总量，会对调用栈进行合并，然后根据方法的字母顺序进行排列，<strong>X轴并不代表使用CPU的时间长短，而只是说明该方法出现的频率高低，宽度越宽表示该方法出现的频率越高</strong>。国内不少的文章中都将X轴看做是使用CPU的时间长短，这是在误导读者。</li>
+<li>颜色<br>
+小方块的颜色并没有特定的含义，是随机选取的暖色色调</li>
+</ul>
+<h4 id="如何生成火焰图">如何生成火焰图</h4>
+<p>任何包含stack traces的profile数据都可以生成火焰图，以下profiling工具可以生成的profile数据</p>
+<ul>
+<li>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap</li>
+<li>Solaris, illumos, FreeBSD: DTrace</li>
+<li>Mac OS X: DTrace and Instruments</li>
+<li>Windows: Xperf.exe</li>
+</ul>
+<p>生成火焰图只需要两步：采集stack traces数据、使用FlameGraph的脚本生成火焰图</p>
+<ul>
+<li>采集stack traces数据</li>
+</ul>
+<p>使用perf采集数据，会在当前目录下生成perf.data文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
+<p>如果Linux系统未安装perf，可参考以下命令安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
+<p>更多perf的<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">使用示例</a></p>
+<ul>
+<li>生成火焰图</li>
+</ul>
+<p>通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤</p>
+<p><img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""></p>
+<p>通过perf生成perf.data文件后，就可以通过<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本生成火焰图</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
+<p><strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
+<strong><a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:</strong> 将多行形式的stacks折叠成一行记录<br>
+<strong><a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:</strong> 根据折叠之后的stacks信息生成svg格式的火焰图</p>
+<p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
+<h4 id="火焰图的缺陷">火焰图的缺陷</h4>
+<p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。</p>
+<p>为了解决这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种Java混合模型火焰图</p>
+<p>###Java混合模型火焰图</p>
+<p>什么原因导致无法显示method以及完整的stack呢？</p>
+<ul>
+<li>为什么不显示method</li>
+</ul>
+<p>原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method</p>
+<ul>
+<li>为什么statck不完整</li>
+</ul>
+<p>原因在于在x86 (RBP on x86–64)上，JVM使用frame指针寄存器作为通用的寄存器，这种寄存器打破了传统的stack的运行方式，导致stack不完整</p>
+<h4 id="如何解决显示method名称的问题">如何解决显示method名称的问题</h4>
+<p>要想解决显示method名称这个问题，首先要能够收集到symbols信息，然后再从这些信息中识别出method名称</p>
+<ul>
+<li>如何收集symbols信息</li>
+</ul>
+<p>2014年Johannes Rudolph写了一个名为<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a>的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</p>
+<blockquote>
+<p>perf-map-agent是一个开源的Java代理，它包括一个用C写的Java代理以及一个可以将这个代理attach到Java进程的简易Java代码</p>
+</blockquote>
+<ul>
+<li>如何从symbols中识别method</li>
+</ul>
+<p>2009年，perf已经支持了<a href="https://lkml.org/lkml/2009/6/8/499" target="_blank" rel="external">JIT symbol</a>，通过这个特征perf会默认地查找/tmp/perf-$PID.map文件，从该文件中解析出function symbol的信息，从而识别出method名称。</p>
+<blockquote>
+<p>如果找不到function symbol信息，当前版本的perf脚本的处理方式是采用library的名字或者perf-$PID.map文件名作为method的名字</p>
+</blockquote>
+<p>所以结合perf以及perf-map-agent生就可以在火焰图上显示出Java method。</p>
+<ul>
+<li>显示不显示Java method的效果对比</li>
+</ul>
+<p><img src="/2017/10/12/Java火焰图/flame-graph-without-symbols.png" alt=""></p>
+<p><img src="/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png" alt=""></p>
+<h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
+<p>多年前为了优化编译器，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
+<p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型控制是否显示完整的stack，那么这个问题就解决。</p>
+<p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
+<p>于是乎这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
+<p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
+<ul>
+<li>stack是否完整的火焰图对比</li>
+</ul>
+<p><img src="/2017/10/12/Java火焰图/no-fp" alt=""><br>
+<img src="/2017/10/12/Java火焰图/with-fp" alt=""></p>
+<h4 id="火焰图对系统性能的损耗">火焰图对系统性能的损耗</h4>
+<p>-XX:+PreserveFramePointer对性能的影响<br>
+Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer<br>
+Netflex的性能测试结果是性能下降0-3%</p>
+<h3 id="火焰图是谁开发的呢？">火焰图是谁开发的呢？</h3>
+<p>火焰图是<strong>Brendan Gregg</strong>开发的</p>
+<p><a href="http://www.brendangregg.com/Perf/linux_observability_tools.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_observability_tools.png</a><br>
+<a href="http://www.brendangregg.com/linuxperf.html" target="_blank" rel="external">http://www.brendangregg.com/linuxperf.html</a><br>
+<a href="http://www.brendangregg.com/Perf/linux_perf_tools_full.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_perf_tools_full.png</a></p>
+<blockquote>
+<p><strong>Brendan Gregg</strong>是何许人也？<br>
+这个人名大家可能印象不深，但是这个图大家肯定多次见到过。没错，他正是这个图的作者。</p>
+</blockquote>
+<p><a href="http://www.brendangregg.com/Perf/linux_observability_tools.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_observability_tools.png</a></p>
+<blockquote>
+<p>他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer<br>
+也是《Systems Performance》(中文版本《性能之巅：洞悉系统、企业与云计算》)一书的作者，该书荣获2013年的USENIX LISA大奖<br>
+也开发了很多性能分析工具，比如DTrace<br>
+如果你对性能调优感兴趣，可以关注他的<a href="http://www.brendangregg.com/blog/index.html" target="_blank" rel="external">blog</a>和<a href="http://www.brendangregg.com/index.html" target="_blank" rel="external">个人网站</a></p>
+</blockquote>
+<p>参考资料<br>
+1.<a href="https://medium.com/netflix-techblog/java-in-flames-e763b3d32166" target="_blank" rel="external">https://medium.com/netflix-techblog/java-in-flames-e763b3d32166</a><br>
+2.<a href="https://www.slideshare.net/brendangregg/javaone-2015-java-mixedmode-flame-graphs?qid=3245fe6e-33e7-41c8-b9d8-8bbefab56671&amp;v=&amp;b=&amp;from_search=1" target="_blank" rel="external">https://www.slideshare.net/brendangregg/javaone-2015-java-mixedmode-flame-graphs?qid=3245fe6e-33e7-41c8-b9d8-8bbefab56671&amp;v=&amp;b=&amp;from_search=1</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj8zq8dfz001elbshs0dwkrcx" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Kafka高可靠场景下的性能表现" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/09/18/Kafka高可靠场景下的性能表现/" class="article-date">
@@ -124,7 +273,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj7sur6j9001a4msh4oliyrwt" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj8zq8dfv001blbsh357cau0n" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -173,7 +322,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj7sur6j700184mshbqamtb4p" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj8zq8dfl0014lbshq6zdoynj" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -226,7 +375,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj7sur6ix000x4mshhusb910f" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj8zq8df1000vlbshkh51mmr1" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -275,7 +424,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj7sur6j300144msholvsszim" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj8zq8df5000xlbshsqy7807h" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -332,7 +481,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj7sur6j000114mshteprsaax" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj8zq8dfa0010lbsh8517qlkx" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -383,7 +532,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj7sur6it000v4mshtnqrcxas" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj8zq8dex000qlbshtmvzdd6t" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -437,7 +586,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj7sur6if000p4mshbdblo6jb" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj8zq8dfr0017lbsha3j5zr9k" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>
@@ -490,7 +639,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj7sur6im000r4mshz8nxyjck" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj8zq8dep000nlbshpr2ych0i" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -502,14 +651,14 @@
 
 
   
-    <article id="post-JAVA使用堆外内存导致swap飙高" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Software-Architecture-Patterns" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/" class="article-date">
-  <time datetime="2015-05-06T05:10:18.000Z" itemprop="datePublished">2015-05-06</time>
+    <a href="/2015/08/21/Software-Architecture-Patterns/" class="article-date">
+  <time datetime="2015-08-21T13:54:16.000Z" itemprop="datePublished">2015-08-21</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/Troubleshooting/">Troubleshooting</a>
+    <a class="article-category-link" href="/categories/架构/">架构</a>
   </div>
 
   </div>
@@ -520,7 +669,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/05/06/JAVA使用堆外内存导致swap飙高/">JAVA使用堆外内存导致swap飙高</a>
+      <a class="article-title" href="/2015/08/21/Software-Architecture-Patterns/">软件架构模式的实践</a>
     </h1>
   
 
@@ -528,84 +677,26 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>近期遇到一个堆外内存导致swap飙高的问题，这类问题比较少见，因此将整个排查过程记录下来了</p>
-<h2 id="现象描述">现象描述</h2>
-<p>最近1周线上服务器时不时出现swap报警（swap超过内存10%时触发报警，内存是4G，因此swap超过400M会触发报警），每次都是童鞋们通过重启tomcat解决的；<br>
-但导致的根本原因是什么呢？必须找到根本原因才行，总是这么重启就有点low了</p>
-        
-          <p class="article-more-link">
-            <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/05/06/JAVA使用堆外内存导致swap飙高/" data-id="cj7sur6ia000o4msh9c0voidp" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/BTrace/">BTrace</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/JAVA/">JAVA</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-解读kafka性能测试报告" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/03/04/解读kafka性能测试报告/" class="article-date">
-  <time datetime="2015-03-04T15:43:18.000Z" itemprop="datePublished">2015-03-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/大数据/">大数据</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/03/04/解读kafka性能测试报告/">解读Kafka基准测试报告</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>从LinkedIn发布的<a href="https://engineering.linkedin.com/kafka/benchmarking-apache-kafka-2-million-writes-second-three-cheap-machines" title="linkedin对Kafka的基准测试" target="_blank" rel="external">Kafka benchmark</a>来看，Kafka（<a href="https://kafka.apache.org/downloads" target="_blank" rel="external">基准测试使用的版本是0.8.1</a>)）的性能相当彪悍。<br>
-在3台普通的服务器上其消息写入的QPS可以高达200万/秒（消息大小100字节）。</p>
-<h3 id="硬件配置">硬件配置</h3>
-<ul>
-<li>硬件配置
-<ul>
-<li>Intel Xeon 2.5 GHz processor with six cores</li>
-<li>Six 7200 RPM SATA drives</li>
-<li>32GB of RAM</li>
-<li>1Gb Ethernet</li>
-</ul>
-</li>
-</ul>
+        <p><a href="http://www.oreilly.com/programming/free/software-architecture-patterns.csp" target="_blank" rel="external">《Software Architecture Patterns》</a><a href="http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf" target="_blank" rel="external">（PDF）</a>这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。<br>
+根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。</p>
+<p>从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。<br>
+比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流的开源<a href="http://www.enterpriseintegrationpatterns.com" target="_blank" rel="external">EIP</a>框架，这些框架并不适用于互联网公司，相对于互联网的业务逻辑，这些框架太重，不是轻量级的框架。还提到了BPEL引擎，比如Apache ODE和jBPM。</p>
 <blockquote>
-<p>磁盘采用的是JBOD方式，而不是RAID阵列，RAID具备更强的读写性能。<a href="4">二者的区别</a>。</p>
+<p>EIP: Enterprise Integration Patterns 企业集成模式，涵盖了40+种模式</p>
 </blockquote>
+<p>本文涉及到分层架构、事件驱动架构、微内核架构以及微服务架构。书中最后描述的基于空间的架构（基于云的架构），因为实际应用中未涉及到，所以本文不作描述。</p>
         
           <p class="article-more-link">
-            <a href="/2015/03/04/解读kafka性能测试报告/#more">Read More</a>
+            <a href="/2015/08/21/Software-Architecture-Patterns/#more">Read More</a>
           </p>
         
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/03/04/解读kafka性能测试报告/" data-id="cj7sur6i7000l4msh265yyszn" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/" data-id="cj8zq8des000olbsh9wphtln7" class="article-share-link">Share</a>
       
       
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
 
     </footer>
   </div>
@@ -628,7 +719,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -638,7 +729,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -648,7 +739,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签云</h3>
     <div class="widget tagcloud">
-      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/Elasticsearch/" style="font-size: 10px;">Elasticsearch</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/Elasticsearch/" style="font-size: 10px;">Elasticsearch</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/架构/" style="font-size: 10px;">架构</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
     </div>
   </div>
 
@@ -657,7 +748,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -668,6 +759,10 @@
     <h3 class="widget-title">最新文章</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/10/12/Java火焰图/">Java混合模型火焰图</a>
+          </li>
         
           <li>
             <a href="/2017/09/18/Kafka高可靠场景下的性能表现/">Kafka高可靠场景下的性能表现</a>
@@ -683,10 +778,6 @@
         
           <li>
             <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
-          </li>
-        
-          <li>
-            <a href="/2016/03/06/限流技术的常见算法及其实现/">限流技术的常见算法及其实现</a>
           </li>
         
       </ul>

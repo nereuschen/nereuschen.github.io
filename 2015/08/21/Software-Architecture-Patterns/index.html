@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>软件架构模式的实践 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="《Software Architecture Patterns》（PDF）这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。 根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。 从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。 比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流">
+<meta name="keywords" content="架构">
+<meta property="og:type" content="article">
+<meta property="og:title" content="软件架构模式的实践">
+<meta property="og:url" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/index.html">
+<meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
+<meta property="og:description" content="《Software Architecture Patterns》（PDF）这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。 根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。 从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。 比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/layered-architectrue.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/layer-closed.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/layer-open.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/layer-package.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/mediator.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/broker.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/order-status-changed.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/price-changed.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/microkernel.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/app-rest-based.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/api-rest-based.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/app-rest-based.png">
+<meta property="og:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/messaging.png">
+<meta property="og:updated_time" content="2017-09-21T11:19:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="软件架构模式的实践">
+<meta name="twitter:description" content="《Software Architecture Patterns》（PDF）这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。 根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。 从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。 比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流">
+<meta name="twitter:image" content="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/layered-architectrue.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+
+  
+
+
+  <link href="//cdn.staticfile.org/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+  
+  <link rel="stylesheet" href="//libs.cncdn.cn/fancybox/2.1.5/jquery.fancybox.css" media="screen" type="text/css">
+  
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" media="screen" type="text/css">
+
+  <style type="text/css">
+    .news-essay
+    {
+      display: inline !important;
+    }
+    .hot-news
+    {
+      text-align: left !important;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h2 id="logo-wrap"  class="animated bounceInLeft">
+        <a href="/" id="logo">Applied Research. Big Data. Distributed Systems. Open Source.</a>
+      </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://nereuschen.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Software-Architecture-Patterns" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/08/21/Software-Architecture-Patterns/" class="article-date">
+  <time datetime="2015-08-21T13:54:16.000Z" itemprop="datePublished">2015-08-21</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/架构/">架构</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      软件架构模式的实践
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://www.oreilly.com/programming/free/software-architecture-patterns.csp" target="_blank" rel="external">《Software Architecture Patterns》</a><a href="http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf" target="_blank" rel="external">（PDF）</a>这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。<br>
+根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。</p>
+<p>从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。<br>
+比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流的开源<a href="http://www.enterpriseintegrationpatterns.com" target="_blank" rel="external">EIP</a>框架，这些框架并不适用于互联网公司，相对于互联网的业务逻辑，这些框架太重，不是轻量级的框架。还提到了BPEL引擎，比如Apache ODE和jBPM。</p>
+<blockquote>
+<p>EIP: Enterprise Integration Patterns 企业集成模式，涵盖了40+种模式</p>
+</blockquote>
+<p>本文涉及到分层架构、事件驱动架构、微内核架构以及微服务架构。书中最后描述的基于空间的架构（基于云的架构），因为实际应用中未涉及到，所以本文不作描述。</p>
+<a id="more"></a>
+<h3 id="分层架构-layered-architecture">分层架构（Layered Architecture）</h3>
+<p>分层架构是最为常见的架构模式，就是我们通常说的N层架构模式<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/layered-architectrue.png" alt=""></p>
+<h4 id="模式描述">模式描述</h4>
+<p>分层架构模式中的组件（component）根据每层的角色和职责进行水平划分，通常会拆分成四层：表示层、业务层、持久层和数据库。</p>
+<ul>
+<li>各层的职责定义
+<ul>
+<li>表示层：和UI之间的交互</li>
+<li>业务层：实现具体的业务逻辑，通常对应代码结构中的Service层</li>
+<li>持久层：各种SQL操作，对应代码结构中的DAO层</li>
+<li>数据库：存放业务数据的DB</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>为什么是分四层，而不是三层或者五层呢？分层架构模式并不明确定义分几层，这个取决于具体业务的复杂度<br>
+在本文中的模式实践中，介绍了我们的子系统根据实际业务分了六层</p>
+</blockquote>
+<p>分层架构模式之所以如此经典，主要原因在于它使用分层的方式实现了关注点分离原则（separation of concerns）</p>
+<blockquote>
+<p>关注点分离原则是架构中常见的原则<br>
+比如，MVC</p>
+</blockquote>
+<h4 id="关键概念">关键概念</h4>
+<p>在分层架构中，请求的调用关系是自上而下的，调用关系是逐层调用还是可以跨层调用呢？<br>
+这就涉及到作者提出的层的状态：CLOSED还是OPEN</p>
+<ul>
+<li>CLOSED<br>
+CLOSED意味着每层之间是自上而下逐层调用的。比如，请求从展示层开始，先经过业务层，再经过持久层，最后到达数据库层。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/layer-closed.png" alt=""><br>
+表示层为什么不能直接调用数据库层呢？这里就涉及到层隔离（layers of isolation）的概念。
+<ul>
+<li>层隔离
+<ul>
+<li>对改动而言每层之间是相互隔离的，某一层的改动不应该影响其他的层。比如，在业务层新增风控逻辑，就不应该影响表示层</li>
+<li>每层之间是相对独立的，相互之间不需要了解其他层的具体实现。比如，业务层不需要了解持久层是基于哪种ORM框架</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>OPEN<br>
+被标记为OPEN的层是可以直接被跨过的，它上面的一层可以不经过它而直接调用它的下一层。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/layer-open.png" alt=""><br>
+比如一些通用服务/组件（比如，util类、审计相关以及log相关的类）如果放在业务层，怎么限制表示层不能直接调用这些通用服务呢？。<br>
+通常的做法是在业务层下面再新增一个服务层，将通用服务都放在服务层。但是并不是每个业务服务必须调用服务层，所以服务层需要是OPEN状态，这样业务层可以直接跨过服务层直接调用持久层。</li>
+</ul>
+<h4 id="模式的具体实践">模式的具体实践</h4>
+<p>我们的子系统几乎都是按分层架构模式定义的，不同的是，并没有区分CLOSE和OPEN，而是将业务层和服务层都放在同一层。</p>
+<p><img src="/2015/08/21/Software-Architecture-Patterns/layer-package.png" alt=""></p>
+<h4 id="思考">思考</h4>
+<p>分层架构是最为经典的架构，对很多应用而言，都非常使用。当你不确定该使用哪种架构时，可以优先考虑这种架构模式。<br>
+然后选用这种架构时，也有很多方面需要考虑。</p>
+<ul>
+<li>
+<p>architecture sinkhole anti-pattern<br>
+这种反模式描述了请求只是简单地经过每一层并且每一层对请求几乎没有任何逻辑处理的场景，我将这类请求叫做穿透请求。<br>
+比如，展示客户信息的请求从表示层往业务层传递，一直到数据库，最后只是简单地从数据库中查询客户信息，而每一层都没有对请求进行额外的处理或者聚合、计算或者转换逻辑。<br>
+根据实际情况采用二八原则来判定，如果只有20%的请求是这类简单的穿透请求，那么是属于正常的。如果这类穿透请求的比例是80%，那么就需要考虑将分层架构中的某些层OPEN。<br>
+但是定义哪些层应该OPEN并不容易。</p>
+</li>
+<li>
+<p>形成单体应用<br>
+这种架构模式有可能会发展成为庞大的单体应用（monolithic applications），即使是将表示层和业务层单独部署。当然这可能还不是某些应用需要关注的内容，但是它确实会某些方面导致一些潜在的问题，比如部署、健壮性、可靠性、性能和伸缩性。</p>
+</li>
+</ul>
+<h4 id="模式分析">模式分析</h4>
+<p>根据这种模式的特性，从多种维度进行评估。</p>
+<ul>
+<li>整体敏捷性： 低</li>
+<li>部署简易性： 低</li>
+<li>可测试性： 高</li>
+<li>性能： 低</li>
+<li>可扩展性： 低</li>
+<li>开发容易度： 高</li>
+</ul>
+<h3 id="事件驱动架构-event-driven-architecture">事件驱动架构（Event-Driven Architecture）</h3>
+<p>事件驱动架构是一种非常流行的分布式异步架构模式，常用于可高度扩展的应用中。它由高度解耦、职责单一的事件处理组件组成，这些组件负责异步接收和处理事件。<br>
+它包括两种主要的拓扑结构：mediator 和 broker。他们的架构特征和实现策略大不相同，所以理解二者的不同之处非常重要，这样你就知道哪种结构更适合自己的场景。</p>
+<h4 id="mediator拓扑结构">Mediator拓扑结构</h4>
+<p>这种拓扑结构适用于有多个步骤并且需要某种程度进行编排处理的事件。<br>
+比如，一个股票交易事件可能需要先验证股票，然后检查股票交易是否符合各种监管规则，再将股票分配给经纪人，计算佣金，最后和经纪人交易。<br>
+所有的这些步骤需要某种程度的编排，从而决定这些步骤的顺序，哪些步骤可以串行处理，哪些可以并行处理。<br>
+它包括四个主要的架构组件：event queues、an event mediator、event channels和event processors。</p>
+<p><img src="/2015/08/21/Software-Architecture-Patterns/mediator.png" alt=""></p>
+<ul>
+<li>事件流的处理流程
+<ul>
+<li>client发送一个初始事件到事件队列(event queues)，事件队列负责将事件传递给event mediator</li>
+<li>event mediator接收初始事件，并通过发送一些额外的异步事件给event channels来编排事件</li>
+<li>event processors从event channels上监听事件，接收事件并执行具体的业务逻辑来处理事件</li>
+</ul>
+</li>
+</ul>
+<p>这种模式有两种事件：初始事件和处理事件。mediator接收到的原始事件就是初始事件，而处理事件是mediator产生的，并且由event processors处理。<br>
+mediator负责编排包含在初始事件里面的步骤，但是它不处理具体的业务逻辑。针对初始事件中的每一步，mediator都会往event channel发送一个特定的处理事件。<br>
+event processor包含业务逻辑。每个event processor都是自包含的、独立的、高度解耦的、执行具体任务的组件。<br>
+实现mediator的方式有很多种。最为简单并且最为常见的实现方案是基于开源的Spring Integration、Apache Camel、或者 Mule ESB。<br>
+如果涉及到某种程度的编排，就需要通过BPEL引擎来实现，比如开源的Apache ODE或者jBPM。</p>
+<blockquote>
+<p>Mediator这种拓扑结构适用于有某种程度编排的应用场景，在互联网应用中并不多见</p>
+</blockquote>
+<h4 id="broker拓扑结构">Broker拓扑结构</h4>
+<p>Broker拓扑结构和mediator不同之处在于它没有中心的事件mediator。<br>
+事件直接发送到Event Channel，然后由Event Processor处理并发出新的事件，所以从事件的角度来看更像是一种链式的事件流。<br>
+这种拓扑结构适用于相对简单的事件流，可以基于轻量级的message broker实现，比如ActiveMQ，Kafka等。</p>
+<p><img src="/2015/08/21/Software-Architecture-Patterns/broker.png" alt=""></p>
+<h4 id="思考-v2">思考</h4>
+<p>事件驱动架构模式是一种实现起来相对复杂的架构，主要是因为它有异步和分布式特性。当实施这种架构时，就需要考虑可能会带来一些分布式问题，比如：远程处理的可用性、响应慢、broker重连逻辑等。<br>
+这种模式对于单个业务处理缺乏原子性事务。因为事件处理组件是高度解耦和分布式的，很难跨多个事件处理组件实现原子性事务，这就涉及到了分布式事务。<br>
+最困难事情有可能是事件处理器之间的契约的创建，维护和治理。每个事件都有自己独特的契约定义，所以定义一个标准的数据格式（比如，XML\JSON etc.）尤其重要，并且还需要建立一个契约版本策略。</p>
+<blockquote>
+<p>我们的消息体是通过JSON来定义的，比较容易扩展，无需考虑版本问题，因为新增JSON的属性是可以兼容旧的JSON，但不可以删除属性。</p>
+</blockquote>
+<h4 id="模式的具体实践-v2">模式的具体实践</h4>
+<p>这类拓扑模式使用的场景非常多</p>
+<ul>
+<li>
+<p>订单状态变化<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/order-status-changed.png" alt=""></p>
+</li>
+<li>
+<p>价格变更<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/price-changed.png" alt=""></p>
+</li>
+</ul>
+<h4 id="模式分析-v2">模式分析</h4>
+<p>根据这种模式的特性，从多种维度进行评估。</p>
+<ul>
+<li>整体敏捷性： 高</li>
+<li>部署简易性： 高</li>
+<li>可测试性： 低</li>
+<li>性能： 高</li>
+<li>可扩展性： 高</li>
+<li>开发容易度： 低</li>
+</ul>
+<h3 id="微内核架构模式-microkernel-architecture">微内核架构模式（Microkernel Architecture）</h3>
+<p>微内核架构模式有时也被称为插件式架构模式，它天生就是用于实现产品级应用或者框架的模式。<br>
+很多开源框架就是基于微内核架构模式实现的，比如Mule，Spring Intergration等。</p>
+<h4 id="模式描述-v2">模式描述</h4>
+<p>这种模式由两种架构组件组成：<strong>core system</strong> 和 <strong>plug-in modules</strong>。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/microkernel.png" alt=""><br>
+core system只提供最小化的功能。plug-in modules是一系列的独立组件，它包括特定的过程、额外的特征以及自定义的代码。</p>
+<h4 id="模式应用">模式应用</h4>
+<p>微内核架构模式最好的应用例子就是Eclipse。Eclipse可以添加很多plug-ins，它是一个可定制的产品。</p>
+<h4 id="思考-v3">思考</h4>
+<p>它最大的特点是可以嵌入到其他架构模式中或者作为其他架构模式中的一部分。<br>
+同时它也为演进化设计和增量开发提供了支持。</p>
+<h4 id="模式分析-v3">模式分析</h4>
+<p>microkernel.png</p>
+<ul>
+<li>整体敏捷性： 高</li>
+<li>部署简易性： 高</li>
+<li>可测试性： 高</li>
+<li>性能： 高</li>
+<li>可扩展性： 低</li>
+<li>开发容易度： 低</li>
+</ul>
+<h3 id="微服务架构模式-microservices-architecture-pattern">微服务架构模式（Microservices Architecture Pattern）</h3>
+<p>作为单体应用和SOA的替代者，微服务架构模式在业界很快赢得了地位。由于这种模式还在进化之中，业界对于它的定义和实现还有很多困惑。</p>
+<h4 id="模式描述-v3">模式描述</h4>
+<p>不管你选择哪种拓扑结构或者实现风格，这种模式有几个通用的核心概念。<br>
+首先是<strong>分隔发布单元（separately deployed units）</strong>。如图所示，每一个微服务的组件都被分隔成一个独立单元。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/app-rest-based.png" alt=""></p>
+<p><strong>服务组件（service component）</strong> 也是一个非常重要的概念。服务组件包含一个或者多个模块（module）<br>
+另一个关键概念是它是<strong>分布式架构</strong>的，意味着所有的组件之间是完全解耦的，并且相互之间可以通过远程协议（通过JMS, AMQP, REST, SOAP, RMI…等等）进行通信。</p>
+<h4 id="模式拓扑">模式拓扑</h4>
+<p>尽快实现微服务的方式有很多种，但是最通用最流行的三种方式是: API REST-based、applicaiton REST-based和centralized messaging。</p>
+<ul>
+<li>
+<p>API REST-based<br>
+这种拓扑结构适合于网站，通过一系列的API提供小规模的、自包含的服务。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/api-rest-based.png" alt=""></p>
+</li>
+<li>
+<p>applicaiton REST-based<br>
+application REST-based不同于上面的架构，客户端请求是由传统的基于web的或者富客户端的业务应用进行处理，而不是有一层简单的API层进行处理。<br>
+这种拓扑结构中的服务组件和API REST-based不一样，他们的规模更大、更复杂，而不是职责单一的服务。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/app-rest-based.png" alt=""></p>
+</li>
+<li>
+<p>centralized messaging<br>
+中心化消息拓扑结构和applicaiton REST-based类似，只是它是使用一个轻量级的消息broker取代RESTful的服务调用。<br>
+不要将这种拓扑结构和SOA相混淆，它也不是“简化的SOA”。轻量级的broker不会执行任何服务编排、消息转换或者复杂的路由，它只是访问远程服务组件。<br>
+<img src="/2015/08/21/Software-Architecture-Patterns/messaging.png" alt=""></p>
+</li>
+</ul>
+<h4 id="模式应用-v2">模式应用</h4>
+<h4 id="思考-v4">思考</h4>
+<p>微服务架构解决了很多单体应用以及SOA的问题。因为应用组件都被拆分成了更小的、可单独部署的单元，所以通过微服务架构构建应用时，可以提供更好的伸缩性，也很容易支持持续交付。<br>
+这种模式的另外一个优势是它提供了更加敏捷的部署能力，极大地减少了按月或者按周的部署周期。因为对于每个服务组件而言，修改是相互隔离的，只需要单独部署被修改过的服务组件。<br>
+因为它是一个分布式架构，同样也会存在事件驱动架构模式面临的复杂问题，包括契约的创建、维护和治理，远程系统的可用性以及远程访问的认证和授权。</p>
+<h4 id="模式分析-v4">模式分析</h4>
+<ul>
+<li>整体敏捷性： 高</li>
+<li>部署简易性： 高</li>
+<li>可测试性： 高</li>
+<li>性能： 低</li>
+<li>可扩展性： 高</li>
+<li>开发容易度： 高</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/" data-id="cj8zq8des000olbsh9wphtln7" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/09/12/Kafka-Best-Practices/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kafka Best Practices
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2015/05/06/JAVA使用堆外内存导致swap飙高/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">JAVA使用堆外内存导致swap飙高</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/BTrace/" style="font-size: 10px;">BTrace</a> <a href="/tags/Elasticsearch/" style="font-size: 10px;">Elasticsearch</a> <a href="/tags/JAVA/" style="font-size: 10px;">JAVA</a> <a href="/tags/Kafka/" style="font-size: 20px;">Kafka</a> <a href="/tags/Markdown/" style="font-size: 10px;">Markdown</a> <a href="/tags/MySQL/" style="font-size: 15px;">MySQL</a> <a href="/tags/sysbench/" style="font-size: 10px;">sysbench</a> <a href="/tags/架构/" style="font-size: 10px;">架构</a> <a href="/tags/监控/" style="font-size: 10px;">监控</a> <a href="/tags/限流/" style="font-size: 15px;">限流</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/10/12/Java火焰图/">Java混合模型火焰图</a>
+          </li>
+        
+          <li>
+            <a href="/2017/09/18/Kafka高可靠场景下的性能表现/">Kafka高可靠场景下的性能表现</a>
+          </li>
+        
+          <li>
+            <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka的核心调优参数</a>
+          </li>
+        
+          <li>
+            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 陈义<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="//cdn.staticfile.org/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+<script src="//libs.cncdn.cn/fancybox/2.1.5/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+<!-- mathjax config similar to math.stackexchange -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true,
+      skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+  });
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+<script type="text/javascript" src="//cdn.bootcss.com/mathjax/2.6.0-beta.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<div id="totop" style="position:fixed;bottom:150px;right:10px;cursor: pointer;z-index: 2000;">
+  <a title="返回顶部"><img src="/images/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
