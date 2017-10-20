@@ -150,8 +150,9 @@ Windows: Xperf.exe</p>
 </ul>
 <p>通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤</p>
 <p><img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""></p>
-<p>通过perf生成perf.data文件后，就可以通过<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本(<a href="http://stackcollapse-perf.xn--plflamegraph-zl2u.pl" target="_blank" rel="external">stackcollapse-perf.pl和flamegraph.pl</a>)生成火焰图</p>
+<p>生成perf.data文件后，再使用<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本(<a href="http://stackcollapse-perf.xn--plflamegraph-zl2u.pl" target="_blank" rel="external">stackcollapse-perf.pl和flamegraph.pl</a>)便可以生成火焰图</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
+<p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，想详细了解的可以看官网示例</p>
 <p><strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
 <strong><a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:</strong> 将多行形式的stacks折叠成一行记录<br>
 <strong><a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:</strong> 根据折叠之后的stacks信息生成svg格式的火焰图</p>
