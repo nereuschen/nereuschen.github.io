@@ -5,13 +5,13 @@
   
   <title>Java混合模型火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
+  <meta name="description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模型火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
+<meta property="og:description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
@@ -20,11 +20,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-20T10:51:02.000Z">
+<meta property="og:updated_time" content="2017-10-20T10:57:17.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
-<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
+<meta name="twitter:description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -120,7 +119,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
-<p><a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
+<p>[火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
 <p>下图就是一个CPU的火焰图</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
@@ -148,19 +147,19 @@ Windows: Xperf.exe<br>
 <ul>
 <li>采集stack traces数据</li>
 </ul>
-<p>使用<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>工具采集stacks数据，会在当前目录下生成perf.data文件</p>
+<p>使用[perf][perf]工具采集stacks数据，会在当前目录下生成perf.data文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
 <p>如果Linux系统未安装perf，可参考以下命令安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
-<p>更多perf的使用示例可参考<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">这里</a></p>
+<p>更多perf的使用示例可参考[这里][perf-examples]</p>
 <ul>
 <li>生成火焰图<br>
 通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤<br>
 <img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
-stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>中提供的</li>
+stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供的</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
-<p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，可以参考官网示例</p>
+<p>[FlameGraph][FlameGraph]提供了很多脚本，可以参考官网示例</p>
 <blockquote>
 <p>perf script: 读取perf.data的文件内容，并以多行的形式生成stacks<br>
 <a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>: 将多行形式的stacks折叠成一行记录<br>
@@ -182,14 +181,14 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <p>要想解决显示method名称这个问题，首先要能够收集到symbols信息，然后再从这些信息中识别出method名称</p>
 <ul>
 <li>如何收集symbols信息<br>
-2014年Johannes Rudolph写了一个名为<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a>的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</li>
+2014年Johannes Rudolph写了一个名为[perf-map-agent][perf-map-agent]的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</li>
 </ul>
 <blockquote>
 <p>perf-map-agent是一个开源的Java代理，它包括一个用C写的Java代理以及一个可以将这个代理attach到Java进程的简易Java代码</p>
 </blockquote>
 <ul>
 <li>如何从symbols中识别method<br>
-2009年，perf已经支持了<a href="https://lkml.org/lkml/2009/6/8/499" target="_blank" rel="external">JIT symbol</a>，通过这个特征perf会默认地查找/tmp/perf-$PID.map文件，从该文件中解析出function symbol的信息，从而识别出method名称。</li>
+2009年，perf已经支持了[JIT symbol][perf-JIT]，通过这个特征perf会默认地查找/tmp/perf-$PID.map文件，从该文件中解析出function symbol的信息，从而识别出method名称。</li>
 </ul>
 <blockquote>
 <p>如果找不到function symbol信息，当前版本的perf脚本的处理方式是采用library的名字或者perf-$PID.map文件名作为method的名字</p>
@@ -203,31 +202,70 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
 <p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
 <p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型来控制是否显示完整的stack，那么这个问题就解决。</p>
-<p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
-<p>hotspot-compiler-dev社区这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
+<p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的[原型][openjdk8-diff]，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封[邮件][email]，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
+<p>hotspot-compiler-dev社区这个特性分别记录在JDK9的[JDK-8068945][JDK-8068945]和JDK8的[JDK-8072465][JDK-8072465]中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
 <p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 <ul>
 <li>stack是否完整的火焰图对比</li>
 </ul>
 <p><img src="/2017/10/12/Java火焰图/no-fp" alt=""><br>
 <img src="/2017/10/12/Java火焰图/with-fp" alt=""></p>
-<h4 id="火焰图对系统性能的损耗">火焰图对系统性能的损耗</h4>
-<p>-XX:+PreserveFramePointer对性能的影响<br>
-Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer<br>
-Netflex的性能测试结果是性能下降0-3%</p>
-<h3 id="火焰图是谁开发的呢？">火焰图是谁开发的呢？</h3>
-<p>这个图大家肯定多次见到过。没错，火焰图的作者正是这个图的作者 <strong>Brendan Gregg</strong>。<br>
-<img src="http://www.brendangregg.com/Perf/linux_observability_tools.png" alt=""></p>
-<blockquote>
-<p><strong>Brendan Gregg</strong>是何许人也？<br>
-他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer<br>
-也是《Systems Performance》(中文版本《性能之巅：洞悉系统、企业与云计算》)一书的作者，该书荣获2013年的USENIX LISA大奖<br>
-也开发了很多性能分析工具，比如DTrace<br>
-如果你对性能调优感兴趣，可以关注他的<a href="http://www.brendangregg.com/blog/index.html" target="_blank" rel="external">blog</a>和<a href="http://www.brendangregg.com/index.html" target="_blank" rel="external">个人网站</a></p>
-</blockquote>
-<p>参考资料<br>
-1.<a href="https://medium.com/netflix-techblog/java-in-flames-e763b3d32166" target="_blank" rel="external">https://medium.com/netflix-techblog/java-in-flames-e763b3d32166</a><br>
-2.<a href="https://www.slideshare.net/brendangregg/javaone-2015-java-mixedmode-flame-graphs?qid=3245fe6e-33e7-41c8-b9d8-8bbefab56671&amp;v=&amp;b=&amp;from_search=1" target="_blank" rel="external">https://www.slideshare.net/brendangregg/javaone-2015-java-mixedmode-flame-graphs?qid=3245fe6e-33e7-41c8-b9d8-8bbefab56671&amp;v=&amp;b=&amp;from_search=1</a></p>
+<h4 id="如何生成java混合模型火焰图">如何生成Java混合模型火焰图</h4>
+<ul>
+<li>安装perf</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">```</div><div class="line">* 安装[FlameGraph][FlameGraph]</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 安装[perf-map-agent][perf-map-agent]</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 配置Java参数</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 执行生成脚本</div></pre></td></tr></table></figure>
+<pre><code>
+#### 火焰图对系统性能的损耗
+
+-XX:+PreserveFramePointer对性能的影响
+Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer
+Netflex的性能测试结果是性能下降0-3%
+
+### 火焰图是谁开发的呢？
+这个图大家肯定多次见到过。没错，火焰图的作者正是这个图的作者 **Brendan Gregg**。
+![](http://www.brendangregg.com/Perf/linux_observability_tools.png)
+&gt; **Brendan Gregg**是何许人也？
+&gt; 他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer
+&gt; 也是《Systems Performance》(中文版本《性能之巅：洞悉系统、企业与云计算》)一书的作者，该书荣获2013年的USENIX LISA大奖
+&gt; 也开发了很多性能分析工具，比如DTrace
+&gt; 如果你对性能调优感兴趣，可以关注他的[blog][blog]和[个人网站][web-site]
+
+
+
+[flame-graphs]:http://www.brendangregg.com/flamegraphs.html
+[CPU-FG]:http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html
+[Memory-FG]:http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html
+[Off-CPU-FG]:http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html
+[Hot/Cold-FG]:http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html
+[Diff-FG]:http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html
+[perf-JIT]:https://lkml.org/lkml/2009/6/8/499
+[perf-map-agent]:https://github.com/jvm-profiling-tools/perf-map-agent
+[openjdk8-diff]:https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff
+[email]:http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html
+[JDK-8068945]:https://bugs.openjdk.java.net/browse/JDK-8068945
+[JDK-8072465]:https://bugs.openjdk.java.net/browse/JDK-8072465
+[no-fp]:http://www.brendangregg.com/FlameGraphs/cpu-mixedmode-nofp.svg
+[with-fp]:http://www.brendangregg.com/FlameGraphs/cpu-mixedmode-vertx.svg
+[blog]:http://www.brendangregg.com/blog/index.html
+[web-site]:http://www.brendangregg.com/index.html
+[acm]:http://queue.acm.org/detail.cfm?id=2927301
+[perf]:https://perf.wiki.kernel.org/index.php/Main_Page
+[perf-examples]:http://www.brendangregg.com/perf.html
+[FlameGraph]:https://github.com/brendangregg/FlameGraph
+
+参考资料
+1.https://medium.com/netflix-techblog/java-in-flames-e763b3d32166
+2.https://www.slideshare.net/brendangregg/javaone-2015-java-mixedmode-flame-graphs?qid=3245fe6e-33e7-41c8-b9d8-8bbefab56671&amp;v=&amp;b=&amp;from_search=1
+
+
+
+
+
+</code></pre>
 
       
     </div>
