@@ -20,7 +20,8 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:43:01.000Z">
+<meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
+<meta property="og:updated_time" content="2017-10-20T10:51:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
 <meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方">
@@ -215,17 +216,11 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer<br>
 Netflex的性能测试结果是性能下降0-3%</p>
 <h3 id="火焰图是谁开发的呢？">火焰图是谁开发的呢？</h3>
-<p>火焰图是<strong>Brendan Gregg</strong>开发的</p>
-<p><a href="http://www.brendangregg.com/Perf/linux_observability_tools.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_observability_tools.png</a><br>
-<a href="http://www.brendangregg.com/linuxperf.html" target="_blank" rel="external">http://www.brendangregg.com/linuxperf.html</a><br>
-<a href="http://www.brendangregg.com/Perf/linux_perf_tools_full.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_perf_tools_full.png</a></p>
+<p>这个图大家肯定多次见到过。没错，火焰图的作者正是这个图的作者 <strong>Brendan Gregg</strong>。<br>
+<img src="http://www.brendangregg.com/Perf/linux_observability_tools.png" alt=""></p>
 <blockquote>
 <p><strong>Brendan Gregg</strong>是何许人也？<br>
-这个人名大家可能印象不深，但是这个图大家肯定多次见到过。没错，他正是这个图的作者。</p>
-</blockquote>
-<p><a href="http://www.brendangregg.com/Perf/linux_observability_tools.png" target="_blank" rel="external">http://www.brendangregg.com/Perf/linux_observability_tools.png</a></p>
-<blockquote>
-<p>他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer<br>
+他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer<br>
 也是《Systems Performance》(中文版本《性能之巅：洞悉系统、企业与云计算》)一书的作者，该书荣获2013年的USENIX LISA大奖<br>
 也开发了很多性能分析工具，比如DTrace<br>
 如果你对性能调优感兴趣，可以关注他的<a href="http://www.brendangregg.com/blog/index.html" target="_blank" rel="external">blog</a>和<a href="http://www.brendangregg.com/index.html" target="_blank" rel="external">个人网站</a></p>
