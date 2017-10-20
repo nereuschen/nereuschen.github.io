@@ -152,9 +152,11 @@ stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brenda
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
 <p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，可以参考官网示例</p>
-<p><strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
-<strong><a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:</strong> 将多行形式的stacks折叠成一行记录<br>
-<strong><a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:</strong> 根据折叠之后的stacks信息生成svg格式的火焰图</p>
+<blockquote>
+<p>perf script:读取perf.data的文件内容，并以多行的形式生成stacks<br>
+<a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:将多行形式的stacks折叠成一行记录<br>
+<a href="http://flamegraph.pl" target="_blank" rel="external">flamegraph.pl</a>:根据折叠之后的stacks信息生成svg格式的火焰图</p>
+</blockquote>
 <p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
 <p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。<br>
