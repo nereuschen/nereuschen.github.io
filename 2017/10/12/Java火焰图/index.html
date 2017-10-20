@@ -5,24 +5,25 @@
   
   <title>Java混合模型火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读  小方块 每个小方块代表一个方法（就">
+  <meta name="description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模型火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读  小方块 每个小方块代表一个方法（就">
+<meta property="og:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-without-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:07:20.000Z">
+<meta property="og:updated_time" content="2017-10-20T10:13:33.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
-<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读  小方块 每个小方块代表一个方法（就">
-<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-graph.png">
+<meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 理解火焰图 下图就是CPU的火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个方法（">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -122,11 +123,12 @@
 <h4 id="理解火焰图">理解火焰图</h4>
 <p>下图就是CPU的火焰图</p>
 <p>对CPU火焰图的解读</p>
+<p><img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
 <li>小方块<br>
 每个小方块代表一个方法（就是一个stack frame），<strong>每小方块的宽度表示该方法在采样期间出现的频率，宽度越宽表示该方法出现的频率越高</strong></li>
 <li>Y轴<br>
-表示调用堆栈，体现出了stack深度，<strong>每个顶端的小方块代表正在使用CPU（on-CPU）的方法，这类方法正是需要密切关注的</strong></li>
+表示调用堆栈，体现出了stack深度，<strong>每个顶端的小方块代表正在使用CPU（on-CPU）的方法</strong></li>
 <li>X轴<br>
 标示采样总量，会对调用栈进行合并，然后根据方法的字母顺序进行排列，<strong>X轴并不代表使用CPU的时间长短，而只是说明该方法出现的频率高低，宽度越宽表示该方法出现的频率越高</strong>。国内不少的文章中都将X轴看做是使用CPU的时间长短，这是在误导读者。</li>
 <li>颜色<br>
