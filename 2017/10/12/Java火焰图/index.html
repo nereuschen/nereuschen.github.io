@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:16:14.000Z">
+<meta property="og:updated_time" content="2017-10-20T10:20:47.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
 <meta name="twitter:description" content="火焰图(Flame Graph) 火焰图是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。 火焰图有不同的类型：CPU、Memory、Off-CPU、Hot/Cold以及Differential 下图就是一个CPU的火焰图  理解火焰图 对CPU火焰图的解读   小方块 每个小方块代表一个">
@@ -144,21 +144,21 @@ Solaris, illumos, FreeBSD: DTrace<br>
 Mac OS X: DTrace and Instruments<br>
 Windows: Xperf.exe</p>
 </blockquote>
-<p>生成火焰图只需要两步：采集stack traces数据、使用FlameGraph的脚本生成火焰图</p>
+<p>生成火焰图只需要两步操作：先采集stack traces数据，然后使用FlameGraph的脚本生成火焰图</p>
 <ul>
 <li>采集stack traces数据</li>
 </ul>
-<p>使用perf采集数据，会在当前目录下生成perf.data文件</p>
+<p>使用<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>工具采集stacks数据，会在当前目录下生成perf.data文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
 <p>如果Linux系统未安装perf，可参考以下命令安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
-<p>更多perf的<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">使用示例</a></p>
+<p>更多perf的使用示例可参考<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">这里</a></p>
 <ul>
 <li>生成火焰图</li>
 </ul>
 <p>通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤</p>
 <p><img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""></p>
-<p>通过perf生成perf.data文件后，就可以通过<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本生成火焰图</p>
+<p>通过perf生成perf.data文件后，就可以通过<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>（Stack trace可视化工具）的脚本(<a href="http://stackcollapse-perf.xn--plflamegraph-zl2u.pl" target="_blank" rel="external">stackcollapse-perf.pl和flamegraph.pl</a>)生成火焰图</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
 <p><strong>perf script:</strong> 读取perf.data的文件内容，并以多行的形式生成stacks<br>
 <strong><a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>:</strong> 将多行形式的stacks折叠成一行记录<br>
