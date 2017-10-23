@@ -110,9 +110,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
-<p>[火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
-<p>下图就是一个CPU的火焰图</p>
+        <p>我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
+<h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
+<p>针对不同的资源和事件类型，有不同类型的[火焰图][flame-graphs]，主要包括：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
+<p>我们先看一个CPU火焰图是什么样子的</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
 <p>对CPU火焰图的解读<br>
@@ -262,7 +263,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj8zq8dfz001elbshs0dwkrcx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj93uppev001hqcsh0bcgibav" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
@@ -314,7 +315,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj8zq8dfv001blbsh357cau0n" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj93upper001eqcshk8cs42ga" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -363,7 +364,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj8zq8dfl0014lbshq6zdoynj" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj93uppeo001bqcshvcnvrzgh" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -416,7 +417,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj8zq8df1000vlbshkh51mmr1" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj93uppee0011qcshgvzo2m8p" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -465,7 +466,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj8zq8df5000xlbshsqy7807h" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj93uppel0019qcshk83siqdy" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -522,7 +523,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj8zq8dfa0010lbsh8517qlkx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj93uppeg0014qcshrzpdaci2" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -573,7 +574,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj8zq8dex000qlbshtmvzdd6t" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj93uppe3000wqcshmpyjamqz" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -627,7 +628,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj8zq8dfr0017lbsha3j5zr9k" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj93uppdt000qqcsh0ufdd7ks" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>
@@ -680,7 +681,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj8zq8dep000nlbshpr2ych0i" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj93uppdz000uqcshb10s965o" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -734,7 +735,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/" data-id="cj8zq8des000olbsh9wphtln7" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/" data-id="cj93uppdq000oqcshhhwxie05" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>

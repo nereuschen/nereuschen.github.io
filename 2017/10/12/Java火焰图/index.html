@@ -5,13 +5,13 @@
   
   <title>Java混合模型火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
+  <meta name="description" content="我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Flame">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模型火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
+<meta property="og:description" content="我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Flame">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
@@ -20,10 +20,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
-<meta property="og:updated_time" content="2017-10-20T10:57:17.000Z">
+<meta property="og:updated_time" content="2017-10-23T07:18:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模型火焰图">
-<meta name="twitter:description" content="火焰图(Flame Graph) [火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Col">
+<meta name="twitter:description" content="我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Flame">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/cpu-flame-graph.png">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -118,9 +118,10 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
-<p>[火焰图][flame-graphs]是一个用于分析包含stack traces的profile数据的可视化工具，通过它可以快速准确地定位到热点code-paths，是分析CPU瓶颈的“懒人”工具。火焰图有不同的类型：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
-<p>下图就是一个CPU的火焰图</p>
+        <p>我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
+<h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
+<p>针对不同的资源和事件类型，有不同类型的[火焰图][flame-graphs]，主要包括：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
+<p>我们先看一个CPU火焰图是什么样子的</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
 <p>对CPU火焰图的解读<br>
@@ -270,7 +271,7 @@ Netflex的性能测试结果是性能下降0-3%
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj8zq8dfz001elbshs0dwkrcx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj93uppev001hqcsh0bcgibav" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
