@@ -102,7 +102,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2017/10/12/Java火焰图/">Java混合模型火焰图</a>
+      <a class="article-title" href="/2017/10/12/Java火焰图/">Java混合模式火焰图</a>
     </h1>
   
 
@@ -110,46 +110,51 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我们在做性能调优的时候，通常会借助一些工具分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
+        <p>在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–[火焰图][flame-graphs]，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
 <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
 <p>针对不同的资源和事件类型，有不同类型的[火焰图][flame-graphs]，主要包括：[CPU][CPU-FG]、[Memory][Memory-FG]、[Off-CPU][Off-CPU-FG]、[Hot/Cold][Hot/Cold-FG]以及[Differential][Diff-FG]</p>
-<p>我们先看一个CPU火焰图是什么样子的</p>
+<p>我们先看一个CPU火焰图是什么样的，整个火焰图看起来是不是像一团火焰，这正是以火焰图命名的原因。</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
-<p>对CPU火焰图的解读<br>
+<p>Brendan Gregg在[Blazing Performance with Flame Graphs][Blazing Performance with Flame Graphs]中对如何解读火焰图有详细的介绍。<br>
 <img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
 <li>小方块<br>
-每个小方块代表一个方法（就是一个stack frame），<strong>每小方块的宽度表示该方法在采样期间出现的频率，宽度越宽表示该方法出现的频率越高</strong></li>
+每个小方块代表一个函数，对应一个栈帧（stack frame），<strong>小方块的宽度表示该函数在采样期间出现的频率，宽度越宽表示出现的频率越高</strong></li>
+</ul>
+<blockquote>
+<p>栈帧：记录函数的活动记录，保存函数局部变量，函数参数等信息。因此要想分析出函数调用堆栈关系，就需要采样到栈帧信息。</p>
+</blockquote>
+<ul>
 <li>Y轴<br>
-表示调用堆栈，体现出了stack深度，<strong>每个顶端的小方块代表正在使用CPU（on-CPU）的方法</strong></li>
+表示函数的调用栈，体现出了stack深度，<strong>每个垂直方向的顶端小方块表示正在使用CPU（on-CPU）的函数</strong></li>
 <li>X轴<br>
-标示采样总量，会对调用栈进行合并，然后根据方法的字母顺序进行排列，<strong>X轴并不代表使用CPU的时间长短，而只是说明该方法出现的频率高低，宽度越宽表示该方法出现的频率越高</strong>。国内不少的文章中都将X轴看做是使用CPU的时间长短，这是在误导读者。</li>
+表示采样数据的总量，X轴显示的数据是在对调用栈进行合并之后的结果，然后根据函数的字母顺序进行排列，<strong>X轴并不代表使用CPU的时间长短，而只是说明该方法出现的次数，宽度越宽表示该方法出现的次数越多</strong>。国内不少文章将X轴直接看作为使用CPU的时间长短，这样理解并不准确。</li>
 <li>颜色<br>
-小方块的颜色并没有特定的含义，是随机选取的暖色色调</li>
+小方块的颜色并没有特定的含义，是随机选取的暖色色调而已。</li>
 </ul>
 <h4 id="如何生成火焰图">如何生成火焰图</h4>
+<p>生成火焰图只需要两步操作：（1）采集stack traces数据，（2）使用FlameGraph脚本生成火焰图。</p>
+<p>通过[perf][perf]可以采集stack traces数据。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤<br>
+<img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
+stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]提供的脚本</p>
+<ul>
+<li>采集stack traces数据</li>
+</ul>
 <p>任何包含stack traces的profile数据都可以生成火焰图，以下profiling工具可以生成的profile数据</p>
 <blockquote>
 <p>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap<br>
 Solaris, illumos, FreeBSD: DTrace<br>
 Mac OS X: DTrace and Instruments<br>
-Windows: Xperf.exe<br>
-生成火焰图只需要两步操作：先采集stack traces数据，然后使用FlameGraph的脚本生成火焰图</p>
+Windows: Xperf.exe</p>
 </blockquote>
-<ul>
-<li>采集stack traces数据</li>
-</ul>
-<p>使用[perf][perf]工具采集stacks数据，会在当前目录下生成perf.data文件</p>
+<p>使用[perf][perf]工具采集stack数据，会在当前目录下生成perf.data文件</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
 <p>如果Linux系统未安装perf，可参考以下命令安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
-<p>更多perf的使用示例可参考[这里][perf-examples]</p>
+<p>更多perf的使用示例可参考[perf-examples][perf-examples]</p>
 <ul>
-<li>生成火焰图<br>
-通过perf的命令和脚本，就可以直接生成火焰图。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤<br>
-<img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
-stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供的</li>
+<li>生成火焰图</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
 <p>[FlameGraph][FlameGraph]提供了很多脚本，可以参考官网示例</p>
@@ -160,10 +165,11 @@ stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供�
 </blockquote>
 <p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
-<p>System profilers的火焰图不显示Java的调用栈（stack）和方法(method)，所以无法定位Java的哪个方法比较耗CPU。<br>
-为了解决这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种Java混合模型火焰图</p>
-<h3 id="java混合模型火焰图">Java混合模型火焰图</h3>
-<p>什么原因导致无法显示method以及完整的stack呢？</p>
+<p>通过perf等工具生成的火焰图只显示内核函数的调用栈，并不显示Java的调用栈（stack）和方法(method)，所以无法直接定位Java的哪个方法比较耗CPU。<br>
+为了解决不显示Java的调用栈（stack）和方法(method)这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种名为Java混合模式火焰图，这种火焰图即显示系统调用栈也显示Java调用栈，将两种信息都混合在同一个图中。</p>
+<h3 id="java混合模式火焰图">Java混合模式火焰图</h3>
+<p>我们先看看Brendan Gregg是如何解决这个问题的，如果你对这个部分的内容不感兴趣，可以直接跳过。<br>
+究竟是什么原因导致无法显示method以及完整的stack呢？</p>
 <ul>
 <li>为什么不显示method<br>
 原因在于JIT在编译method时，并没有暴露出一个symbol table，导致profiler工具无法获取具体的method。</li>
@@ -174,7 +180,7 @@ stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供�
 <p>要想解决显示method名称这个问题，首先要能够收集到symbols信息，然后再从这些信息中识别出method名称</p>
 <ul>
 <li>如何收集symbols信息<br>
-2014年Johannes Rudolph写了一个名为[perf-map-agent][perf-map-agent]的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent可以收集到symbols信息。</li>
+2014年Johannes Rudolph写了一个名为[perf-map-agent][perf-map-agent]的开源Java代理，通过这个代理可以对Java应用生成/tmp/perf-PID.map文件。这个文件里面记录了所有symbol的地址（十六进制）、大小和名称。所以通过perf-map-agent就可以解决收集symbols信息的问题。</li>
 </ul>
 <blockquote>
 <p>perf-map-agent是一个开源的Java代理，它包括一个用C写的Java代理以及一个可以将这个代理attach到Java进程的简易Java代码</p>
@@ -186,7 +192,7 @@ stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供�
 <blockquote>
 <p>如果找不到function symbol信息，当前版本的perf脚本的处理方式是采用library的名字或者perf-$PID.map文件名作为method的名字</p>
 </blockquote>
-<p>所以结合perf以及perf-map-agent生就可以在火焰图上显示出Java method。</p>
+<p>所以结合perf以及perf-map-agent就可以在火焰图上显示出Java method。</p>
 <ul>
 <li>显示不显示Java method的效果对比</li>
 </ul>
@@ -194,39 +200,80 @@ stackcollapse-perf.pl和flamegraph.pl脚本是[FlameGraph][FlameGraph]中提供�
 <p><img src="/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png" alt=""></p>
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
 <p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
-<p>这个特征能不能在JDK中实现呢？因此如果JVM能够实现通过一个选型来控制是否显示完整的stack，那么这个问题就解决。</p>
-<p>技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的[原型][openjdk8-diff]，他期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封[邮件][email]，表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
-<p>hotspot-compiler-dev社区这个特性分别记录在JDK9的[JDK-8068945][JDK-8068945]和JDK8的[JDK-8072465][JDK-8072465]中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
+<p>如果JVM能够实现通过一个选项控制是否显示完整的stack，那么就可以解决stack不完整的问题。</p>
+<p>这个特征能不能在JDK中实现呢？技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的[原型][openjdk8-diff]，并期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封[邮件][email]，低调地表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
+<p>hotspot-compiler-dev社区将这个特性分别记录在JDK9的[JDK-8068945][JDK-8068945]和JDK8的[JDK-8072465][JDK-8072465]中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
 <p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 <ul>
 <li>stack是否完整的火焰图对比</li>
 </ul>
 <p><img src="/2017/10/12/Java火焰图/no-fp" alt=""><br>
 <img src="/2017/10/12/Java火焰图/with-fp" alt=""></p>
-<h4 id="如何生成java混合模型火焰图">如何生成Java混合模型火焰图</h4>
+<h4 id="如何生成java混合模式火焰图">如何生成Java混合模式火焰图</h4>
 <ul>
 <li>安装perf</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">```</div><div class="line">* 安装[FlameGraph][FlameGraph]</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 安装[perf-map-agent][perf-map-agent]</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 配置Java参数</div></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">* 执行生成脚本</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
+<ul>
+<li>
+<p>安装[perf-map-agent][perf-map-agent]</p>
+<ul>
+<li>安装gcc和gcc-c++<br>
+如果系统中已安装gcc和gcc-c++，这一步可以跳过。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo yum install gcc</div><div class="line">sudo yum install gcc-c++</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>* 安装cmake
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">下载cmake2.8.6，解压到/home/q/perf-tools/下</div><div class="line">cd /home/q/perf-tools/cmake-2.8.6</div><div class="line">sudo  ./configure --prefix=/home/q/cmake-2.8.6</div><div class="line">sudo make &amp;&amp; make install</div></pre></td></tr></table></figure>
+
+&gt;最好安装cmake2.8.6，因为曾尝试过安装最新版本的cmake，但是在使用cmake编译perf-map-agent时失败，后来使用cmake2.8.6可以成功安装perf-map-agent。
+
+* 安装perf-map-agent
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/jvm-profiling-tools/perf-map-agent</div><div class="line">cd /home/q/perf-tools/perf-map-agent</div><div class="line">sudo /home/q/cmake-2.8.6/bin/cmake . &amp;&amp; sudo make</div></pre></td></tr></table></figure>
+</code></pre>
+<ul>
+<li>
+<p>配置Java选项<br>
+JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生效</p>
+<ul>
+<li>检查JDK版本是否大于或者等于<strong>Java 8 update 60 build 19</strong></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -version</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<pre><code>* 检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps wwp `pgrep -n java`|grep PreserveFramePointer  --color</div></pre></td></tr></table></figure>
+
+
+* 设置**-XX:+PreserveFramePointer**
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
+</code></pre>
+<ul>
+<li>安装[FlameGraph][FlameGraph]</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">```</div><div class="line"></div><div class="line">* 生成脚本</div></pre></td></tr></table></figure>
 <pre><code>
+#### Java混合模式火焰图实例
+
+
 #### 火焰图对系统性能的损耗
 
 -XX:+PreserveFramePointer对性能的影响
 Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer
 Netflex的性能测试结果是性能下降0-3%
 
-### 火焰图是谁开发的呢？
-这个图大家肯定多次见到过。没错，火焰图的作者正是这个图的作者 **Brendan Gregg**。
+### 火焰图的作者是何许人也？
+下图这个Linux性能优化图，大家肯定见过多次。没错，这个图也是出自于**Brendan Gregg**，火焰图的作者。
 ![](http://www.brendangregg.com/Perf/linux_observability_tools.png)
-&gt; **Brendan Gregg**是何许人也？
 &gt; 他现在是Netflix的高级性能架构师，主要工作是做大规模计算的性能设计、分析以及调优。之前在Sun Microsystems做一名kernel engineer
 &gt; 也是《Systems Performance》(中文版本《性能之巅：洞悉系统、企业与云计算》)一书的作者，该书荣获2013年的USENIX LISA大奖
 &gt; 也开发了很多性能分析工具，比如DTrace
 &gt; 如果你对性能调优感兴趣，可以关注他的[blog][blog]和[个人网站][web-site]
-
 
 
 [flame-graphs]:http://www.brendangregg.com/flamegraphs.html
@@ -235,6 +282,7 @@ Netflex的性能测试结果是性能下降0-3%
 [Off-CPU-FG]:http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html
 [Hot/Cold-FG]:http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html
 [Diff-FG]:http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html
+[Blazing Performance with Flame Graphs]:https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs/40
 [perf-JIT]:https://lkml.org/lkml/2009/6/8/499
 [perf-map-agent]:https://github.com/jvm-profiling-tools/perf-map-agent
 [openjdk8-diff]:https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff
@@ -803,7 +851,7 @@ Netflex的性能测试结果是性能下降0-3%
       <ul>
         
           <li>
-            <a href="/2017/10/12/Java火焰图/">Java混合模型火焰图</a>
+            <a href="/2017/10/12/Java火焰图/">Java混合模式火焰图</a>
           </li>
         
           <li>
