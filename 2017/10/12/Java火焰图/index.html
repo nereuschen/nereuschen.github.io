@@ -21,7 +21,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-24T07:53:03.000Z">
+<meta property="og:updated_time" content="2017-10-24T07:55:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
 <meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
@@ -255,17 +255,18 @@ JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生
 <p>JDK版本是否大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 </blockquote>
 <ul>
-<li>检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**</li>
+<li>检查JVM参数</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps wwp `pgrep -n java`|grep PreserveFramePointer  --color</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<pre><code>* 设置**-XX:+PreserveFramePointer**
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
-</code></pre>
+<p>检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**</p>
 <ul>
-<li>安装<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a></li>
+<li>设置**-XX:+PreserveFramePointer**</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
+</li>
+<li>
+<p>安装<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a></p>
+</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/brendangregg/FlameGraph.git</div></pre></td></tr></table></figure>
 <ul>

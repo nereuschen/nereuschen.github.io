@@ -246,17 +246,18 @@ JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生
 <p>JDK版本是否大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 </blockquote>
 <ul>
-<li>检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**</li>
+<li>检查JVM参数</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps wwp `pgrep -n java`|grep PreserveFramePointer  --color</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<pre><code>* 设置**-XX:+PreserveFramePointer**
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
-</code></pre>
+<p>检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**</p>
 <ul>
-<li>安装<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a></li>
+<li>设置**-XX:+PreserveFramePointer**</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
+</li>
+<li>
+<p>安装<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a></p>
+</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/brendangregg/FlameGraph.git</div></pre></td></tr></table></figure>
 <ul>
