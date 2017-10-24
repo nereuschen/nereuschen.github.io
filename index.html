@@ -219,23 +219,22 @@ Windows: Xperf.exe</p>
 <li>
 <p>安装<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a></p>
 <ul>
-<li>安装gcc和gcc-c++<br>
-如果系统中已安装gcc和gcc-c++，这一步可以跳过。</li>
+<li>安装gcc和gcc-c++</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sudo yum install gcc</div><div class="line">sudo yum install gcc-c++</div></pre></td></tr></table></figure>
-</li>
-</ul>
-<pre><code>* 安装cmake
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">下载cmake2.8.6，解压到/home/q/perf-tools/下</div><div class="line">cd /home/q/perf-tools/cmake-2.8.6</div><div class="line">sudo  ./configure --prefix=/home/q/cmake-2.8.6</div><div class="line">sudo make &amp;&amp; make install</div></pre></td></tr></table></figure>
-
-&gt;最好安装cmake2.8.6，因为曾尝试过安装最新版本的cmake，但是在使用cmake编译perf-map-agent时失败，后来使用cmake2.8.6可以成功安装perf-map-agent。
-
-* 安装perf-map-agent
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/jvm-profiling-tools/perf-map-agent</div><div class="line">cd /home/q/perf-tools/perf-map-agent</div><div class="line">sudo /home/q/cmake-2.8.6/bin/cmake . &amp;&amp; sudo make</div></pre></td></tr></table></figure>
-</code></pre>
+<p>如果系统中已安装gcc和gcc-c++，这一步可以跳过。</p>
 <ul>
+<li>安装cmake</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">下载cmake2.8.6，解压到/home/q/perf-tools/下</div><div class="line">cd /home/q/perf-tools/cmake-2.8.6</div><div class="line">sudo  ./configure --prefix=/home/q/cmake-2.8.6</div><div class="line">sudo make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<blockquote>
+<p>最好安装cmake2.8.6，因为曾尝试过安装最新版本的cmake，但是在使用cmake编译perf-map-agent时失败，后来使用cmake2.8.6可以成功安装perf-map-agent。</p>
+</blockquote>
+<ul>
+<li>安装perf-map-agent</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/jvm-profiling-tools/perf-map-agent</div><div class="line">cd /home/q/perf-tools/perf-map-agent</div><div class="line">sudo /home/q/cmake-2.8.6/bin/cmake . &amp;&amp; sudo make</div></pre></td></tr></table></figure>
+</li>
 <li>
 <p>配置Java选项<br>
 JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生效</p>
