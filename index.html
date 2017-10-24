@@ -239,17 +239,19 @@ Windows: Xperf.exe</p>
 <p>配置Java选项<br>
 JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生效</p>
 <ul>
-<li>检查JDK版本是否大于或者等于<strong>Java 8 update 60 build 19</strong></li>
+<li>检查JDK版本</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -version</div></pre></td></tr></table></figure>
+<blockquote>
+<p>JDK版本是否大于或者等于<strong>Java 8 update 60 build 19</strong></p>
+</blockquote>
+<ul>
+<li>检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps wwp `pgrep -n java`|grep PreserveFramePointer  --color</div></pre></td></tr></table></figure>
 </li>
 </ul>
-<pre><code>* 检查JVM参数是否已经配置过选型**-XX:+PreserveFramePointer**
-
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ps wwp `pgrep -n java`|grep PreserveFramePointer  --color</div></pre></td></tr></table></figure>
-
-
-* 设置**-XX:+PreserveFramePointer**
+<pre><code>* 设置**-XX:+PreserveFramePointer**
 
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">	</div></pre></td></tr></table></figure>
 </code></pre>
