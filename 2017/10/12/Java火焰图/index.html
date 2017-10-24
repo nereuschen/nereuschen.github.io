@@ -21,7 +21,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-23T11:10:33.000Z">
+<meta property="og:updated_time" content="2017-10-24T07:49:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
 <meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
@@ -223,6 +223,7 @@ Windows: Xperf.exe</p>
 <li>安装perf</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
+<p>如果perf已经安装过，可以跳过安装这一步</p>
 <ul>
 <li>
 <p>安装<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a></p>
