@@ -6,26 +6,27 @@
   <title>Java混合模式火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
+<meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模式火焰图">
-<meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
+<meta property="og:url" content="https://nereuschen.github.io/2017/10/02/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
 <meta property="og:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/perf-flame-graph.png">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-without-stacks.svg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-without-stacks.svg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-with-stack.svg">
-<meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-with-stack.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-sys-call.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/how-to-read.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/perf-flame-graph.png">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-without-stacks.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-sys-call.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-without-stacks.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg">
+<meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-25T02:46:23.000Z">
+<meta property="og:updated_time" content="2017-10-25T02:59:19.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
 <meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
-<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg">
+<meta name="twitter:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-sys-call.svg">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -95,10 +96,14 @@
       <div class="outer">
         <section id="main"><article id="post-Java火焰图" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2017/10/12/Java火焰图/" class="article-date">
-  <time datetime="2017-10-12T07:30:15.000Z" itemprop="datePublished">2017-10-12</time>
+    <a href="/2017/10/02/Java火焰图/" class="article-date">
+  <time datetime="2017-10-02T07:30:15.000Z" itemprop="datePublished">2017-10-02</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/性能优化/">性能优化</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -121,10 +126,10 @@
 <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
 <p>针对不同的资源和事件类型，有不同类型的<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，主要包括：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a><br>
 我们先看一个CPU火焰图是什么样的，整个火焰图看起来是不是像一团火焰，这正是以火焰图命名的原因。<strong>本文中所描述的火焰图默认是指CPU火焰图</strong>。</p>
-<p><img src="/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg" alt=""></p>
+<p><img src="/2017/10/02/Java火焰图/flame-graph-with-sys-call.svg" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
 <p>Brendan Gregg在<a href="https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs/40" target="_blank" rel="external">Blazing Performance with Flame Graphs</a>一文中对如何解读火焰图有详细的介绍。<br>
-<img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
+<img src="/2017/10/02/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
 <li>小方块<br>
 每个小方块代表一个函数，对应一个栈帧（stack frame），<strong>小方块的宽度表示该函数在采样期间出现的频率，宽度越宽表示出现的频率越高</strong></li>
@@ -144,7 +149,7 @@
 <h4 id="如何生成火焰图">如何生成火焰图</h4>
 <p>生成火焰图只需要两步操作：（1）采集stack traces数据，（2）使用FlameGraph脚本生成火焰图。<br>
 <a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>是最常用的采集stack traces数据的工具。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤。<br>
-<img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
+<img src="/2017/10/02/Java火焰图/perf-flame-graph.png" alt=""><br>
 图中的脚本stackcollapse-perf.pl和flamegraph.pl由火焰图工具<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供</p>
 <ul>
 <li>采集stack traces数据</li>
@@ -205,8 +210,8 @@ stack traces数据采集完之后，通过<a href="https://github.com/brendangre
 <ul>
 <li>显示不显示Java method的效果对比</li>
 </ul>
-<p><img src="/2017/10/12/Java火焰图/flame-graph-with-java-method-without-stacks.svg" alt="显示JAVA method"></p>
-<p><img src="/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg" alt="不显示JAVA method"></p>
+<p><img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-without-stacks.svg" alt="显示JAVA method"></p>
+<p><img src="/2017/10/02/Java火焰图/flame-graph-with-sys-call.svg" alt="不显示JAVA method"></p>
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
 <p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。然而在使用gcc时，如果使用了-fno-omit-frame-pointer选项，就会显示完整的stack。但是JVM并没有对应的选项对否显示完整的stack进行控制。</p>
 <p>如果JVM能够实现一个选项，那么就可以解决stack不完整的问题。</p>
@@ -216,8 +221,8 @@ stack traces数据采集完之后，通过<a href="https://github.com/brendangre
 <ul>
 <li>stack是否完整的火焰图对比</li>
 </ul>
-<p><img src="/2017/10/12/Java火焰图/flame-graph-with-java-method-without-stacks.svg" alt=""><br>
-<img src="/2017/10/12/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
+<p><img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-without-stacks.svg" alt=""><br>
+<img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
 <h4 id="如何生成java混合模式火焰图">如何生成Java混合模式火焰图</h4>
 <ul>
 <li>安装perf</li>
@@ -281,7 +286,7 @@ JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生
 <p>在根据上面的步骤安装完对应的工具之后，我们可以通过上面提供的脚本生成火焰图。下面这个实例是对Java进程8708采样30秒，然后生成名为flamegraph-mixed-model-<code>date +%Y%m%d-%H%M%S</code>.svg的Java混合模式火焰图。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo ./gen-flame-graph.sh 30 8708</div></pre></td></tr></table></figure>
 <p>生成的Java混合模式火焰图如下：<br>
-<img src="/2017/10/12/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
+<img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
 <h4 id="火焰图对系统性能的损耗">火焰图对系统性能的损耗</h4>
 <p>-XX:+PreserveFramePointer对性能的影响<br>
 Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer<br>
@@ -302,19 +307,30 @@ Netflex的性能测试结果是性能下降0-3%</p>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj96b7i9g000xj2shm2ts35s6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/02/Java火焰图/" data-id="cj96gc2f60000vdshwy6k6ptg" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
+
     </footer>
   </div>
   
     
 <nav id="article-nav">
   
+    <a href="/2017/10/12/Java火焰图/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Java混合模式火焰图
+        
+      </div>
+    </a>
   
-    <a href="/2017/10/02/Java火焰图/" id="article-nav-older" class="article-nav-link-wrap">
+  
+    <a href="/2017/09/18/Kafka高可靠场景下的性能表现/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Java混合模式火焰图</div>
+      <div class="article-nav-title">Kafka高可靠场景下的性能表现</div>
     </a>
   
 </nav>
