@@ -5,13 +5,13 @@
   
   <title>Java混合模式火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
+  <meta name="description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
 <meta name="keywords" content="火焰图">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java混合模式火焰图">
 <meta property="og:url" content="https://nereuschen.github.io/2017/10/12/Java火焰图/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
+<meta property="og:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/how-to-read.png">
@@ -21,10 +21,10 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-without-stacks.svg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-java-method-with-stack.svg">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-25T02:23:25.000Z">
+<meta property="og:updated_time" content="2017-10-25T02:36:02.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
-<meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
+<meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
 <meta name="twitter:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/flame-graph-with-sys-call.svg">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
@@ -120,6 +120,8 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p>在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
+<p>本文内容涵盖了如何理解火焰图、如何生成火焰图、火焰图有哪些缺陷、如何解决这些缺陷、以及Java混合模式火焰图的具体生成步骤和具体实例。</p>
+<a id="more"></a>
 <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
 <p>针对不同的资源和事件类型，有不同类型的<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，主要包括：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a><br>
 我们先看一个CPU火焰图是什么样的，整个火焰图看起来是不是像一团火焰，这正是以火焰图命名的原因。</p>
