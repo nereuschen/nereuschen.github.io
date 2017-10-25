@@ -21,7 +21,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/no-fp">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/12/Java火焰图/with-fp">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-24T07:55:01.000Z">
+<meta property="og:updated_time" content="2017-10-25T01:02:38.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
 <meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 火焰图(Fl">
@@ -121,18 +121,19 @@
       
         <p>在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。<strong>Brendan Gregg</strong>开发了一种可视化的性能分析工具–<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。</p>
 <h3 id="火焰图-flame-graph">火焰图(Flame Graph)</h3>
-<p>针对不同的资源和事件类型，有不同类型的<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，主要包括：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a></p>
-<p>我们先看一个CPU火焰图是什么样的，整个火焰图看起来是不是像一团火焰，这正是以火焰图命名的原因。</p>
+<p>针对不同的资源和事件类型，有不同类型的<a href="http://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">火焰图</a>，主要包括：<a href="http://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html" target="_blank" rel="external">CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/memoryflamegraphs.html" target="_blank" rel="external">Memory</a>、<a href="http://www.brendangregg.com/FlameGraphs/offcpuflamegraphs.html" target="_blank" rel="external">Off-CPU</a>、<a href="http://www.brendangregg.com/FlameGraphs/hotcoldflamegraphs.html" target="_blank" rel="external">Hot/Cold</a>以及<a href="http://www.brendangregg.com/blog/2014-11-09/differential-flame-graphs.html" target="_blank" rel="external">Differential</a><br>
+我们先看一个CPU火焰图是什么样的，整个火焰图看起来是不是像一团火焰，这正是以火焰图命名的原因。</p>
 <p><img src="/2017/10/12/Java火焰图/cpu-flame-graph.png" alt=""></p>
 <h4 id="理解火焰图">理解火焰图</h4>
-<p>Brendan Gregg在<a href="https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs/40" target="_blank" rel="external">Blazing Performance with Flame Graphs</a>中对如何解读火焰图有详细的介绍。<br>
+<p>Brendan Gregg在<a href="https://www.slideshare.net/brendangregg/blazing-performance-with-flame-graphs/40" target="_blank" rel="external">Blazing Performance with Flame Graphs</a>一文中对如何解读火焰图有详细的介绍。<br>
 <img src="/2017/10/12/Java火焰图/how-to-read.png" alt=""></p>
 <ul>
 <li>小方块<br>
 每个小方块代表一个函数，对应一个栈帧（stack frame），<strong>小方块的宽度表示该函数在采样期间出现的频率，宽度越宽表示出现的频率越高</strong></li>
 </ul>
 <blockquote>
-<p>栈帧：记录函数的活动记录，保存函数局部变量，函数参数等信息。因此要想分析出函数调用堆栈关系，就需要采样到栈帧信息。</p>
+<p>栈帧：用于记录函数的活动记录，保存函数局部变量，函数参数等信息<br>
+因此要想分析出函数调用堆栈关系，就需要采样到栈帧信息。</p>
 </blockquote>
 <ul>
 <li>Y轴<br>
@@ -143,30 +144,31 @@
 小方块的颜色并没有特定的含义，是随机选取的暖色色调而已。</li>
 </ul>
 <h4 id="如何生成火焰图">如何生成火焰图</h4>
-<p>生成火焰图只需要两步操作：（1）采集stack traces数据，（2）使用FlameGraph脚本生成火焰图。</p>
-<p>通过<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>可以采集stack traces数据。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤<br>
+<p>生成火焰图只需要两步操作：（1）采集stack traces数据，（2）使用FlameGraph脚本生成火焰图。<br>
+<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>是最常用的采集stack traces数据的工具。下图显示了perf的工作流程，其中perf record展示了生成火焰图的主要步骤。<br>
 <img src="/2017/10/12/Java火焰图/perf-flame-graph.png" alt=""><br>
-stackcollapse-perf.pl和flamegraph.pl脚本是<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供的脚本</p>
+图中的脚本stackcollapse-perf.pl和flamegraph.pl由火焰图工具<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供</p>
 <ul>
 <li>采集stack traces数据</li>
 </ul>
-<p>任何包含stack traces的profile数据都可以生成火焰图，以下profiling工具可以生成的profile数据</p>
+<p>由于火焰图是根据任何包含stack traces的profile数据生成的，所以首先必须采集stack traces数据。以下列举的profiling工具都可以采集profile数据</p>
 <blockquote>
 <p>Linux: perf_events(简称perf) , eBPF, SystemTap, and ktap<br>
 Solaris, illumos, FreeBSD: DTrace<br>
 Mac OS X: DTrace and Instruments<br>
 Windows: Xperf.exe</p>
 </blockquote>
-<p>使用<a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>工具采集stack数据，会在当前目录下生成perf.data文件</p>
+<p><a href="https://perf.wiki.kernel.org/index.php/Main_Page" target="_blank" rel="external">perf</a>是最常用的采集stack数据工具，通过perf采集数据时会在当前目录下生成perf.data文件。执行以下命令就可以完成数据采集。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf record -F 99 -a -g -- sleep 30</div></pre></td></tr></table></figure>
-<p>如果Linux系统未安装perf，可参考以下命令安装</p>
+<p>如果Linux系统未安装perf，可参考以下命令安装perf</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
 <p>更多perf的使用示例可参考<a href="http://www.brendangregg.com/perf.html" target="_blank" rel="external">perf-examples</a></p>
 <ul>
-<li>生成火焰图</li>
+<li>生成火焰图<br>
+stack traces数据采集完之后，通过<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供的python脚本就可以生成火焰图。</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo perf script | ./stackcollapse-perf.pl | ./flamegraph.pl &gt; out.svg</div></pre></td></tr></table></figure>
-<p><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，可以参考官网示例</p>
+<p>perf script会默认在当前目录下查找通过perf生成的perf.data文件。<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">FlameGraph</a>提供了很多脚本，具体的使用方式可以参考官网示例。</p>
 <blockquote>
 <p>perf script: 读取perf.data的文件内容，并以多行的形式生成stacks<br>
 <a href="http://stackcollapse-perf.pl" target="_blank" rel="external">stackcollapse-perf.pl</a>: 将多行形式的stacks折叠成一行记录<br>
@@ -174,10 +176,10 @@ Windows: Xperf.exe</p>
 </blockquote>
 <p>该svg格式的火焰图内嵌了JS代码，通过浏览器打开，自带了交互功能：鼠标移动显示方法信息、可以点击放大或者缩小调用栈以及通过表达式查找对应的方法名。</p>
 <h4 id="火焰图的缺陷">火焰图的缺陷</h4>
-<p>通过perf等工具生成的火焰图只显示内核函数的调用栈，并不显示Java的调用栈（stack）和方法(method)，所以无法直接定位Java的哪个方法比较耗CPU。<br>
-为了解决不显示Java的调用栈（stack）和方法(method)这两个问题，Brendan Gregg对火焰图工具进行了改进，创造出一种名为Java混合模式火焰图，这种火焰图即显示系统调用栈也显示Java调用栈，将两种信息都混合在同一个图中。</p>
+<p>通过perf等工具生成的火焰图只显示内核函数的调用栈，并不显示Java的调用栈（stack）和方法(method)，所以火焰图无法直接定位Java出是哪个方法比较耗CPU，这正是火焰图的缺陷。<br>
+为了解决火焰图不显示Java的调用栈（stack）和方法(method)这个缺陷，Brendan Gregg对火焰图工具进行了改进，创造出一种名为Java混合模式火焰图，这种火焰图即显示系统调用栈又显示Java调用栈和方法，将这两类信息都混合在一起，展现在一个图中，混合模式火焰图因此而命名。</p>
 <h3 id="java混合模式火焰图">Java混合模式火焰图</h3>
-<p>我们先看看Brendan Gregg是如何解决这个问题的，如果你对这个部分的内容不感兴趣，可以直接跳过。<br>
+<p>Brendan Gregg是如何解决这个问题的呢？如果你对这个部分的内容不感兴趣，可以直接跳过。<br>
 究竟是什么原因导致无法显示method以及完整的stack呢？</p>
 <ul>
 <li>为什么不显示method<br>
@@ -208,9 +210,9 @@ Windows: Xperf.exe</p>
 <p><img src="/2017/10/12/Java火焰图/flame-graph-without-symbols.png" alt=""></p>
 <p><img src="/2017/10/12/Java火焰图/perf-flame-fixed-symbols.png" alt=""></p>
 <h4 id="如何解决stack不完整的问题">如何解决stack不完整的问题</h4>
-<p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。但是如果在使用gcc时，使用了-fno-omit-frame-pointer选项，那么就会显示完整的stack。然而JVM并没有对应的选项来控制是否显示完整的stack。</p>
-<p>如果JVM能够实现通过一个选项控制是否显示完整的stack，那么就可以解决stack不完整的问题。</p>
-<p>这个特征能不能在JDK中实现呢？技术大咔Brendan出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，并期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，低调地表达了自己不是资深的hotspot工程师，希望有人可以优化或者重写这个原型。</p>
+<p>多年来编译器一直在不断地持续优化，gcc编译器使用了frame pointer，这种技术打断了stack的调用栈，使得stack不完整。然而在使用gcc时，如果使用了-fno-omit-frame-pointer选项，就会显示完整的stack。但是JVM并没有对应的选项对否显示完整的stack进行控制。</p>
+<p>如果JVM能够实现一个选项，那么就可以解决stack不完整的问题。</p>
+<p>这个特征能不能在JDK中实现呢？技术大咔Brendan Gregg出于好奇，他在OpenJDK8上开发了一个可以工作的<a href="https://github.com/brendangregg/Misc/blob/master/java/openjdk8_b132-fp.diff" target="_blank" rel="external">原型</a>，并期望能够在Oracle JDK中实现这个特征，于是他在hotspot-compiler-dev开发邮件组中发了一封<a href="http://mail.openjdk.java.net/pipermail/hotspot-compiler-dev/2014-December/016477.html" target="_blank" rel="external">邮件</a>，低调地表达了自己不是资深的hotspot工程师，希望有人可以继续优化或者重写他写的这个原型。</p>
 <p>hotspot-compiler-dev社区将这个特性分别记录在JDK9的<a href="https://bugs.openjdk.java.net/browse/JDK-8068945" target="_blank" rel="external">JDK-8068945</a>和JDK8的<a href="https://bugs.openjdk.java.net/browse/JDK-8072465" target="_blank" rel="external">JDK-8072465</a>中。Oracle的工程师Zoltán Majó为了重写了这个patch做了大量的工作，四个月后终于完成，将这个特性集成在JDK9和JDK8（JDK8 update 60 build 19）的发布版本里，使用选项 -XX:+PreserveFramePointer控制是否显示完整的stack。</p>
 <p>因此通过打开 -XX:+PreserveFramePointer就解决了stack不完整的问题，前提是JDK的版本必须大于或者等于<strong>Java 8 update 60 build 19</strong></p>
 <ul>
@@ -296,7 +298,7 @@ Netflex的性能测试结果是性能下降0-3%</p>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj93uppev001hqcsh0bcgibav" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/12/Java火焰图/" data-id="cj96b7i9g000xj2shm2ts35s6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
