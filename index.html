@@ -84,6 +84,51 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Kafka的定位：不只是消息系统，而是流式平台" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/" class="article-date">
+  <time datetime="2017-11-13T07:15:24.000Z" itemprop="datePublished">2017-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/大数据/">大数据</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/">Kafka的定位：不只是消息系统，而是流式平台</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Apache Kafka v1.0: Completeness of our vision</p>
+<p>2009年创建Kafka的时候，对Kafka的定位是一个流式数据的分布式基础设施平台。</p>
+<p>起初，Kafka只实现了一个log-like的抽象以及一套发布订阅的APIs，于是实现了高度扩展的发布订阅消息系统，但没有实现分布式系统中的消息复制和消息有序的问题，因为这两个问题实现起来都比较复杂</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/" data-id="cjbdhdu7g001pvqsh4ud5ecgm" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-Java火焰图" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/10/02/Java火焰图/" class="article-date">
@@ -120,7 +165,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/02/Java火焰图/" data-id="cj96gcifo001ivqshqjzhcjb6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/02/Java火焰图/" data-id="cjbdhdu73001evqsh8f4fwrs5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
@@ -172,7 +217,235 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cj96gcifk001fvqsh303o6ibx" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/09/18/Kafka高可靠场景下的性能表现/" data-id="cjbdhdu78001hvqshef6neuws" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/" class="article-date">
+  <time datetime="2017-07-20T14:52:41.000Z" itemprop="datePublished">2017-07-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/分布式/">分布式</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/">主流开源MQ对比：Kafka vs RabbitMQ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kafka团队起初也调研过主流的消息中间件，比如ActiveMQ，但是他们在生产环节对这些消息中间件进行测试时，发现了两个重大问题：<br>
+（1）消息优先存放在内存中，当存放消息的内存用完时，会将后续消息写入磁盘，而这些大量的随机I/O严重影响写入性能；<br>
+（2）针对多个消费者消费同一个消息的场景，采用复制消息这种非常重的操作来解决<br>
+这些消息系统的设计目标是低延时，而不是LinkedIn所需要解决的大规模水平扩展的部署能力（messaging systems target low-latency settings rather than the high- volume scale-out deployment ）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">Apache Kafka</th>
+<th style="text-align:left">RabbitMQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Create date</td>
+<td style="text-align:left">2011</td>
+<td style="text-align:left">2007</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">LinkedIn</td>
+<td style="text-align:left">2007</td>
+</tr>
+<tr>
+<td style="text-align:left">Lincense</td>
+<td style="text-align:left">Apache (Open source)</td>
+<td style="text-align:left">Mozilla Public License (Open source)</td>
+</tr>
+<tr>
+<td style="text-align:left">Enterprise support available</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Programming language</td>
+<td style="text-align:left">Scala</td>
+<td style="text-align:left">Erlang</td>
+</tr>
+<tr>
+<td style="text-align:left">AMQP compliant</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Officially supported clients</td>
+<td style="text-align:left">Java</td>
+<td style="text-align:left">Java, .NET/C#, Erlang</td>
+</tr>
+<tr>
+<td style="text-align:left">Other available clients</td>
+<td style="text-align:left">~ 10 languages</td>
+<td style="text-align:left">~ 13 languages</td>
+</tr>
+<tr>
+<td style="text-align:left">Documentation, examplesand community</td>
+<td style="text-align:left">∿  Immature and incomplete</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Main storage space</td>
+<td style="text-align:left">Disk</td>
+<td style="text-align:left">RAM</td>
+</tr>
+<tr>
+<td style="text-align:left">Ordered storage and delivery</td>
+<td style="text-align:left">👍   At partition level</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Queue content persistence</td>
+<td style="text-align:left">👍 Complete and mandatory</td>
+<td style="text-align:left">∿ Temporary and optional</td>
+</tr>
+<tr>
+<td style="text-align:left">Message deletion</td>
+<td style="text-align:left">After reaching size or time limit</td>
+<td style="text-align:left">Immediately after confirmed consumption</td>
+</tr>
+<tr>
+<td style="text-align:left">Queue data compression</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Predefined queues on broker</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Multiple different consumers of same data set</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">∿ Needs queue duplication</td>
+</tr>
+<tr>
+<td style="text-align:left">Load balancing across a set of same consumers</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Remote2 queue definition</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">message routing</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Permission and access control list support</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">SSL support</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Clustering support</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Self-sufficient</td>
+<td style="text-align:left">👎 Needs ZooKeeper</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Management and monitoring interface</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Batch delivery</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Asynchronous publishing</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Publisher confirms(acknowledgements)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Push delivery from broker</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Pull delivery (fetch)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Prefetch count</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Message replay capability</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Consumer confirms(acknowledgements)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Message reject/re-queuing</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+</tbody>
+</table>
+<h3 id="使用场景">使用场景</h3>
+<h3 id="性能对比">性能对比</h3>
+<h4 id="kafka">Kafka</h4>
+<p>version:0.11.0.0</p>
+<p><a href="https://softwaremill.com/mqperf/#kafka" target="_blank" rel="external">https://softwaremill.com/mqperf/#kafka</a></p>
+<p>[]:<a href="http://kth.diva-portal.org/smash/get/diva2:813137/FULLTEXT01.pdf" target="_blank" rel="external">http://kth.diva-portal.org/smash/get/diva2:813137/FULLTEXT01.pdf</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/" data-id="cjbdhdu7b001lvqsh5217xe58" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -221,7 +494,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cj96gcifh001cvqsh7lddzpse" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/07/12/MySQL-CPU-sys飙高/" data-id="cjbdhdu6r0011vqsheqazi1tu" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/sysbench/">sysbench</a></li></ul>
@@ -274,7 +547,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cj96gcif90012vqshssg201qp" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/08/08/深入理解Kafka调优的核心参数/" data-id="cjbdhdu71001bvqshwn4p26q6" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
@@ -323,7 +596,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cj96gcifg001avqshftxjk7tq" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/17/限流技术的应用场景/" data-id="cjbdhdu6u0015vqshpt5bu7ws" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -380,7 +653,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cj96gcifb0015vqshu2byj2rs" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2016/03/06/限流技术的常见算法及其实现/" data-id="cjbdhdu6y0018vqshvmfyg7du" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/限流/">限流</a></li></ul>
@@ -431,7 +704,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cj96gciey000yvqshckd967us" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/11/17/MySQL的核心监控指标/" data-id="cjbdhdu67000rvqshdx9b5vy9" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MySQL/">MySQL</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/监控/">监控</a></li></ul>
@@ -485,117 +758,10 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cj96gciew000wvqshc8vlqwmf" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2015/09/16/ElasticSearch内存使用分析/" data-id="cjbdhdu6b000svqsh72qu4vpd" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Kafka-Best-Practices" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/09/12/Kafka-Best-Practices/" class="article-date">
-  <time datetime="2015-09-12T13:35:13.000Z" itemprop="datePublished">2015-09-12</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/大数据/">大数据</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/09/12/Kafka-Best-Practices/">Kafka Best Practices</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://kafka.apache.org/documentation/#config" target="_blank" rel="external">Kafka官网</a>给我们提供了一些很好的最佳实践，但是内容还不够详实。<br>
-所以这篇文章整理了各大公司Kafka最佳实践的最新资料，为使用Kafka提供参考。</p>
-<p><strong>UPDATE</strong>:内容更新如下</p>
-<ul>
-<li>在最新版本中Kafka的部分属性的默认值会发生变化，本文已经根据当前最新版本（2.11-0.11.0.0）进行重新整理。</li>
-<li>本文已整合2017年Hortonworks公司在<a href="http://www.dataworkssummit.com" target="_blank" rel="external">DataWorks Summit/Hadoop Summit</a>上分享的<a href="HadoopSummit">干货内容</a>。</li>
-</ul>
-        
-          <p class="article-more-link">
-            <a href="/2015/09/12/Kafka-Best-Practices/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/09/12/Kafka-Best-Practices/" data-id="cj96gcies000svqshtrrvmc51" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Software-Architecture-Patterns" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2015/08/21/Software-Architecture-Patterns/" class="article-date">
-  <time datetime="2015-08-21T13:54:16.000Z" itemprop="datePublished">2015-08-21</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/架构/">架构</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2015/08/21/Software-Architecture-Patterns/">软件架构模式的实践</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://www.oreilly.com/programming/free/software-architecture-patterns.csp" target="_blank" rel="external">《Software Architecture Patterns》</a><a href="http://www.oreilly.com/programming/free/files/software-architecture-patterns.pdf" target="_blank" rel="external">（PDF）</a>这本书的内容短小精悍、通俗易懂，举的例子相对简单，偏重理论。<br>
-根据我对这本书的理解以及在架构方面的实践总结形成了这篇文章，重点讲讲这些模式的具体实践。</p>
-<p>从这本涉及到的技术概念可以看出，作者偏重于企业级应用的架构。<br>
-比如文中提到的：Spring Integration、Apache Camel和Mule ESB ，他们都是主流的开源<a href="http://www.enterpriseintegrationpatterns.com" target="_blank" rel="external">EIP</a>框架，这些框架并不适用于互联网公司，相对于互联网的业务逻辑，这些框架太重，不是轻量级的框架。还提到了BPEL引擎，比如Apache ODE和jBPM。</p>
-<blockquote>
-<p>EIP: Enterprise Integration Patterns 企业集成模式，涵盖了40+种模式</p>
-</blockquote>
-<p>本文涉及到分层架构、事件驱动架构、微内核架构以及微服务架构。书中最后描述的基于空间的架构（基于云的架构），因为实际应用中未涉及到，所以本文不作描述。</p>
-        
-          <p class="article-more-link">
-            <a href="/2015/08/21/Software-Architecture-Patterns/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2015/08/21/Software-Architecture-Patterns/" data-id="cj96gciem000qvqshz3fm60bk" class="article-share-link">Share</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/架构/">架构</a></li></ul>
 
     </footer>
   </div>
@@ -618,7 +784,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/性能优化/">性能优化</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/性能优化/">性能优化</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -628,7 +794,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/火焰图/">火焰图</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/火焰图/">火焰图</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -647,7 +813,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -660,6 +826,10 @@
       <ul>
         
           <li>
+            <a href="/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/">Kafka的定位：不只是消息系统，而是流式平台</a>
+          </li>
+        
+          <li>
             <a href="/2017/10/02/Java火焰图/">Java混合模式火焰图</a>
           </li>
         
@@ -668,15 +838,11 @@
           </li>
         
           <li>
+            <a href="/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/">主流开源MQ对比：Kafka vs RabbitMQ</a>
+          </li>
+        
+          <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
-          </li>
-        
-          <li>
-            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka的核心调优参数</a>
-          </li>
-        
-          <li>
-            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
       </ul>

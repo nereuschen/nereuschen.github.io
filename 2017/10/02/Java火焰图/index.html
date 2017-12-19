@@ -22,7 +22,7 @@
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg">
 <meta property="og:image" content="https://nereuschen.github.io/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg">
 <meta property="og:image" content="http://www.brendangregg.com/Perf/linux_observability_tools.png">
-<meta property="og:updated_time" content="2017-10-25T02:59:19.000Z">
+<meta property="og:updated_time" content="2017-12-19T10:21:12.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java混合模式火焰图">
 <meta name="twitter:description" content="在做性能调优的时候，我们通常会借助一些性能分析工具（比如perf，DTrace）分析系统资源的使用情况，比如CPU、内存等，但这些工具分析的结果通常是文本形式，不够直观，不便于快速定位系统瓶颈。Brendan Gregg开发了一种可视化的性能分析工具–火焰图，这种工具通过分析包含stack traces的profile数据，以可视化的形式展现出来，通过它可以快速准确地定位到热点代码。 本文内容涵盖">
@@ -227,8 +227,10 @@ stack traces数据采集完之后，通过<a href="https://github.com/brendangre
 <ul>
 <li>安装perf</li>
 </ul>
+<p>安装perf之前，先check OS（Linux环境）是否已经安装过</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">perf --version</div></pre></td></tr></table></figure>
+<p>如果perf已经安装过，可以跳过安装这一步；如果未安装，执行以下命令完成安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo yum install perf</div></pre></td></tr></table></figure>
-<p>如果perf已经安装过，可以跳过安装这一步</p>
 <ul>
 <li>
 <p>安装<a href="https://github.com/jvm-profiling-tools/perf-map-agent" target="_blank" rel="external">perf-map-agent</a></p>
@@ -240,7 +242,8 @@ stack traces数据采集完之后，通过<a href="https://github.com/brendangre
 <ul>
 <li>安装cmake</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">下载cmake2.8.6，解压到/home/q/perf-tools/下</div><div class="line">cd /home/q/perf-tools/cmake-2.8.6</div><div class="line">sudo  ./configure --prefix=/home/q/cmake-2.8.6</div><div class="line">sudo make &amp;&amp; make install</div></pre></td></tr></table></figure>
+<p>下载cmake2.8.6，解压到/home/q/perf-tools/下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">sudo mkdir /home/q/perf-tools</div><div class="line">cd /home/q/perf-tools/cmake-2.8.6</div><div class="line">sudo  ./configure --prefix=/home/q/cmake-2.8.6</div><div class="line">sudo make &amp;&amp; make install</div></pre></td></tr></table></figure>
 <blockquote>
 <p>最好安装cmake2.8.6，因为我曾尝试过安装最新版本的cmake，但是在使用cmake编译perf-map-agent时失败，后来使用cmake2.8.6可以成功安装perf-map-agent。</p>
 </blockquote>
@@ -285,8 +288,12 @@ JDK&gt;=Java 8 update 60 build 19，选型**-XX:+PreserveFramePointer**才能生
 <h4 id="java混合模式火焰图实例">Java混合模式火焰图实例</h4>
 <p>在根据上面的步骤安装完对应的工具之后，我们可以通过上面提供的脚本生成火焰图。下面这个实例是对Java进程8708采样30秒，然后生成名为flamegraph-mixed-model-<code>date +%Y%m%d-%H%M%S</code>.svg的Java混合模式火焰图。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo ./gen-flame-graph.sh 30 8708</div></pre></td></tr></table></figure>
-<p>生成的Java混合模式火焰图如下：<br>
-<img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
+<p>执行脚本过程中，如果遇到以下错误</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Expected libperfmap.so at &apos;/home/q/flamegraph/perf-map-agent/libperfmap.so&apos; but it didn&apos;t exist.</div></pre></td></tr></table></figure>
+<p><a href="http://xn--copylibperfmap-o79vh26m8f7aplzktu4b.so" target="_blank" rel="external">就需要copy文件libperfmap.so</a>，然后再次执行生成火焰图的脚本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">cp /home/q/flamegraph/perf-map-agent/out/libperfmap.so  /home/q/flamegraph/perf-map-agent</div></pre></td></tr></table></figure>
+<p>生成的Java混合模式火焰图如下：</p>
+<p><img src="/2017/10/02/Java火焰图/flame-graph-with-java-method-with-stack.svg" alt=""></p>
 <h4 id="火焰图对系统性能的损耗">火焰图对系统性能的损耗</h4>
 <p>-XX:+PreserveFramePointer对性能的影响<br>
 Orcale的性能测试团队测试的结果是性能下降2%-5%（SPECjvm2008-Derby* -2% to -5%），出于对性能的考虑，他们建议默认配置不启用PreserveFramePointer<br>
@@ -307,7 +314,7 @@ Netflex的性能测试结果是性能下降0-3%</p>
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://nereuschen.github.io/2017/10/02/Java火焰图/" data-id="cj96gcifo001ivqshqjzhcjb6" class="article-share-link">Share</a>
+      <a data-url="https://nereuschen.github.io/2017/10/02/Java火焰图/" data-id="cjbdhdu73001evqsh8f4fwrs5" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/火焰图/">火焰图</a></li></ul>
@@ -317,6 +324,15 @@ Netflex的性能测试结果是性能下降0-3%</p>
   
     
 <nav id="article-nav">
+  
+    <a href="/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kafka的定位：不只是消息系统，而是流式平台
+        
+      </div>
+    </a>
   
   
     <a href="/2017/09/18/Kafka高可靠场景下的性能表现/" id="article-nav-older" class="article-nav-link-wrap">
@@ -337,7 +353,7 @@ Netflex的性能测试结果是性能下降0-3%</p>
   <div class="widget-wrap">
     <h3 class="widget-title">分类</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/性能优化/">性能优化</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Troubleshooting/">Troubleshooting</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/分布式/">分布式</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/大数据/">大数据</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/存储/">存储</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/工具/">工具</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/性能优化/">性能优化</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/架构/">架构</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -347,7 +363,7 @@ Netflex的性能测试结果是性能下降0-3%</p>
   <div class="widget-wrap">
     <h3 class="widget-title">标签</h3>
     <div class="widget">
-      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">4</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/火焰图/">火焰图</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/BTrace/">BTrace</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Elasticsearch/">Elasticsearch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/JAVA/">JAVA</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Kafka/">Kafka</a><span class="tag-list-count">6</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Markdown/">Markdown</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/MySQL/">MySQL</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/sysbench/">sysbench</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/架构/">架构</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/火焰图/">火焰图</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/监控/">监控</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/限流/">限流</a><span class="tag-list-count">2</span></li></ul>
     </div>
   </div>
 
@@ -366,7 +382,7 @@ Netflex的性能测试结果是性能下降0-3%</p>
   <div class="widget-wrap">
     <h3 class="widget-title">归档</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/11/">十一月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/10/">十月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">九月 2017</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/07/">七月 2017</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">十一月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/08/">八月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/05/">五月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/03/">三月 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/05/">五月 2014</a><span class="archive-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -379,6 +395,10 @@ Netflex的性能测试结果是性能下降0-3%</p>
       <ul>
         
           <li>
+            <a href="/2017/11/13/Kafka的定位：不只是消息系统，而是流式平台/">Kafka的定位：不只是消息系统，而是流式平台</a>
+          </li>
+        
+          <li>
             <a href="/2017/10/02/Java火焰图/">Java混合模式火焰图</a>
           </li>
         
@@ -387,15 +407,11 @@ Netflex的性能测试结果是性能下降0-3%</p>
           </li>
         
           <li>
+            <a href="/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/">主流开源MQ对比：Kafka vs RabbitMQ</a>
+          </li>
+        
+          <li>
             <a href="/2017/07/12/MySQL-CPU-sys飙高/">system cpu time飙高导致MySQL不可用</a>
-          </li>
-        
-          <li>
-            <a href="/2016/08/08/深入理解Kafka调优的核心参数/">深入理解Kafka的核心调优参数</a>
-          </li>
-        
-          <li>
-            <a href="/2016/03/17/限流技术的应用场景/">限流技术的应用场景</a>
           </li>
         
       </ul>

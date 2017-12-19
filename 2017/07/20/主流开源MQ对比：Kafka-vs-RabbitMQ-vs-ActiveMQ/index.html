@@ -3,18 +3,20 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Tag: 火焰图 | Applied Research. Big Data. Distributed Systems. Open Source.</title>
+  <title>主流开源MQ对比：Kafka vs RabbitMQ | Applied Research. Big Data. Distributed Systems. Open Source.</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Keep it Simple and Stupid">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:url" content="https://nereuschen.github.io/tags/火焰图/index.html">
+  <meta name="description" content="Kafka团队起初也调研过主流的消息中间件，比如ActiveMQ，但是他们在生产环节对这些消息中间件进行测试时，发现了两个重大问题： （1）消息优先存放在内存中，当存放消息的内存用完时，会将后续消息写入磁盘，而这些大量的随机I/O严重影响写入性能； （2）针对多个消费者消费同一个消息的场景，采用复制消息这种非常重的操作来解决 这些消息系统的设计目标是低延时，而不是LinkedIn所需要解决的大规模">
+<meta name="keywords" content="Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="主流开源MQ对比：Kafka vs RabbitMQ">
+<meta property="og:url" content="https://nereuschen.github.io/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/index.html">
 <meta property="og:site_name" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta property="og:description" content="Keep it Simple and Stupid">
+<meta property="og:description" content="Kafka团队起初也调研过主流的消息中间件，比如ActiveMQ，但是他们在生产环节对这些消息中间件进行测试时，发现了两个重大问题： （1）消息优先存放在内存中，当存放消息的内存用完时，会将后续消息写入磁盘，而这些大量的随机I/O严重影响写入性能； （2）针对多个消费者消费同一个消息的场景，采用复制消息这种非常重的操作来解决 这些消息系统的设计目标是低延时，而不是LinkedIn所需要解决的大规模">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2017-11-28T10:32:52.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Applied Research. Big Data. Distributed Systems. Open Source.">
-<meta name="twitter:description" content="Keep it Simple and Stupid">
+<meta name="twitter:title" content="主流开源MQ对比：Kafka vs RabbitMQ">
+<meta name="twitter:description" content="Kafka团队起初也调研过主流的消息中间件，比如ActiveMQ，但是他们在生产环节对这些消息中间件进行测试时，发现了两个重大问题： （1）消息优先存放在内存中，当存放消息的内存用完时，会将后续消息写入磁盘，而这些大量的随机I/O严重影响写入性能； （2）针对多个消费者消费同一个消息的场景，采用复制消息这种非常重的操作来解决 这些消息系统的设计目标是低延时，而不是LinkedIn所需要解决的大规模">
   
     <link rel="alternate" href="/atom.xml" title="Applied Research. Big Data. Distributed Systems. Open Source." type="application/atom+xml">
   
@@ -82,40 +84,252 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-  
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/2017/10/02/Java火焰图/" class="archive-article-date">
-  <time datetime="2017-10-02T07:30:15.000Z" itemprop="datePublished">10月 2</time>
+        <section id="main"><article id="post-主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/" class="article-date">
+  <time datetime="2017-07-20T14:52:41.000Z" itemprop="datePublished">2017-07-20</time>
 </a>
-      
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/分布式/">分布式</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/10/02/Java火焰图/">Java混合模式火焰图</a>
+    <h1 class="article-title" itemprop="name">
+      主流开源MQ对比：Kafka vs RabbitMQ
     </h1>
   
 
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kafka团队起初也调研过主流的消息中间件，比如ActiveMQ，但是他们在生产环节对这些消息中间件进行测试时，发现了两个重大问题：<br>
+（1）消息优先存放在内存中，当存放消息的内存用完时，会将后续消息写入磁盘，而这些大量的随机I/O严重影响写入性能；<br>
+（2）针对多个消费者消费同一个消息的场景，采用复制消息这种非常重的操作来解决<br>
+这些消息系统的设计目标是低延时，而不是LinkedIn所需要解决的大规模水平扩展的部署能力（messaging systems target low-latency settings rather than the high- volume scale-out deployment ）</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left"></th>
+<th style="text-align:left">Apache Kafka</th>
+<th style="text-align:left">RabbitMQ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Create date</td>
+<td style="text-align:left">2011</td>
+<td style="text-align:left">2007</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">LinkedIn</td>
+<td style="text-align:left">2007</td>
+</tr>
+<tr>
+<td style="text-align:left">Lincense</td>
+<td style="text-align:left">Apache (Open source)</td>
+<td style="text-align:left">Mozilla Public License (Open source)</td>
+</tr>
+<tr>
+<td style="text-align:left">Enterprise support available</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Programming language</td>
+<td style="text-align:left">Scala</td>
+<td style="text-align:left">Erlang</td>
+</tr>
+<tr>
+<td style="text-align:left">AMQP compliant</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Officially supported clients</td>
+<td style="text-align:left">Java</td>
+<td style="text-align:left">Java, .NET/C#, Erlang</td>
+</tr>
+<tr>
+<td style="text-align:left">Other available clients</td>
+<td style="text-align:left">~ 10 languages</td>
+<td style="text-align:left">~ 13 languages</td>
+</tr>
+<tr>
+<td style="text-align:left">Documentation, examplesand community</td>
+<td style="text-align:left">∿  Immature and incomplete</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Main storage space</td>
+<td style="text-align:left">Disk</td>
+<td style="text-align:left">RAM</td>
+</tr>
+<tr>
+<td style="text-align:left">Ordered storage and delivery</td>
+<td style="text-align:left">👍   At partition level</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Queue content persistence</td>
+<td style="text-align:left">👍 Complete and mandatory</td>
+<td style="text-align:left">∿ Temporary and optional</td>
+</tr>
+<tr>
+<td style="text-align:left">Message deletion</td>
+<td style="text-align:left">After reaching size or time limit</td>
+<td style="text-align:left">Immediately after confirmed consumption</td>
+</tr>
+<tr>
+<td style="text-align:left">Queue data compression</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Predefined queues on broker</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Multiple different consumers of same data set</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">∿ Needs queue duplication</td>
+</tr>
+<tr>
+<td style="text-align:left">Load balancing across a set of same consumers</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Remote2 queue definition</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">message routing</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Permission and access control list support</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">SSL support</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Clustering support</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Self-sufficient</td>
+<td style="text-align:left">👎 Needs ZooKeeper</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Management and monitoring interface</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Batch delivery</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Asynchronous publishing</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Publisher confirms(acknowledgements)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Push delivery from broker</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Pull delivery (fetch)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Prefetch count</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Message replay capability</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👎</td>
+</tr>
+<tr>
+<td style="text-align:left">Consumer confirms(acknowledgements)</td>
+<td style="text-align:left">👍</td>
+<td style="text-align:left">👍</td>
+</tr>
+<tr>
+<td style="text-align:left">Message reject/re-queuing</td>
+<td style="text-align:left">👎</td>
+<td style="text-align:left">👍</td>
+</tr>
+</tbody>
+</table>
+<h3 id="使用场景">使用场景</h3>
+<h3 id="性能对比">性能对比</h3>
+<h4 id="kafka">Kafka</h4>
+<p>version:0.11.0.0</p>
+<p><a href="https://softwaremill.com/mqperf/#kafka" target="_blank" rel="external">https://softwaremill.com/mqperf/#kafka</a></p>
+<p>[]:<a href="http://kth.diva-portal.org/smash/get/diva2:813137/FULLTEXT01.pdf" target="_blank" rel="external">http://kth.diva-portal.org/smash/get/diva2:813137/FULLTEXT01.pdf</a></p>
 
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://nereuschen.github.io/2017/07/20/主流开源MQ对比：Kafka-vs-RabbitMQ-vs-ActiveMQ/" data-id="cjbdhdu7b001lvqsh5217xe58" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Kafka/">Kafka</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/09/18/Kafka高可靠场景下的性能表现/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Kafka高可靠场景下的性能表现
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/12/MySQL-CPU-sys飙高/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">system cpu time飙高导致MySQL不可用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
 
 </section>
         
